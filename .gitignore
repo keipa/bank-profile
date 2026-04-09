@@ -1,0 +1,121 @@
+# .NET Build outputs
+bin/
+obj/
+out/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+.vscode/
+
+# Rider
+.idea/
+*.sln.iml
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Publish profiles
+*.Publish.xml
+*.pubxml
+*.publishproj
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Cypress
+cypress/videos/
+cypress/screenshots/
+cypress/downloads/
+cypress/results/
+cypress.env.json
+.cypress-cache/
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Environment & Secrets
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+*.env
+.env
+
+# Node modules (if using frontend build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Frontend build artifacts
+wwwroot/dist/
+wwwroot/lib/
+wwwroot/js/build/
+wwwroot/css/build/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Migration backups
+*.bak
+*.backup
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Test coverage
+*.coverage
+*.coveragexml
+TestResults/
+
+# Azure
+*.azurePubxml
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# User secrets
+secrets.json

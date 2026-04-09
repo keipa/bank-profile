@@ -1,0 +1,66 @@
+@page "/about"
+@inject ILocalizationService Localization
+
+<PageTitle>@Localization.GetString("page.about.pageTitle")</PageTitle>
+
+<h1><i class="fas fa-info-circle" aria-hidden="true"></i> @Localization.GetString("page.about.title")</h1>
+
+<div class="about-content mt-4">
+    <section class="card mb-4" aria-labelledby="mission-heading">
+        <div class="card-body">
+            <h2 id="mission-heading" class="h4">@Localization.GetString("page.about.missionTitle")</h2>
+            <p class="lead">@Localization.GetString("page.about.missionText")</p>
+        </div>
+    </section>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <article class="card h-100">
+                <div class="card-body">
+                    <h3 class="h5"><i class="fas fa-database text-primary" aria-hidden="true"></i> @Localization.GetString("page.about.dataSourcesTitle")</h3>
+                    <p>@Localization.GetString("page.about.dataSourcesText")</p>
+                </div>
+            </article>
+        </div>
+        <div class="col-md-6 mb-4">
+            <article class="card h-100">
+                <div class="card-body">
+                    <h3 class="h5"><i class="fas fa-star text-warning" aria-hidden="true"></i> @Localization.GetString("page.about.ratingSystemTitle")</h3>
+                    <p>@Localization.GetString("page.about.ratingSystemText")</p>
+                    <ul>
+                        <li>@Localization.GetString("page.about.criteria1")</li>
+                        <li>@Localization.GetString("page.about.criteria2")</li>
+                        <li>@Localization.GetString("page.about.criteria3")</li>
+                        <li>@Localization.GetString("page.about.criteria4")</li>
+                        <li>@Localization.GetString("page.about.criteria5")</li>
+                    </ul>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <section class="card mb-4" aria-labelledby="features-heading">
+        <div class="card-body">
+            <h2 id="features-heading" class="h5">@Localization.GetString("page.about.featuresTitle")</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <h3 class="h6"><i class="fas fa-chart-line text-success" aria-hidden="true"></i> @Localization.GetString("page.about.feature1Title")</h3>
+                    <p>@Localization.GetString("page.about.feature1Text")</p>
+                </div>
+                <div class="col-md-4">
+                    <h3 class="h6"><i class="fas fa-search text-info" aria-hidden="true"></i> @Localization.GetString("page.about.feature2Title")</h3>
+                    <p>@Localization.GetString("page.about.feature2Text")</p>
+                </div>
+                <div class="col-md-4">
+                    <h3 class="h6"><i class="fas fa-mobile-alt text-primary" aria-hidden="true"></i> @Localization.GetString("page.about.feature3Title")</h3>
+                    <p>@Localization.GetString("page.about.feature3Text")</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <aside class="alert alert-warning" role="alert">
+        <h2 class="h6"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> @Localization.GetString("page.about.disclaimerTitle")</h2>
+        <p class="mb-0">@Localization.GetString("page.about.disclaimerText")</p>
+    </aside>
+</div>

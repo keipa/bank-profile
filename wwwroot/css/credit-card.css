@@ -1,0 +1,179 @@
+/* Credit Card Component Styles */
+
+/* Performance: will-change on animated properties for GPU acceleration */
+.credit-card-wrapper {
+    display: inline-block;
+    max-width: 340px;
+    width: 100%;
+    margin: 1rem;
+    animation: cardEntrance 1.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    transform-origin: center;
+    transition: transform 0.3s ease;
+    will-change: transform;
+    opacity: 0;
+}
+
+/* Performance: Separate filter transition for better compositing */
+.credit-card {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+    transition: filter 0.3s ease;
+}
+
+/* Entrance Animation */
+/* Performance: Uses transform + opacity for GPU-accelerated compositing */
+@keyframes cardEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0);
+    }
+    50% {
+        opacity: 0.8;
+    }
+    70% {
+        transform: scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Hover Effect */
+/* Performance: Transform-only hover for smooth 60fps interaction */
+.credit-card-wrapper:hover {
+    transform: scale(1.05);
+    will-change: auto; /* Remove hint when actively animating */
+}
+
+.credit-card-wrapper:hover .credit-card {
+    filter: drop-shadow(0 15px 40px rgba(0, 0, 0, 0.4));
+}
+
+/* Card Text Animations */
+/* Performance: Staggered entrance uses transform for no layout shifts */
+.credit-card .card-number {
+    animation: fadeInUp 0.6s ease 0.3s both;
+}
+
+.credit-card .card-holder {
+    animation: fadeInUp 0.6s ease 0.4s both;
+}
+
+.credit-card .chip {
+    animation: fadeIn 0.8s ease 0.2s both;
+}
+
+/* Performance: translateY avoids layout reflow, composites on GPU */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+/* Performance: Pre-scaled transforms reduce animation complexity on mobile */
+
+/* Desktop (1024px and above) - Default 340px width already set */
+
+/* Tablet (768px-1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .credit-card-wrapper {
+        max-width: 280px;
+    }
+}
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) and (min-width: 481px) {
+    .credit-card-wrapper {
+        max-width: 280px;
+        transform: scale(0.82);
+    }
+    
+    .credit-card-wrapper:hover {
+        transform: scale(0.84);
+    }
+}
+
+/* Mobile (480px-768px) */
+@media (max-width: 480px) and (min-width: 321px) {
+    .credit-card-wrapper {
+        max-width: 260px;
+        transform: scale(0.76);
+        margin: 0.5rem;
+    }
+    
+    .credit-card-wrapper:hover {
+        transform: scale(0.78);
+    }
+}
+
+/* Small Mobile (320px-480px) */
+@media (max-width: 320px) {
+    .credit-card-wrapper {
+        max-width: 240px;
+        transform: scale(0.70);
+        margin: 0.5rem;
+    }
+    
+    .credit-card-wrapper:hover {
+        transform: scale(0.72);
+    }
+}
+
+/* Accessibility - Reduced Motion */
+/* Performance: Global reduced motion for accessibility compliance */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .credit-card-wrapper,
+    .credit-card,
+    .credit-card .card-number,
+    .credit-card .card-holder,
+    .credit-card .chip {
+        animation: none;
+        transition: none;
+        will-change: auto;
+        opacity: 1;
+    }
+    
+    .credit-card-wrapper:hover {
+        transform: none;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .credit-card-wrapper {
+        max-width: 340px;
+        transform: scale(1);
+        filter: none;
+        box-shadow: none;
+    }
+    
+    .credit-card {
+        filter: none;
+    }
+}

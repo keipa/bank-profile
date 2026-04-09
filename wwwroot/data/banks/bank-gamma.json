@@ -1,0 +1,97 @@
+{
+  "bankCode": "bank-gamma",
+  "countryCode": "de",
+  "defaultLanguage": "de-DE",
+  "bankName": "Gamma Digital Bank",
+  "description": "Modern digital-first bank with cutting-edge technology, zero fees, and 24/7 customer support. Built for the digital age since 2015.",
+  "websiteUrl": "https://www.gammadigital.com",
+  "logoUrl": "/images/banks/gamma-logo.png",
+  "theme": {
+    "primaryColor": "#6a1b9a",
+    "secondaryColor": "#9c27b0",
+    "fontFamily": "Inter, sans-serif",
+    "accentColor": "#00e676"
+  },
+  "technicalInfo": {
+    "commissions": {
+      "incomingTransfer": {
+        "domestic": 0.0,
+        "international": 0.0,
+        "currency": "USD"
+      },
+      "outgoingTransfer": {
+        "domestic": 0.0,
+        "international": 5.0,
+        "currency": "USD"
+      }
+    },
+    "cardServices": {
+      "debitCardOpeningFee": 0.0,
+      "creditCardOpeningFee": 0.0,
+      "annualMaintenanceFee": 0.0,
+      "currency": "USD"
+    },
+    "availableCurrencies": ["USD", "EUR", "GBP", "CHF", "JPY", "AUD", "CAD", "CNY", "BTC", "ETH"],
+    "premiumBanking": {
+      "available": true,
+      "minimumBalance": 10000,
+      "monthlyFee": 0,
+      "benefits": [
+        "AI-powered financial advisor",
+        "Crypto trading integration",
+        "Premium investment tools",
+        "Global ATM fee reimbursement",
+        "Travel insurance",
+        "Purchase protection"
+      ]
+    },
+    "digitalServices": {
+      "mobileBanking": true,
+      "onlineTrading": true,
+      "cryptocurrency": true,
+      "roboAdvisor": true
+    },
+    "accountTypes": [
+      {
+        "name": "Smart Checking",
+        "minimumBalance": 0,
+        "monthlyFee": 0,
+        "features": ["Virtual debit card", "Mobile banking", "Instant notifications", "Budgeting tools", "Round-up savings"]
+      },
+      {
+        "name": "High-Yield Savings",
+        "minimumBalance": 0,
+        "monthlyFee": 0,
+        "features": ["4.5% APY", "No minimum balance", "Unlimited transfers", "Auto-save features"]
+      },
+      {
+        "name": "Crypto Account",
+        "minimumBalance": 100,
+        "monthlyFee": 0,
+        "features": ["Bitcoin trading", "Ethereum trading", "Cold storage", "Real-time pricing", "Tax reporting"]
+      }
+    ],
+    "atmNetwork": {
+      "ownAtms": 0,
+      "partnerAtms": 50000,
+      "internationalAccess": true
+    }
+  },
+  "contactInfo": {
+    "phone": "+1-877-GAMMA-DIG",
+    "email": "hello@gammadigital.com",
+    "address": "789 Innovation Way, San Francisco, CA 94105, USA"
+  },
+  "animationConfig": {
+    "gradientStops": [
+      { "offset": "0%", "color": "#6a1b9a" },
+      { "offset": "100%", "color": "#9c27b0" }
+    ],
+    "balls": [
+      { "centerX": 100, "centerY": 250, "radius": 140, "color": "#00e676" },
+      { "centerX": 450, "centerY": 300, "radius": 160, "color": "#9c27b0" },
+      { "centerX": 300, "centerY": 100, "radius": 100, "color": "#00e676" }
+    ],
+    "animationType": "float"
+  }
+}

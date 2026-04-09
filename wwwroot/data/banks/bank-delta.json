@@ -1,0 +1,83 @@
+{
+  "bankCode": "bank-delta",
+  "countryCode": "fr",
+  "defaultLanguage": "fr-FR",
+  "bankName": "Delta Regional Bank",
+  "description": "Trusted regional bank providing excellent service with a personal touch. Supporting local communities since 1978.",
+  "websiteUrl": "https://www.deltaregional.com",
+  "logoUrl": "/images/banks/delta-logo.png",
+  "theme": {
+    "primaryColor": "#c62828",
+    "secondaryColor": "#e53935",
+    "fontFamily": "Lato, sans-serif",
+    "accentColor": "#ffab00"
+  },
+  "technicalInfo": {
+    "commissions": {
+      "incomingTransfer": {
+        "domestic": 0.0,
+        "international": 18.0,
+        "currency": "USD"
+      },
+      "outgoingTransfer": {
+        "domestic": 3.0,
+        "international": 30.0,
+        "currency": "USD"
+      }
+    },
+    "cardServices": {
+      "debitCardOpeningFee": 15.0,
+      "creditCardOpeningFee": 20.0,
+      "annualMaintenanceFee": 20.0,
+      "currency": "USD"
+    },
+    "availableCurrencies": ["USD", "EUR", "GBP"],
+    "premiumBanking": {
+      "available": false,
+      "minimumBalance": 0,
+      "monthlyFee": 0,
+      "benefits": []
+    },
+    "digitalServices": {
+      "mobileBanking": true,
+      "onlineTrading": false,
+      "cryptocurrency": false,
+      "roboAdvisor": false
+    },
+    "accountTypes": [
+      {
+        "name": "Regular Checking",
+        "minimumBalance": 250,
+        "monthlyFee": 8,
+        "features": ["Debit card", "Online banking", "Check writing", "Overdraft protection"]
+      },
+      {
+        "name": "Standard Savings",
+        "minimumBalance": 100,
+        "monthlyFee": 5,
+        "features": ["Interest-bearing", "Online banking", "Mobile app"]
+      }
+    ],
+    "atmNetwork": {
+      "ownAtms": 85,
+      "partnerAtms": 1500,
+      "internationalAccess": false
+    }
+  },
+  "contactInfo": {
+    "phone": "+1-866-DELTA-BANK",
+    "email": "contact@deltaregional.com",
+    "address": "321 Commerce Blvd, Atlanta, GA 30303, USA"
+  },
+  "animationConfig": {
+    "gradientStops": [
+      { "offset": "0%", "color": "#c62828" },
+      { "offset": "100%", "color": "#e53935" }
+    ],
+    "balls": [
+      { "centerX": 250, "centerY": 180, "radius": 120, "color": "#ffab00" },
+      { "centerX": 520, "centerY": 320, "radius": 150, "color": "#e53935" }
+    ],
+    "animationType": "rotate"
+  }
+}

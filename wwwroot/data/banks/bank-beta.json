@@ -1,0 +1,89 @@
+{
+  "bankCode": "bank-beta",
+  "countryCode": "us",
+  "defaultLanguage": "en-US",
+  "bankName": "Beta Trust Bank",
+  "description": "Customer-focused community bank offering personalized banking services with local expertise and competitive rates since 1992.",
+  "websiteUrl": "https://www.betatrust.com",
+  "logoUrl": "/images/banks/beta-logo.png",
+  "theme": {
+    "primaryColor": "#0d47a1",
+    "secondaryColor": "#1976d2",
+    "fontFamily": "Open Sans, sans-serif",
+    "accentColor": "#ffa726"
+  },
+  "technicalInfo": {
+    "commissions": {
+      "incomingTransfer": {
+        "domestic": 0.0,
+        "international": 12.0,
+        "currency": "USD"
+      },
+      "outgoingTransfer": {
+        "domestic": 2.0,
+        "international": 20.0,
+        "currency": "USD"
+      }
+    },
+    "cardServices": {
+      "debitCardOpeningFee": 5.0,
+      "creditCardOpeningFee": 25.0,
+      "annualMaintenanceFee": 15.0,
+      "currency": "USD"
+    },
+    "availableCurrencies": ["USD", "EUR", "GBP", "MXN"],
+    "premiumBanking": {
+      "available": true,
+      "minimumBalance": 25000,
+      "monthlyFee": 15,
+      "benefits": [
+        "Personal banker",
+        "Free wire transfers",
+        "Premium credit card",
+        "Investment advisory",
+        "Estate planning assistance"
+      ]
+    },
+    "digitalServices": {
+      "mobileBanking": true,
+      "onlineTrading": false,
+      "cryptocurrency": false,
+      "roboAdvisor": false
+    },
+    "accountTypes": [
+      {
+        "name": "Community Checking",
+        "minimumBalance": 50,
+        "monthlyFee": 3,
+        "features": ["Debit card", "Online banking", "Mobile deposit", "Bill pay"]
+      },
+      {
+        "name": "Business Checking",
+        "minimumBalance": 1000,
+        "monthlyFee": 10,
+        "features": ["Business debit card", "Online banking", "Unlimited transactions", "Cash management tools"]
+      }
+    ],
+    "atmNetwork": {
+      "ownAtms": 150,
+      "partnerAtms": 3000,
+      "internationalAccess": false
+    }
+  },
+  "contactInfo": {
+    "phone": "+1-888-BETA-TRUST",
+    "email": "support@betatrust.com",
+    "address": "456 Main Street, Chicago, IL 60601, USA"
+  },
+  "animationConfig": {
+    "gradientStops": [
+      { "offset": "0%", "color": "#0d47a1" },
+      { "offset": "100%", "color": "#1976d2" }
+    ],
+    "balls": [
+      { "centerX": 200, "centerY": 200, "radius": 150, "color": "#ffa726" },
+      { "centerX": 500, "centerY": 350, "radius": 130, "color": "#1976d2" }
+    ],
+    "animationType": "pulse"
+  }
+}

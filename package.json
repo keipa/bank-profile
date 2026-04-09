@@ -1,0 +1,42 @@
+{
+  "name": "bank",
+  "version": "1.0.0",
+  "description": "A comprehensive bank comparison platform built with .NET 10 Blazor Server, featuring intelligent caching, multi-criteria ratings, detailed technical specifications, and multi-country support with internationalization.",
+  "main": "index.js",
+  "scripts": {
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "cypress:run:chrome": "cypress run --browser chrome",
+    "cypress:run:firefox": "cypress run --browser firefox",
+    "cypress:run:edge": "cypress run --browser edge",
+    "cypress:record": "cypress run --record",
+    "test:e2e": "cypress run",
+    "test:e2e:headed": "cypress run --headed",
+    "test:e2e:mobile": "cypress run --config viewportWidth=375,viewportHeight=667",
+    "test:e2e:tablet": "cypress run --config viewportWidth=768,viewportHeight=1024",
+    "test:e2e:desktop": "cypress run --config viewportWidth=1920,viewportHeight=1080",
+    "test": "npm run test:e2e"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/keipa/bank-profile.git"
+  },
+  "keywords": [
+    "banking",
+    "comparison",
+    "blazor",
+    "dotnet",
+    "e2e",
+    "cypress"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/keipa/bank-profile/issues"
+  },
+  "homepage": "https://github.com/keipa/bank-profile#readme",
+  "devDependencies": {
+    "cypress": "^13.6.4"
+  }
+}

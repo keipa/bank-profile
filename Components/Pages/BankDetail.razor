@@ -1,0 +1,200 @@
+@page "/{CountryCode}/{BankCode}"
+@inject ILocalizationService Localization
+@rendermode InteractiveServer
+@inject ICountryService CountryService
+
+<PageTitle>@_bank?.BankName ?? @Localization.GetString("page.bankDetail.pageTitle")</PageTitle>
+
+@if (_loading)
+{
+    <div role="status" aria-label="Loading bank details">
+        <span class="visually-hidden">Loading bank information...</span>
+        <BankDetailSkeleton />
+    </div>
+}
+else if (_bank == null)
+{
+    <div class="alert alert-warning" role="alert">@Localization.GetString("page.bankDetail.notFound")</div>
+}
+else
+{
+    @* Animated Background *@
+    @if (_bank?.AnimationConfig != null)
+    {
+        <AnimatedBackground Config="_bank.AnimationConfig" />
+    }
+
+    <div class="bank-detail-container fade-in">
+        @* Breadcrumb Navigation *@
+        <nav aria-label="breadcrumb" class="mb-3" style="position: relative; z-index: 10;">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">@Localization.GetString("nav.home")</a></li>
+                <li class="breadcrumb-item"><a href="/banks">@Localization.GetString("nav.banks")</a></li>
+                @if (_countryInfo != null)
+                {
+                    <li class="breadcrumb-item"><span aria-hidden="true">@_countryInfo.Flag</span> @_countryInfo.Name</li>
+                }
+                <li class="breadcrumb-item active" aria-current="page">@_bank.BankName</li>
+            </ol>
+        </nav>
+
+        @* Center Section with Credit Card *@
+        <section class="center-section" aria-label="Bank card preview">
+            <CreditCard Bank="_bank" />
+        </section>
+
+        @* Glass Grid with Information Panels *@
+        <div class="glass-grid" role="region" aria-label="Bank information panels">
+            <GlassWindow Title="@Localization.GetString("page.bankDetail.ratings")" Elevation="medium">
+                <RatingCriteriaDisplay Ratings="_ratings" OverallRating="_overallRating" />
+            </GlassWindow>
+
+            <GlassWindow Title="@Localization.GetString("page.bankDetail.technicalInfo")" Elevation="medium">
+                <TechnicalInfoDisplay Info="_bank.TechnicalInfo" />
+            </GlassWindow>
+
+            <GlassWindow Title="@Localization.GetString("page.bankDetail.ratingTrends")" Elevation="medium">
+                <ErrorBoundary>
+                    <ChildContent>
+                        <RatingChart BankCode="@BankCode" />
+                    </ChildContent>
+                    <ErrorContent>
+                        <div class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                            Failed to load rating chart. Please try again.
+                        </div>
+                    </ErrorContent>
+                </ErrorBoundary>
+            </GlassWindow>
+
+            <GlassWindow Title="@Localization.GetString("page.bankDetail.viewHistory")" Elevation="medium">
+                <ErrorBoundary>
+                    <ChildContent>
+                        <ViewsChart BankCode="@BankCode" />
+                    </ChildContent>
+                    <ErrorContent>
+                        <div class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                            Failed to load view history chart. Please try again.
+                        </div>
+                    </ErrorContent>
+                </ErrorBoundary>
+            </GlassWindow>
+
+            @* Additional Information Sections *@
+            @if (!string.IsNullOrEmpty(_bank.WebsiteUrl) || _viewCount > 0)
+            {
+                <GlassWindow Title="@Localization.GetString("page.bankDetail.quickInfo")" Elevation="medium">
+                    <div class="quick-info">
+                        @if (!string.IsNullOrEmpty(_bank.WebsiteUrl))
+                        {
+                            <a href="@_bank.WebsiteUrl" target="_blank" rel="noopener noreferrer" class="btn btn-primary mb-2 w-100" aria-label="Visit @_bank.BankName website (opens in new tab)">
+                                <i class="fas fa-globe" aria-hidden="true"></i> @Localization.GetString("page.bankDetail.visitWebsite")
+                            </a>
+                        }
+                        <div class="view-count-badge" aria-label="Total views: @_viewCount">
+                            <i class="fas fa-eye" aria-hidden="true"></i> @_viewCount @Localization.GetString("page.bankDetail.views")
+                        </div>
+                    </div>
+                </GlassWindow>
+            }
+
+            @if (_bank.ContactInfo != null && (!string.IsNullOrEmpty(_bank.ContactInfo.Phone) || 
+                                                !string.IsNullOrEmpty(_bank.ContactInfo.Email) || 
+                                                !string.IsNullOrEmpty(_bank.ContactInfo.Address)))
+            {
+                <GlassWindow Title="@Localization.GetString("page.bankDetail.contactInfo")" Elevation="medium">
+                    <address class="contact-info">
+                        @if (!string.IsNullOrEmpty(_bank.ContactInfo.Phone))
+                        {
+                            <p><i class="fas fa-phone" aria-hidden="true"></i> <a href="tel:@_bank.ContactInfo.Phone">@_bank.ContactInfo.Phone</a></p>
+                        }
+                        @if (!string.IsNullOrEmpty(_bank.ContactInfo.Email))
+                        {
+                            <p><i class="fas fa-envelope" aria-hidden="true"></i> <a href="mailto:@_bank.ContactInfo.Email">@_bank.ContactInfo.Email</a></p>
+                        }
+                        @if (!string.IsNullOrEmpty(_bank.ContactInfo.Address))
+                        {
+                            <p><i class="fas fa-map-marker-alt" aria-hidden="true"></i> @_bank.ContactInfo.Address</p>
+                        }
+                    </address>
+                </GlassWindow>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string CountryCode { get; set; } = default!;
+    [Parameter] public string BankCode { get; set; } = "";
+    private BankProfile? _bank;
+    private CountryInfo? _countryInfo;
+    private List<RatingData> _ratings = new();
+    private decimal _overallRating;
+    private long _viewCount;
+    private bool _loading = true;
+
+    [Inject] private IBankDataService BankService { get; set; } = default!;
+    [Inject] private IRatingService RatingService { get; set; } = default!;
+    [Inject] private IViewCountService ViewCountService { get; set; } = default!;
+    [Inject] private ILocalizationService LocalizationService { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _bank = await BankService.GetBankByCodeAsync(BankCode);
+        if (_bank != null)
+        {
+            _countryInfo = CountryService.GetCountryInfo(_bank.CountryCode ?? CountryCode);
+            _ratings = await RatingService.GetBankRatingsAsync(BankCode);
+            _overallRating = await RatingService.GetOverallRatingAsync(BankCode);
+            _viewCount = await ViewCountService.GetViewCountAsync(BankCode);
+            
+            // Set default language based on country if no preference exists
+            // This must be done in OnInitializedAsync before response starts
+            await SetDefaultLanguageIfNeededAsync();
+        }
+        _loading = false;
+    }
+    
+    private async Task SetDefaultLanguageIfNeededAsync()
+    {
+        try
+        {
+            var currentLang = LocalizationService.GetCurrentLanguage();
+            
+            // Only set default if no preference exists (default en-US indicates no cookie set)
+            if (string.IsNullOrEmpty(currentLang) || currentLang == "en-US")
+            {
+                if (_bank?.CountryCode != null)
+                {
+                    var defaultLang = LocalizationService.GetDefaultLanguageForCountry(_bank.CountryCode);
+                    
+                    // Only set if the default is different from current
+                    if (defaultLang != currentLang)
+                    {
+                        await LocalizationService.SetLanguageAsync(defaultLang);
+                    }
+                }
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // Ignore cookie setting errors if response has already started
+            // This can happen during pre-rendering
+        }
+    }
+
+    // OnAfterRenderAsync is called after the component has rendered.
+    // Using firstRender ensures this runs only once, avoiding double-counting
+    // that occurs with InteractiveServer mode (prerender + SignalR connection).
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _bank != null)
+        {
+            await ViewCountService.IncrementViewCountAsync(BankCode);
+            _viewCount = await ViewCountService.GetViewCountAsync(BankCode);
+            
+            StateHasChanged(); // Refresh UI to show updated count
+        }
+    }
+}

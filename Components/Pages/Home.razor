@@ -1,0 +1,148 @@
+@page "/"
+@inject ILocalizationService Localization
+@rendermode InteractiveServer
+
+<PageTitle>@Localization.GetString("page.home.pageTitle")</PageTitle>
+
+<div class="home-page">
+    <section class="jumbotron bg-primary text-white p-5 rounded mb-4" aria-labelledby="hero-title">
+        <h1 id="hero-title" class="display-4"><i class="fas fa-university" aria-hidden="true"></i> @Localization.GetString("page.home.title")</h1>
+        <p class="lead">@Localization.GetString("page.home.subtitle")</p>
+        <hr class="my-4 bg-white">
+        <p>@Localization.GetString("page.home.description")</p>
+        <a class="btn btn-light btn-lg" href="/banks" role="button" aria-label="Browse all banks">
+            <i class="fas fa-search" aria-hidden="true"></i> @Localization.GetString("page.home.browseBanks")
+        </a>
+    </section>
+
+    <section class="country-selector mb-5" aria-labelledby="country-selector-heading">
+        <h2 id="country-selector-heading" class="mb-4"><i class="fas fa-globe" aria-hidden="true"></i> Browse by Country</h2>
+        @if (_loading)
+        {
+            <div class="text-center p-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading countries...</span>
+                </div>
+            </div>
+        }
+        else
+        {
+            <nav aria-label="Browse banks by country">
+                <div class="row row-cols-2 row-cols-md-5 g-3 fade-in-fast">
+                    @foreach (var country in _countriesWithBanks)
+                    {
+                        <div class="col">
+                            <a href="/banks?country=@country.Code" class="country-card text-decoration-none d-block" aria-label="View @country.BankCount @(country.BankCount == 1 ? "bank" : "banks") in @country.Name">
+                                <div class="card h-100 text-center hover-shadow">
+                                    <div class="card-body py-3">
+                                        <div class="fs-1 mb-2" aria-hidden="true">@country.Flag</div>
+                                        <h3 class="card-title mb-1 h6">@country.Name</h3>
+                                        <span class="badge bg-primary">@country.BankCount @(country.BankCount == 1 ? "bank" : "banks")</span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            </nav>
+        }
+    </section>
+
+    <section aria-labelledby="featured-banks-heading">
+        <h2 id="featured-banks-heading" class="mb-4">@Localization.GetString("page.home.featuredBanks")</h2>
+        
+        @if (_loading)
+        {
+            <div class="skeleton-grid" aria-label="Loading featured banks" role="status">
+                @for (int i = 0; i < 6; i++)
+                {
+                    <BankCardSkeleton />
+                }
+            </div>
+        }
+        else if (_error != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> @Localization.GetString("page.home.errorLoading") @_error
+            </div>
+        }
+        else if (!_banks.Any())
+        {
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle" aria-hidden="true"></i> @Localization.GetString("page.home.noBanks")
+            </div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-3 g-4 fade-in">
+                @foreach (var bank in _banks.Take(6))
+                {
+                    <div class="col">
+                        <BankCard Bank="bank" OverallRating="0" ViewCount="0" />
+                    </div>
+                }
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="/banks" class="btn btn-outline-primary" aria-label="View all banks">
+                    @Localization.GetString("page.home.viewAllBanks") <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </a>
+            </div>
+        }
+    </section>
+</div>
+
+@code {
+    private List<BankProfile> _banks = new();
+    private List<CountryWithBankCount> _countriesWithBanks = new();
+    private bool _loading = true;
+    private string? _error;
+
+    [Inject] private IBankDataService BankService { get; set; } = default!;
+    [Inject] private ICountryService CountryService { get; set; } = default!;
+    [Inject] private ILogger<Home> Logger { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _banks = await BankService.GetAllBanksAsync();
+            
+            // Calculate bank counts per country
+            var banksByCountry = _banks
+                .Where(b => !string.IsNullOrWhiteSpace(b.CountryCode))
+                .GroupBy(b => b.CountryCode!.ToLowerInvariant())
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            _countriesWithBanks = CountryService.GetAllCountries()
+                .Where(c => banksByCountry.ContainsKey(c.Code))
+                .Select(c => new CountryWithBankCount
+                {
+                    Code = c.Code,
+                    Name = c.Name,
+                    Flag = c.Flag,
+                    BankCount = banksByCountry[c.Code]
+                })
+                .OrderByDescending(c => c.BankCount)
+                .ThenBy(c => c.Name)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error loading banks");
+            _error = "Unable to load bank information. Please try again later.";
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private class CountryWithBankCount
+    {
+        public string Code { get; set; } = "";
+        public string Name { get; set; } = "";
+        public string Flag { get; set; } = "";
+        public int BankCount { get; set; }
+    }
+}

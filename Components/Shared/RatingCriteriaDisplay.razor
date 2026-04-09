@@ -1,0 +1,35 @@
+@using BankProfiles.Web.Models
+
+<div class="rating-criteria-display">
+    <h4>Bank Ratings</h4>
+    @if (Ratings != null && Ratings.Any())
+    {
+        <div class="overall-rating mb-4 text-center">
+            <span class="badge bg-primary fs-2">@OverallRating.ToString("F1") / 10</span>
+            <p class="text-muted">Overall Rating</p>
+        </div>
+        <div class="criteria-list">
+            @foreach (var rating in Ratings)
+            {
+                <div class="criteria-item mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>@rating.CriteriaName</span>
+                        <span class="badge bg-info">@rating.CurrentRating.ToString("F1")</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: @((rating.CurrentRating / 10 * 100))%"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No ratings available</p>
+    }
+</div>
+
+@code {
+    [Parameter] public List<RatingData>? Ratings { get; set; }
+    [Parameter] public decimal OverallRating { get; set; }
+}

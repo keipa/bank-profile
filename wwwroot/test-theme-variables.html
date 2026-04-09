@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Variables Test</title>
+    <link rel="stylesheet" href="css/theme-variables.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 2rem;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .theme-switcher {
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .color-sample {
+            padding: 1rem;
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .bg-sample {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .text-sample {
+            color: var(--text-secondary);
+        }
+
+        .shadow-sample {
+            background: var(--card-bg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .glass-sample {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+        }
+
+        code {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .status-item {
+            padding: 1rem;
+            border-radius: var(--border-radius-md);
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .status-success { background: var(--success); color: white; }
+        .status-danger { background: var(--danger); color: white; }
+        .status-warning { background: var(--warning); color: #000; }
+        .status-info { background: var(--info); color: white; }
+
+        .contrast-check {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: normal;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="theme-switcher">
+            <button class="btn" onclick="toggleTheme()">Toggle Theme</button>
+            <span id="current-theme" style="margin-left: 1rem; color: var(--text-secondary);">Current: light</span>
+        </div>
+
+        <h1>Theme Variables Test</h1>
+
+        <div class="card">
+            <h2 style="color: var(--text-primary);">Background Colors</h2>
+            <div class="color-grid">
+                <div class="color-sample bg-sample">
+                    <code>--bg-primary</code>
+                    <p>Primary background</p>
+                </div>
+                <div class="color-sample" style="background: var(--bg-secondary);">
+                    <code>--bg-secondary</code>
+                    <p>Secondary background</p>
+                </div>
+                <div class="color-sample" style="background: var(--bg-tertiary);">
+                    <code>--bg-tertiary</code>
+                    <p>Tertiary background</p>
+                </div>
+                <div class="color-sample" style="background: var(--bg-hover);">
+                    <code>--bg-hover</code>
+                    <p>Hover state</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="color: var(--text-primary);">Text Colors (WCAG AA Compliant)</h2>
+            <div class="color-grid">
+                <div class="color-sample">
+                    <p style="color: var(--text-primary); font-size: 1.2rem;">
+                        <code>--text-primary</code>
+                    </p>
+                    <p class="contrast-check">Highest contrast for body text</p>
+                </div>
+                <div class="color-sample">
+                    <p style="color: var(--text-secondary); font-size: 1.2rem;">
+                        <code>--text-secondary</code>
+                    </p>
+                    <p class="contrast-check">WCAG AA compliant (4.5:1)</p>
+                </div>
+                <div class="color-sample">
+                    <p style="color: var(--text-muted); font-size: 1.2rem;">
+                        <code>--text-muted</code>
+                    </p>
+                    <p class="contrast-check">Large text only (3:1)</p>
+                </div>
+                <div class="color-sample">
+                    <p style="color: var(--text-link); font-size: 1.2rem;">
+                        <code>--text-link</code>
+                    </p>
+                    <p class="contrast-check">Interactive links</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="color: var(--text-primary);">Shadow Effects</h2>
+            <div class="color-grid">
+                <div class="color-sample" style="box-shadow: var(--shadow-sm);">
+                    <code>--shadow-sm</code>
+                    <p>Small shadow</p>
+                </div>
+                <div class="color-sample" style="box-shadow: var(--shadow-md);">
+                    <code>--shadow-md</code>
+                    <p>Medium shadow</p>
+                </div>
+                <div class="color-sample" style="box-shadow: var(--shadow-lg);">
+                    <code>--shadow-lg</code>
+                    <p>Large shadow</p>
+                </div>
+                <div class="color-sample" style="box-shadow: var(--shadow-xl);">
+                    <code>--shadow-xl</code>
+                    <p>Extra large shadow</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="color: var(--text-primary);">Glass Effects</h2>
+            <div class="color-grid">
+                <div class="color-sample glass-sample">
+                    <code>--glass-bg</code>
+                    <p>Glass morphism effect</p>
+                </div>
+                <div class="color-sample" style="background: var(--glass-bg-medium); border: 1px solid var(--glass-border);">
+                    <code>--glass-bg-medium</code>
+                    <p>Medium glass</p>
+                </div>
+                <div class="color-sample" style="background: var(--glass-bg-strong); border: 1px solid var(--glass-border-strong);">
+                    <code>--glass-bg-strong</code>
+                    <p>Strong glass</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="color: var(--text-primary);">Brand & State Colors</h2>
+            <div class="status-grid">
+                <div class="status-item status-success">
+                    <div>Success</div>
+                    <div class="contrast-check">--success</div>
+                </div>
+                <div class="status-item status-danger">
+                    <div>Danger</div>
+                    <div class="contrast-check">--danger</div>
+                </div>
+                <div class="status-item status-warning">
+                    <div>Warning</div>
+                    <div class="contrast-check">--warning</div>
+                </div>
+                <div class="status-item status-info">
+                    <div>Info</div>
+                    <div class="contrast-check">--info</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="color: var(--text-primary);">Border Radius</h2>
+            <div class="color-grid">
+                <div class="color-sample" style="border: 2px solid var(--border-color); border-radius: var(--border-radius-sm);">
+                    <code>--border-radius-sm</code>
+                </div>
+                <div class="color-sample" style="border: 2px solid var(--border-color); border-radius: var(--border-radius-md);">
+                    <code>--border-radius-md</code>
+                </div>
+                <div class="color-sample" style="border: 2px solid var(--border-color); border-radius: var(--border-radius-lg);">
+                    <code>--border-radius-lg</code>
+                </div>
+                <div class="color-sample" style="border: 2px solid var(--border-color); border-radius: var(--border-radius-xl);">
+                    <code>--border-radius-xl</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            document.getElementById('current-theme').textContent = 'Current: ' + newTheme;
+        }
+
+        // Display current theme on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const theme = document.documentElement.getAttribute('data-theme') || 'light';
+            document.getElementById('current-theme').textContent = 'Current: ' + theme;
+        });
+    </script>
+</body>
+</html>

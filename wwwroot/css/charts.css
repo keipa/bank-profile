@@ -1,0 +1,251 @@
+/* Rating Chart Styles */
+.rating-chart {
+    width: 100%;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.chart-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary, #1f2937);
+}
+
+.chart-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.time-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    color: #3b82f6;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.time-btn:hover {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.5);
+    transform: translateY(-1px);
+}
+
+.time-btn.active {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.time-btn:active {
+    transform: translateY(0);
+}
+
+.chart-container {
+    width: 100%;
+    min-height: 300px;
+    position: relative;
+}
+
+.chart-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 1rem;
+}
+
+.chart-loading p {
+    color: var(--text-secondary, #6b7280);
+    font-size: 0.875rem;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(59, 130, 246, 0.1);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    text-align: center;
+}
+
+.chart-empty p {
+    color: var(--text-secondary, #6b7280);
+    font-size: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .rating-chart {
+        padding: 1rem;
+    }
+
+    .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .chart-header h3 {
+        font-size: 1.25rem;
+    }
+
+    .chart-controls {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .time-btn {
+        flex: 1;
+        min-width: 80px;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .chart-container {
+        min-height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rating-chart {
+        padding: 0.75rem;
+    }
+    
+    .chart-header h3 {
+        font-size: 1.1rem;
+    }
+    
+    .time-btn {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        min-width: 60px;
+    }
+    
+    .chart-container {
+        min-height: 200px;
+    }
+}
+
+/* Ensure charts are readable on small mobile (300px minimum) */
+@media (max-width: 360px) {
+    .rating-chart {
+        padding: 0.5rem;
+    }
+    
+    .chart-container {
+        min-width: 300px;
+        min-height: 200px;
+        overflow-x: auto;
+    }
+    
+    .time-btn {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.5rem;
+    }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+    .rating-chart {
+        background: rgba(17, 24, 39, 0.6);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .chart-header h3 {
+        color: #f3f4f6;
+    }
+
+    .time-btn {
+        color: #93c5fd;
+        background: rgba(17, 24, 39, 0.4);
+    }
+
+    .time-btn:hover {
+        background: rgba(59, 130, 246, 0.15);
+    }
+
+    .chart-loading p,
+    .chart-empty p {
+        color: #9ca3af;
+    }
+}
+
+/* Canvas styling */
+.chart-container canvas {
+    max-width: 100%;
+    height: auto !important;
+}
+
+/* Legend customization */
+.rating-chart .chartjs-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem 0;
+    justify-content: center;
+}
+
+.rating-chart .chartjs-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary, #6b7280);
+}
+
+/* Tooltip customization via CSS variables */
+:root {
+    --chart-tooltip-bg: rgba(17, 24, 39, 0.95);
+    --chart-tooltip-border: rgba(255, 255, 255, 0.1);
+    --chart-tooltip-text: #f3f4f6;
+}
+
+/* Animation for chart appearance */
+.rating-chart {
+    animation: fadeInScale 0.5s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

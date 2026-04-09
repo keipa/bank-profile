@@ -1,0 +1,95 @@
+/* Theme Toggle Component Styles */
+
+/* Performance: Separate transitions for transform and color for better compositing */
+.theme-toggle {
+    padding: 0.5rem;
+    color: var(--text-primary, #333);
+    font-size: 1.25rem;
+    transition: transform 0.3s ease, color 0.2s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    will-change: transform;
+}
+
+/* Performance: Scale transform uses GPU acceleration for smooth interaction */
+.theme-toggle:hover {
+    transform: scale(1.1);
+    color: var(--primary-color, #007bff);
+    text-decoration: none;
+    will-change: auto; /* Remove hint during active state */
+}
+
+.theme-toggle:focus {
+    outline: 2px solid var(--focus-color, #007bff);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Performance: Active state provides tactile feedback without layout shift */
+.theme-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Icon animation */
+/* Performance: Nested transform for icon rotation, composites efficiently */
+.theme-toggle i {
+    transition: opacity 0.2s ease, transform 0.3s ease;
+    will-change: transform;
+}
+
+.theme-toggle:hover i {
+    transform: rotate(20deg);
+    will-change: auto;
+}
+
+/* Ensure proper contrast in different themes */
+[data-theme="dark"] .theme-toggle {
+    color: var(--text-primary, #f8f9fa);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    color: var(--primary-color, #4dabf7);
+}
+
+/* Accessibility: High contrast mode support */
+@media (prefers-contrast: high) {
+    .theme-toggle {
+        border: 1px solid currentColor;
+        padding: 0.4rem;
+    }
+    
+    .theme-toggle:focus {
+        outline-width: 3px;
+    }
+}
+
+/* Reduce motion for users who prefer it */
+/* Performance: Global reduced motion override for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .theme-toggle,
+    .theme-toggle i {
+        transition: none;
+        will-change: auto;
+    }
+    
+    .theme-toggle:hover {
+        transform: none;
+    }
+    
+    .theme-toggle:hover i {
+        transform: none;
+    }
+}

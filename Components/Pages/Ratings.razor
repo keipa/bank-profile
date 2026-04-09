@@ -1,0 +1,80 @@
+@page "/ratings"
+@using BankProfiles.Web.Services
+@using BankProfiles.Web.Models
+@inject IRatingService RatingService
+@inject ILocalizationService Localization
+@rendermode InteractiveServer
+
+<PageTitle>@Localization.GetString("page.ratings.pageTitle")</PageTitle>
+
+<h1><i class="fas fa-star" aria-hidden="true"></i> @Localization.GetString("page.ratings.title")</h1>
+
+@if (_loading)
+{
+    <div role="status" aria-label="Loading ratings table">
+        <span class="visually-hidden">Loading bank ratings...</span>
+        <RatingsTableSkeleton />
+    </div>
+}
+else
+{
+    <div class="fade-in">
+        <div class="table-responsive mt-4">
+        <table class="table table-striped" aria-label="Bank ratings comparison table">
+            <caption class="visually-hidden">Comprehensive bank ratings comparison showing overall ratings and individual criteria scores</caption>
+            <thead>
+                <tr>
+                    <th scope="col">@Localization.GetString("page.ratings.bank")</th>
+                    <th scope="col">@Localization.GetString("page.ratings.overallRating")</th>
+                    @foreach (var criteria in _allCriteria)
+                    {
+                        <th scope="col">@criteria</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var summary in _ratingSummaries.OrderByDescending(r => r.OverallRating))
+                {
+                    <tr>
+                        <th scope="row">
+                            @if (!string.IsNullOrEmpty(summary.CountryCode) && !string.IsNullOrEmpty(summary.BankCode))
+                            {
+                                <a href="/@summary.CountryCode/@summary.BankCode" aria-label="View details for @summary.BankName">@summary.BankName</a>
+                            }
+                            else
+                            {
+                                <span>@summary.BankName</span>
+                            }
+                        </th>
+                        <td><span class="badge bg-primary" aria-label="Overall rating: @summary.OverallRating.ToString("F1") out of 5">@summary.OverallRating.ToString("F1")</span></td>
+                        @foreach (var criteria in _allCriteria)
+                        {
+                            var rating = summary.CriteriaRatings?.FirstOrDefault(r => r.CriteriaName == criteria);
+                            var ratingValue = rating?.CurrentRating.ToString("F1") ?? "N/A";
+                            <td aria-label="@criteria rating: @ratingValue">@ratingValue</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+        </div>
+    </div>
+}
+
+@code {
+    private List<BankRatingsSummary> _ratingSummaries = new();
+    private List<string> _allCriteria = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _ratingSummaries = await RatingService.GetAllBankRatingsAsync();
+        _allCriteria = _ratingSummaries
+            .SelectMany(s => s.CriteriaRatings ?? new List<RatingData>())
+            .Select(r => r.CriteriaName)
+            .Distinct()
+            .OrderBy(c => c)
+            .ToList();
+        _loading = false;
+    }
+}

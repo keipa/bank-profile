@@ -1,0 +1,177 @@
+/* Glass Morphism Effects */
+/* Creates blur-based transparency effects that adapt to light/dark themes */
+
+/* Base glass window styling */
+/* Performance: Backdrop filter is GPU-accelerated but expensive, use sparingly */
+.glass-window {
+    position: relative;
+    background: var(--glass-bg, rgba(255, 255, 255, 0.1));
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.2));
+    border-radius: 16px;
+    padding: 1.5rem;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    will-change: transform;
+}
+
+/* Backdrop filter support with fallback */
+@supports (backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px)) {
+    .glass-window {
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    
+    .glass-window-subtle {
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+    }
+    
+    .glass-window-strong {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+}
+
+/* Fallback for browsers without backdrop-filter support */
+@supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+    .glass-window {
+        background: rgba(128, 128, 128, 0.3);
+    }
+}
+
+/* Light theme glass effects */
+:root[data-theme="light"] .glass-window {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+:root[data-theme="light"] .glass-window-subtle {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+}
+
+:root[data-theme="light"] .glass-window-medium {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+:root[data-theme="light"] .glass-window-strong {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.2);
+}
+
+/* Dark theme glass effects */
+:root[data-theme="dark"] .glass-window {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .glass-window-subtle {
+    background: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+:root[data-theme="dark"] .glass-window-medium {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+:root[data-theme="dark"] .glass-window-strong {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Default theme (fallback to light) */
+:root .glass-window,
+.glass-window {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+:root .glass-window-subtle,
+.glass-window-subtle {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+}
+
+:root .glass-window-medium,
+.glass-window-medium {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+:root .glass-window-strong,
+.glass-window-strong {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.2);
+}
+
+/* Glass window header */
+.glass-window-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .glass-window-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.glass-window-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Glass window content area */
+.glass-window-content {
+    padding: 1.5rem;
+}
+
+/* Hover effects */
+/* Performance: Transform creates new composite layer, avoiding repaints */
+.glass-window:hover {
+    transform: translateY(-4px);
+    will-change: auto; /* Remove hint during active animation */
+}
+
+:root[data-theme="light"] .glass-window:hover {
+    box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+}
+
+:root[data-theme="dark"] .glass-window:hover {
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+}
+
+/* Accessibility: Reduced motion support for glass effects */
+/* Performance: Disables expensive transitions for users preferring reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .glass-window {
+        transition: none;
+        will-change: auto;
+    }
+    
+    .glass-window:hover {
+        transform: none;
+    }
+}

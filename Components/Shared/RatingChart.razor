@@ -1,0 +1,211 @@
+@using PSC.Blazor.Components.Chartjs
+@using PSC.Blazor.Components.Chartjs.Models.Line
+@using PSC.Blazor.Components.Chartjs.Models.Common
+@using BankProfiles.Web.Data
+@using Microsoft.EntityFrameworkCore
+@inject IDbContextFactory<BankDbContext> DbContextFactory
+
+<div class="rating-chart">
+    <div class="chart-header">
+        <h3 id="rating-chart-title">Rating Trends</h3>
+        <div class="chart-controls" role="group" aria-labelledby="rating-chart-title">
+            <button class="@GetButtonClass(30)" @onclick="() => SetTimeRange(30)" aria-label="Show rating trends for last 30 days" aria-pressed="@(TimeRange == 30)">30 Days</button>
+            <button class="@GetButtonClass(90)" @onclick="() => SetTimeRange(90)" aria-label="Show rating trends for last 90 days" aria-pressed="@(TimeRange == 90)">90 Days</button>
+            <button class="@GetButtonClass(365)" @onclick="() => SetTimeRange(365)" aria-label="Show rating trends for last 365 days" aria-pressed="@(TimeRange == 365)">1 Year</button>
+        </div>
+    </div>
+    
+    @if (_isLoading)
+    {
+        <div role="status" aria-label="Loading rating chart">
+            <span class="visually-hidden">Loading rating chart data...</span>
+            <ChartSkeleton />
+        </div>
+    }
+    else if (_chartConfig != null)
+    {
+        <div class="chart-container fade-in" style="height: 400px;" role="img" aria-label="Line chart showing rating trends over time for different criteria">
+            <Chart @ref="_chartComponent" Config="_chartConfig" Width="600" Height="400" />
+        </div>
+    }
+    else
+    {
+        <div class="chart-empty" role="status">
+            <p>No rating history available for this bank.</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string BankCode { get; set; } = string.Empty;
+
+    [Parameter]
+    public int TimeRange { get; set; } = 30;
+
+    private LineChartConfig? _chartConfig;
+    private Chart? _chartComponent;
+    private bool _isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadChartData();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadChartData();
+    }
+
+    private async Task SetTimeRange(int days)
+    {
+        if (TimeRange != days)
+        {
+            TimeRange = days;
+            await LoadChartData();
+        }
+    }
+
+    private string GetButtonClass(int days)
+    {
+        return TimeRange == days ? "time-btn active" : "time-btn";
+    }
+
+    private async Task LoadChartData()
+    {
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            // Create a new DbContext instance using the factory pattern
+            await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+            
+            // Get bank
+            var bank = await dbContext.Banks
+                .FirstOrDefaultAsync(b => b.BankCode == BankCode);
+
+            if (bank == null)
+            {
+                _chartConfig = null;
+                _isLoading = false;
+                return;
+            }
+
+            // Get criteria
+            var criteriaList = await dbContext.RatingCriterias
+                .OrderBy(c => c.DisplayOrder)
+                .ToListAsync();
+
+            // Get rating history
+            var cutoffDate = DateTime.UtcNow.AddDays(-TimeRange);
+            var historyData = await dbContext.RatingHistories
+                .Where(rh => rh.BankId == bank.BankId && rh.RecordedDate >= cutoffDate)
+                .OrderBy(rh => rh.RecordedDate)
+                .Select(rh => new
+                {
+                    rh.CriteriaId,
+                    rh.RecordedDate,
+                    rh.OverallRating
+                })
+                .ToListAsync();
+
+            if (!historyData.Any())
+            {
+                _chartConfig = null;
+                _isLoading = false;
+                return;
+            }
+
+            // Get unique dates for x-axis labels
+            var uniqueDates = historyData
+                .Select(h => h.RecordedDate.ToString("MMM dd"))
+                .Distinct()
+                .OrderBy(d => d)
+                .ToList();
+
+            // Create chart config with minimal options
+            _chartConfig = new LineChartConfig();
+
+            // Add labels
+            foreach (var date in uniqueDates)
+            {
+                _chartConfig.Data.Labels.Add(date);
+            }
+
+            // Define color palette for criteria
+            var colors = new[]
+            {
+                new { bg = "rgba(59, 130, 246, 0.2)", border = "rgba(59, 130, 246, 1)" },   // Blue
+                new { bg = "rgba(16, 185, 129, 0.2)", border = "rgba(16, 185, 129, 1)" },   // Green
+                new { bg = "rgba(245, 158, 11, 0.2)", border = "rgba(245, 158, 11, 1)" },   // Amber
+                new { bg = "rgba(239, 68, 68, 0.2)", border = "rgba(239, 68, 68, 1)" },     // Red
+                new { bg = "rgba(139, 92, 246, 0.2)", border = "rgba(139, 92, 246, 1)" },   // Purple
+                new { bg = "rgba(236, 72, 153, 0.2)", border = "rgba(236, 72, 153, 1)" },   // Pink
+                new { bg = "rgba(20, 184, 166, 0.2)", border = "rgba(20, 184, 166, 1)" },   // Teal
+                new { bg = "rgba(249, 115, 22, 0.2)", border = "rgba(249, 115, 22, 1)" }    // Orange
+            };
+
+            // Create datasets for each criteria
+            var colorIndex = 0;
+            foreach (var criteria in criteriaList)
+            {
+                var criteriaHistory = historyData
+                    .Where(h => h.CriteriaId == criteria.CriteriaId)
+                    .OrderBy(h => h.RecordedDate)
+                    .ToList();
+
+                if (criteriaHistory.Any())
+                {
+                    var color = colors[colorIndex % colors.Length];
+                    
+                    // Convert data to list matching the label dates
+                    var dataPoints = new List<decimal?>();
+                    foreach (var dateLabel in uniqueDates)
+                    {
+                        var matchingPoint = criteriaHistory.FirstOrDefault(h =>
+                            h.RecordedDate.ToString("MMM dd") == dateLabel);
+                        dataPoints.Add(matchingPoint?.OverallRating);
+                    }
+
+                    var dataset = new LineDataset()
+                    {
+                        Label = criteria.Name,
+                        Data = dataPoints,
+                        BackgroundColor = color.bg,
+                        BorderColor = color.border,
+                        BorderWidth = 2,
+                        Fill = false,
+                        PointRadius = 3,
+                        Tension = 0.4m
+                    };
+
+                    _chartConfig.Data.Datasets.Add(dataset);
+                    colorIndex++;
+                }
+            }
+
+            // If no datasets were added, clear config
+            if (!_chartConfig.Data.Datasets.Any())
+            {
+                _chartConfig = null;
+            }
+        }
+        catch (ObjectDisposedException)
+        {
+            // DbContext was disposed during async operation - this is normal if component is being disposed
+            Console.WriteLine("DbContext disposed during chart loading - component may be disposing.");
+            _chartConfig = null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading chart data: {ex.Message}");
+            _chartConfig = null;
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

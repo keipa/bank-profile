@@ -1,0 +1,96 @@
+{
+  "bankCode": "bank-alpha",
+  "countryCode": "uk",
+  "defaultLanguage": "en-GB",
+  "bankName": "Alpha Global Bank",
+  "description": "Leading financial institution with comprehensive banking solutions and award-winning customer service. Established in 1985, serving millions of customers worldwide.",
+  "websiteUrl": "https://www.alphaglobal.com",
+  "logoUrl": "/images/banks/alpha-logo.png",
+  "theme": {
+    "primaryColor": "#1a237e",
+    "secondaryColor": "#3949ab",
+    "fontFamily": "Roboto, sans-serif",
+    "accentColor": "#ff6f00"
+  },
+  "technicalInfo": {
+    "commissions": {
+      "incomingTransfer": {
+        "domestic": 0.0,
+        "international": 15.0,
+        "currency": "USD"
+      },
+      "outgoingTransfer": {
+        "domestic": 1.5,
+        "international": 25.0,
+        "currency": "USD"
+      }
+    },
+    "cardServices": {
+      "debitCardOpeningFee": 10.0,
+      "creditCardOpeningFee": 0.0,
+      "annualMaintenanceFee": 12.0,
+      "currency": "USD"
+    },
+    "availableCurrencies": ["USD", "EUR", "GBP", "CHF", "JPY", "AUD", "CAD"],
+    "premiumBanking": {
+      "available": true,
+      "minimumBalance": 50000,
+      "monthlyFee": 0,
+      "benefits": [
+        "Dedicated relationship manager",
+        "Priority customer service 24/7",
+        "Free international transfers",
+        "Premium credit card with lounge access",
+        "Higher interest rates on savings",
+        "Free safety deposit box"
+      ]
+    },
+    "digitalServices": {
+      "mobileBanking": true,
+      "onlineTrading": true,
+      "cryptocurrency": false,
+      "roboAdvisor": true
+    },
+    "accountTypes": [
+      {
+        "name": "Basic Checking",
+        "minimumBalance": 100,
+        "monthlyFee": 5,
+        "features": ["Debit card", "Online banking", "Mobile app", "ATM access"]
+      },
+      {
+        "name": "Premium Checking",
+        "minimumBalance": 5000,
+        "monthlyFee": 0,
+        "features": ["Debit card", "Online banking", "Mobile app", "Free checks", "Overdraft protection", "Priority support"]
+      },
+      {
+        "name": "Savings Plus",
+        "minimumBalance": 500,
+        "monthlyFee": 2,
+        "features": ["High-yield interest", "Online banking", "Mobile app", "Auto-save features"]
+      }
+    ],
+    "atmNetwork": {
+      "ownAtms": 500,
+      "partnerAtms": 5000,
+      "internationalAccess": true
+    }
+  },
+  "contactInfo": {
+    "phone": "+1-800-ALPHA-BANK",
+    "email": "info@alphaglobal.com",
+    "address": "123 Financial District, New York, NY 10004, USA"
+  },
+  "animationConfig": {
+    "gradientStops": [
+      { "offset": "0%", "color": "#1a237e" },
+      { "offset": "100%", "color": "#3949ab" }
+    ],
+    "balls": [
+      { "centerX": 150, "centerY": 150, "radius": 120, "color": "#ff6f00" },
+      { "centerX": 550, "centerY": 400, "radius": 180, "color": "#3949ab" }
+    ],
+    "animationType": "wave"
+  }
+}

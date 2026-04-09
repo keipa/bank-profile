@@ -1,0 +1,33 @@
+@inject ILocalizationService Localization
+
+<div class="collapse navbar-collapse" id="navbarNav">
+    <nav class="navbar-nav ms-auto" aria-label="Main navigation">
+        <NavLink class="nav-link" href="" Match="NavLinkMatch.All" aria-label="Home">
+            <i class="fas fa-home me-1" aria-hidden="true"></i> @Localization.GetString("nav.home")
+        </NavLink>
+
+        <NavLink class="nav-link" href="banks" aria-label="Banks">
+            <i class="fas fa-building me-1" aria-hidden="true"></i> @Localization.GetString("nav.banks")
+        </NavLink>
+
+        <NavLink class="nav-link" href="ratings" aria-label="Ratings">
+            <i class="fas fa-star me-1" aria-hidden="true"></i> @Localization.GetString("nav.ratings")
+        </NavLink>
+
+        <NavLink class="nav-link" href="contacts" aria-label="Contacts">
+            <i class="fas fa-envelope me-1" aria-hidden="true"></i> @Localization.GetString("nav.contacts")
+        </NavLink>
+
+        <NavLink class="nav-link" href="about" aria-label="About">
+            <i class="fas fa-info-circle me-1" aria-hidden="true"></i> @Localization.GetString("nav.about")
+        </NavLink>
+        
+        <div class="nav-link">
+            <LanguageSelector />
+        </div>
+        
+        <div class="nav-link">
+            <ThemeToggle />
+        </div>
+    </nav>
+</div>

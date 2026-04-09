@@ -1,0 +1,99 @@
+{
+  "bankCode": "bank-epsilon",
+  "countryCode": "es",
+  "defaultLanguage": "es-ES",
+  "bankName": "Epsilon International Bank",
+  "description": "Global banking powerhouse with presence in 50+ countries. Premium banking services for high-net-worth individuals and corporations since 1950.",
+  "websiteUrl": "https://www.epsiloninternational.com",
+  "logoUrl": "/images/banks/epsilon-logo.png",
+  "theme": {
+    "primaryColor": "#004d40",
+    "secondaryColor": "#00695c",
+    "fontFamily": "Merriweather, serif",
+    "accentColor": "#ffd600"
+  },
+  "technicalInfo": {
+    "commissions": {
+      "incomingTransfer": {
+        "domestic": 0.0,
+        "international": 10.0,
+        "currency": "USD"
+      },
+      "outgoingTransfer": {
+        "domestic": 0.0,
+        "international": 15.0,
+        "currency": "USD"
+      }
+    },
+    "cardServices": {
+      "debitCardOpeningFee": 25.0,
+      "creditCardOpeningFee": 50.0,
+      "annualMaintenanceFee": 50.0,
+      "currency": "USD"
+    },
+    "availableCurrencies": ["USD", "EUR", "GBP", "CHF", "JPY", "AUD", "CAD", "CNY", "SGD", "HKD", "AED", "SEK"],
+    "premiumBanking": {
+      "available": true,
+      "minimumBalance": 100000,
+      "monthlyFee": 0,
+      "benefits": [
+        "Dedicated wealth manager",
+        "Concierge service 24/7",
+        "Free global transfers",
+        "Platinum credit card with unlimited lounge access",
+        "Private banking events",
+        "Investment banking access",
+        "Multi-currency accounts",
+        "Tax optimization services"
+      ]
+    },
+    "digitalServices": {
+      "mobileBanking": true,
+      "onlineTrading": true,
+      "cryptocurrency": false,
+      "roboAdvisor": true
+    },
+    "accountTypes": [
+      {
+        "name": "Global Checking",
+        "minimumBalance": 10000,
+        "monthlyFee": 0,
+        "features": ["Multi-currency debit card", "Online banking", "Global transfers", "Priority support"]
+      },
+      {
+        "name": "Wealth Management",
+        "minimumBalance": 50000,
+        "monthlyFee": 0,
+        "features": ["Investment advisory", "Portfolio management", "Tax planning", "Estate planning"]
+      },
+      {
+        "name": "Corporate Banking",
+        "minimumBalance": 100000,
+        "monthlyFee": 50,
+        "features": ["Business checking", "Merchant services", "Payroll services", "Trade financing"]
+      }
+    ],
+    "atmNetwork": {
+      "ownAtms": 2000,
+      "partnerAtms": 100000,
+      "internationalAccess": true
+    }
+  },
+  "contactInfo": {
+    "phone": "+1-800-EPSILON-INT",
+    "email": "wealth@epsiloninternational.com",
+    "address": "555 Park Avenue, New York, NY 10022, USA"
+  },
+  "animationConfig": {
+    "gradientStops": [
+      { "offset": "0%", "color": "#004d40" },
+      { "offset": "100%", "color": "#00695c" }
+    ],
+    "balls": [
+      { "centerX": 180, "centerY": 220, "radius": 110, "color": "#ffd600" },
+      { "centerX": 480, "centerY": 280, "radius": 170, "color": "#00695c" },
+      { "centerX": 350, "centerY": 120, "radius": 90, "color": "#ffd600" }
+    ],
+    "animationType": "wave"
+  }
+}

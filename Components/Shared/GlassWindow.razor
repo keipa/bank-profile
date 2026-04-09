@@ -1,0 +1,27 @@
+@* Glass Morphism Panel Component *@
+
+<div class="glass-window glass-window-@Elevation.ToLowerInvariant() @CssClass">
+    @if (!string.IsNullOrWhiteSpace(Title))
+    {
+        <div class="glass-window-header">
+            <h3 class="glass-window-title">@Title</h3>
+        </div>
+    }
+    <div class="glass-window-content">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Title { get; set; }
+
+    [Parameter]
+    public string Elevation { get; set; } = "medium";
+
+    [Parameter]
+    public string? CssClass { get; set; }
+}

@@ -1,0 +1,55 @@
+﻿@inherits LayoutComponentBase
+@inject IJSRuntime JS
+
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<div class="page">
+    <header class="navbar navbar-expand-lg navbar-dark bg-primary" role="banner">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/" aria-label="Bank Profiles - Home">
+                <i class="fas fa-university me-2" aria-hidden="true"></i>
+                Bank Profiles
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <NavMenu />
+        </div>
+    </header>
+
+    <main id="main-content" class="container-fluid mt-4" role="main">
+        <div class="content px-4">
+            @(Body)
+        </div>
+    </main>
+
+    <footer class="footer mt-5 py-3 bg-light" role="contentinfo">
+        <div class="container text-center text-muted">
+            <p>&copy; 2026 Bank Profiles. All rights reserved. | Data for informational purposes only.</p>
+        </div>
+    </footer>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("themeHelper.applyThemeFromCookie");
+            }
+            catch (Exception)
+            {
+                // Silently handle if theme helper not loaded yet
+                // Theme will be applied by the inline script in theme-helper.js
+            }
+        }
+    }
+}

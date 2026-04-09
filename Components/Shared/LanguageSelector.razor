@@ -1,0 +1,39 @@
+@inject ILocalizationService LocalizationService
+@inject NavigationManager NavigationManager
+
+<div class="language-selector">
+    <select @onchange="ChangeLanguage" class="form-select" aria-label="Select language">
+        <option value="en-US" selected="@(_currentLang == "en-US")">🇺🇸 English (US)</option>
+        <option value="en-GB" selected="@(_currentLang == "en-GB")">🇬🇧 English (UK)</option>
+        <option value="de-DE" selected="@(_currentLang == "de-DE")">🇩🇪 Deutsch</option>
+        <option value="fr-FR" selected="@(_currentLang == "fr-FR")">🇫🇷 Français</option>
+        <option value="es-ES" selected="@(_currentLang == "es-ES")">🇪🇸 Español</option>
+    </select>
+</div>
+
+@code {
+    private string _currentLang = "en-US";
+
+    protected override void OnInitialized()
+    {
+        _currentLang = LocalizationService.GetCurrentLanguage();
+    }
+
+    private async Task ChangeLanguage(ChangeEventArgs e)
+    {
+        var selectedLanguage = e.Value?.ToString();
+        
+        if (string.IsNullOrEmpty(selectedLanguage))
+            return;
+
+        try
+        {
+            await LocalizationService.SetLanguageAsync(selectedLanguage);
+            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error changing language: {ex.Message}");
+        }
+    }
+}

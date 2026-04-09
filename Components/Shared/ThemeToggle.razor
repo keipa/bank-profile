@@ -1,0 +1,43 @@
+@inject IThemeService ThemeService
+@inject IJSRuntime JS
+
+<button @onclick="ToggleTheme" 
+        class="btn btn-link theme-toggle"
+        aria-label="@(_isDark ? "Switch to light mode" : "Switch to dark mode")"
+        title="Toggle theme">
+    @if (_isDark)
+    {
+        <i class="fas fa-sun"></i>
+    }
+    else
+    {
+        <i class="fas fa-moon"></i>
+    }
+</button>
+
+@code {
+    private bool _isDark;
+
+    protected override void OnInitialized()
+    {
+        var currentTheme = ThemeService.GetCurrentTheme();
+        _isDark = currentTheme == "dark";
+    }
+
+    private async Task ToggleTheme()
+    {
+        var newTheme = _isDark ? "light" : "dark";
+        
+        try
+        {
+            await ThemeService.SetThemeAsync(newTheme);
+            await JS.InvokeVoidAsync("themeHelper.applyTheme", newTheme);
+            
+            _isDark = !_isDark;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error toggling theme: {ex.Message}");
+        }
+    }
+}

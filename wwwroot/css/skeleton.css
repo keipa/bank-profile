@@ -1,0 +1,298 @@
+/* Skeleton Loading States */
+
+/* Performance: Uses background-position for GPU-accelerated shimmer effect */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    will-change: background-position;
+}
+
+[data-theme="dark"] .skeleton {
+    background: linear-gradient(90deg, #2a2a2a 25%, #1a1a1a 50%, #2a2a2a 75%);
+    background-size: 200% 100%;
+}
+
+/* Performance: Background-position animation is GPU-accelerated */
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* Skeleton Card */
+.skeleton-card {
+    height: 200px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-card-body {
+    padding: 1rem;
+}
+
+.skeleton-card-title {
+    height: 1.5em;
+    width: 60%;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-card-text {
+    height: 1em;
+    border-radius: 4px;
+    margin-bottom: 0.5em;
+}
+
+.skeleton-card-badge {
+    height: 1.5em;
+    width: 60px;
+    border-radius: 12px;
+    margin-bottom: 0.5em;
+}
+
+.skeleton-card-footer {
+    height: 2em;
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+
+/* Skeleton Text */
+.skeleton-text {
+    height: 1em;
+    border-radius: 4px;
+    margin-bottom: 0.5em;
+}
+
+.skeleton-text-sm {
+    height: 0.875em;
+}
+
+.skeleton-text-lg {
+    height: 1.25em;
+}
+
+.skeleton-text-xl {
+    height: 1.5em;
+}
+
+/* Skeleton Chart */
+.skeleton-chart {
+    height: 400px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.skeleton-chart-header {
+    height: 3em;
+    border-radius: 8px 8px 0 0;
+    margin-bottom: 1rem;
+}
+
+.skeleton-chart-body {
+    height: 300px;
+    border-radius: 0 0 8px 8px;
+}
+
+/* Skeleton Stats */
+.skeleton-stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.skeleton-stat-value {
+    height: 1.5em;
+    width: 80%;
+    margin: 0 auto 0.5rem;
+    border-radius: 4px;
+}
+
+.skeleton-stat-label {
+    height: 0.875em;
+    width: 60%;
+    margin: 0 auto;
+    border-radius: 4px;
+}
+
+/* Skeleton Credit Card */
+.skeleton-credit-card {
+    height: 250px;
+    border-radius: 16px;
+    margin: 2rem auto;
+    max-width: 400px;
+}
+
+/* Skeleton Glass Window */
+.skeleton-glass-window {
+    height: 300px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+}
+
+/* Fade-in animation for loaded content */
+/* Performance: Uses transform + opacity for GPU-accelerated entrance */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+    will-change: transform, opacity;
+}
+
+.fade-in-fast {
+    animation: fadeIn 0.2s ease-out;
+    will-change: transform, opacity;
+}
+
+.fade-in-slow {
+    animation: fadeIn 0.5s ease-out;
+    will-change: transform, opacity;
+}
+
+/* Loading state containers */
+.loading-container {
+    position: relative;
+    min-height: 200px;
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 10;
+    border-radius: 8px;
+}
+
+[data-theme="dark"] .loading-overlay {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+/* Skeleton variations for different card sizes */
+.skeleton-card-sm {
+    height: 150px;
+}
+
+.skeleton-card-md {
+    height: 200px;
+}
+
+.skeleton-card-lg {
+    height: 300px;
+}
+
+/* Grid layout for multiple skeleton cards */
+.skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+/* Skeleton for bank card specific */
+.skeleton-bank-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.skeleton-bank-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.skeleton-bank-flag {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.skeleton-bank-name {
+    flex: 1;
+    height: 1.5em;
+    border-radius: 4px;
+}
+
+.skeleton-bank-description {
+    margin-bottom: 1rem;
+}
+
+.skeleton-bank-rating {
+    width: 70px;
+    height: 1.5em;
+    border-radius: 12px;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-bank-views {
+    width: 100px;
+    height: 1em;
+    border-radius: 4px;
+    margin-bottom: auto;
+}
+
+.skeleton-bank-button {
+    height: 2.5em;
+    border-radius: 6px;
+    margin-top: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .skeleton-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .skeleton-chart {
+        height: 300px;
+    }
+
+    .skeleton-credit-card {
+        height: 200px;
+    }
+}
+
+/* Accessibility */
+/* Performance: Global reduced motion override for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .skeleton,
+    .fade-in,
+    .fade-in-fast,
+    .fade-in-slow {
+        animation: none;
+        will-change: auto;
+    }
+}

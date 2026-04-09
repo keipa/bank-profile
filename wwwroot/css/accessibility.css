@@ -1,0 +1,442 @@
+/* ============================================
+   Accessibility Enhancements - WCAG AA Compliance
+   ============================================ */
+
+/* Skip to main content link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--bs-primary, #0d6efd);
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    font-weight: 600;
+    z-index: 10000;
+    border-radius: 0 0 4px 0;
+    transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+    top: 0;
+    outline: 3px solid var(--bs-warning, #ffc107);
+    outline-offset: 2px;
+}
+
+/* Focus styles for interactive elements */
+a:focus,
+button:focus,
+select:focus,
+input:focus,
+textarea:focus,
+[tabindex]:focus {
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* Enhanced focus for buttons */
+.btn:focus,
+.btn:focus-visible {
+    outline: 3px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Focus styles for cards and interactive containers */
+.card:focus-within,
+.country-card:focus,
+.bank-card:focus {
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.3);
+}
+
+/* Enhanced focus for form controls */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--focus-color, #0d6efd);
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Visually hidden class for screen readers */
+.visually-hidden,
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* Visually hidden but focusable (for skip links) */
+.visually-hidden-focusable:not(:focus):not(:focus-within) {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    a:focus,
+    button:focus,
+    select:focus,
+    input:focus,
+    textarea:focus {
+        outline-width: 3px;
+        outline-color: currentColor;
+    }
+
+    .btn {
+        border-width: 2px;
+    }
+
+    .card,
+    .glass-window {
+        border-width: 2px;
+        border-style: solid;
+    }
+}
+
+/* Dark mode accessibility adjustments */
+[data-theme="dark"] .skip-link {
+    background: var(--bs-primary, #0d6efd);
+    color: white;
+}
+
+[data-theme="dark"] a:focus,
+[data-theme="dark"] button:focus {
+    outline-color: var(--bs-info, #0dcaf0);
+}
+
+/* Focus visible for keyboard navigation only */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+:focus-visible {
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+}
+
+/* Chart and interactive element focus */
+.chart-controls button:focus,
+.time-range-selector button:focus,
+.time-btn:focus {
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Loading spinner accessibility */
+.spinner-border[role="status"] {
+    /* Ensure aria-label or visually-hidden text is present */
+}
+
+/* Required field indicator */
+.required::after {
+    content: " *";
+    color: var(--bs-danger, #dc3545);
+    font-weight: bold;
+}
+
+/* Error message styling */
+.error-message,
+[role="alert"] {
+    color: var(--bs-danger, #dc3545);
+    font-weight: 500;
+    margin-top: 0.25rem;
+}
+
+/* Success message styling */
+.success-message,
+[role="status"][aria-live="polite"] {
+    color: var(--bs-success, #198754);
+    font-weight: 500;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Navigation link focus */
+.nav-link:focus {
+    background-color: rgba(13, 110, 253, 0.1);
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: -2px;
+}
+
+/* Breadcrumb focus */
+.breadcrumb-item a:focus {
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+    text-decoration: underline;
+}
+
+/* Icon-only button labels (for screen readers) */
+button[aria-label] i,
+a[aria-label] i {
+    /* Icons with aria-label on parent are accessible */
+    pointer-events: none;
+}
+
+/* Ensure sufficient color contrast */
+.text-muted {
+    /* Already meets WCAG AA: verified in theme-variables.css */
+}
+
+/* Focus trap for modals */
+.modal:focus {
+    outline: none;
+}
+
+.modal-content:focus-within {
+    box-shadow: 0 0 20px rgba(13, 110, 253, 0.3);
+}
+
+/* Language selector accessibility */
+.language-selector select:focus {
+    border-color: var(--focus-color, #0d6efd);
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+}
+
+/* Chart accessibility labels */
+canvas[role="img"] {
+    /* Ensure aria-label is present with data summary */
+}
+
+/* Keyboard navigation for country cards */
+.country-card:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+}
+
+/* Theme toggle accessibility - already has good focus styles */
+.theme-toggle:focus {
+    /* Inherits from theme-toggle.css */
+}
+
+/* Navbar toggler focus */
+.navbar-toggler:focus {
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Footer link focus */
+footer a:focus {
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+    text-decoration: underline;
+}
+
+/* Alert accessibility */
+.alert[role="alert"] {
+    /* Ensure icons have aria-hidden="true" */
+}
+
+/* Badge focus for interactive badges */
+.badge:focus {
+    outline: 2px solid var(--focus-color, #0d6efd);
+    outline-offset: 2px;
+}
+
+/* Ensure links have sufficient contrast */
+a {
+    /* Color verified in theme-variables.css for WCAG AA compliance */
+}
+
+/* Status indicators should have text alternatives */
+.status-indicator[aria-label] {
+    /* Visual status with aria-label */
+}
+
+/* ============================================
+   Touch Target Minimum Sizes (WCAG 2.1 Level AAA)
+   Ensures all interactive elements meet 44x44px requirement
+   ============================================ */
+
+/* Buttons */
+.btn,
+button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem 1rem;
+}
+
+/* Small buttons adjust on mobile */
+@media (max-width: 768px) {
+    .btn-sm,
+    .btn-outline-primary,
+    .btn-outline-secondary {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0.5rem 0.75rem;
+    }
+}
+
+/* Links that act as buttons */
+a.btn,
+a[role="button"] {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Form controls */
+.form-control,
+.form-select,
+input[type="text"],
+input[type="search"],
+input[type="email"],
+input[type="password"],
+select {
+    min-height: 44px;
+}
+
+/* Checkboxes and radio buttons with adequate touch area */
+.form-check {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding-left: 2rem;
+}
+
+.form-check-input {
+    min-width: 24px;
+    min-height: 24px;
+    margin-right: 0.5rem;
+}
+
+/* Navigation links */
+.nav-link {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+}
+
+/* Theme toggle */
+.theme-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.625rem;
+}
+
+/* Language selector */
+.language-selector .form-select {
+    min-height: 44px;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+}
+
+/* Breadcrumb links */
+.breadcrumb-item a {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    min-height: 32px;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .breadcrumb-item a {
+        min-height: 44px;
+        padding: 0.5rem;
+    }
+}
+
+/* Card action buttons */
+.card-footer .btn {
+    min-height: 44px;
+}
+
+/* Chart control buttons */
+.time-btn {
+    min-height: 44px;
+    min-width: 60px;
+    padding: 0.5rem 1rem;
+}
+
+/* Navbar toggler */
+.navbar-toggler {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+/* Country cards - ensure they're tappable */
+.country-card .card-body {
+    min-height: 88px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Dropdown items */
+.dropdown-item {
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Pagination controls */
+.pagination .page-link {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal and alert close buttons */
+.modal-header .btn-close,
+.alert .btn-close {
+    min-width: 44px;
+    min-height: 44px;
+}
+
+/* Ensure adequate spacing between touch targets on mobile */
+@media (max-width: 768px) {
+    .btn + .btn,
+    .form-control + .form-control,
+    .nav-link + .nav-link {
+        margin-top: 0.5rem;
+    }
+    
+    .btn-group .btn,
+    .input-group .btn {
+        margin: 4px;
+    }
+}
+
+/* Landscape mobile orientation - slightly smaller targets acceptable */
+@media (max-height: 500px) and (orientation: landscape) {
+    .btn,
+    .form-control,
+    .nav-link {
+        min-height: 40px;
+    }
+}

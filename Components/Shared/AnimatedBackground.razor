@@ -1,0 +1,61 @@
+@using BankProfiles.Web.Models
+
+@if (Config != null && Config.GradientStops != null && Config.Balls != null)
+{
+    <div class="animated-background">
+        <svg width="100%" height="100%">
+            <defs>
+                @* Main background gradient *@
+                <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    @foreach (var stop in Config.GradientStops)
+                    {
+                        <stop offset="@stop.Offset" stop-color="@stop.Color" />
+                    }
+                </linearGradient>
+            </defs>
+
+            @* Background rectangle with gradient *@
+            <rect fill="url(#mainGradient)" width="100%" height="100%" />
+
+            @* Animated balls *@
+            @if (Config.Balls != null && Config.Balls.Count > 0)
+            {
+                @for (int i = 0; i < Config.Balls.Count; i++)
+                {
+                    var ball = Config.Balls[i];
+                    var animationClass = GetAnimationClass(i);
+                    
+                    <circle 
+                        class="animated-ball @animationClass" 
+                        fill="@ball.Color" 
+                        cx="@ball.CenterX" 
+                        cy="@ball.CenterY" 
+                        r="@ball.Radius"
+                        opacity="0.6" />
+                }
+            }
+        </svg>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public AnimationConfig? Config { get; set; }
+
+    private string GetAnimationClass(int index)
+    {
+        if (Config?.AnimationType == null)
+            return "animation-float";
+
+        var animationType = Config.AnimationType.ToLower();
+        
+        return animationType switch
+        {
+            "wave" => $"animation-wave animation-delay-{index % 3}",
+            "pulse" => $"animation-pulse animation-delay-{index % 3}",
+            "rotate" => $"animation-rotate animation-delay-{index % 3}",
+            "float" => $"animation-float animation-delay-{index % 3}",
+            _ => $"animation-float animation-delay-{index % 3}"
+        };
+    }
+}

@@ -1,0 +1,355 @@
+@inject IChartDataService ChartDataService
+@inject IJSRuntime JSRuntime
+@using Microsoft.JSInterop
+
+<div class="views-chart-container">
+    <div class="chart-header">
+        <h4 id="views-chart-title">View Count History</h4>
+        <div class="time-range-selector" role="group" aria-labelledby="views-chart-title">
+            <button class="btn btn-sm @(TimeRange == 7 ? "btn-primary" : "btn-outline-primary")" 
+                    @onclick="() => ChangeTimeRange(7)" 
+                    aria-label="Show view history for last 7 days"
+                    aria-pressed="@(TimeRange == 7)">7 Days</button>
+            <button class="btn btn-sm @(TimeRange == 30 ? "btn-primary" : "btn-outline-primary")" 
+                    @onclick="() => ChangeTimeRange(30)" 
+                    aria-label="Show view history for last 30 days"
+                    aria-pressed="@(TimeRange == 30)">30 Days</button>
+            <button class="btn btn-sm @(TimeRange == 90 ? "btn-primary" : "btn-outline-primary")" 
+                    @onclick="() => ChangeTimeRange(90)" 
+                    aria-label="Show view history for last 90 days"
+                    aria-pressed="@(TimeRange == 90)">90 Days</button>
+        </div>
+    </div>
+
+    @if (isLoading)
+    {
+        <div role="status" aria-label="Loading view history chart">
+            <span class="visually-hidden">Loading view history data...</span>
+            <ViewsChartSkeleton />
+        </div>
+    }
+    else if (!hasData)
+    {
+        <div class="alert alert-info" role="alert">
+            No view history data available for the selected time range.
+        </div>
+    }
+    else
+    {
+        <div class="fade-in">
+            <div class="statistics-row" role="region" aria-label="View statistics summary">
+            <div class="stat-card">
+                <div class="stat-value" aria-label="Total views: @totalViews">@totalViews</div>
+                <div class="stat-label">Total Views</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" aria-label="Average views per day: @averageViews.ToString("F1")">@averageViews.ToString("F1")</div>
+                <div class="stat-label">Avg. Views/Day</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">
+                    @if (trendIndicator == "↑")
+                    {
+                        <span class="text-success" aria-label="Trend: Increasing">@trendIndicator Increasing</span>
+                    }
+                    else if (trendIndicator == "↓")
+                    {
+                        <span class="text-danger" aria-label="Trend: Decreasing">@trendIndicator Decreasing</span>
+                    }
+                    else
+                    {
+                        <span class="text-secondary" aria-label="Trend: Stable">@trendIndicator Stable</span>
+                    }
+                </div>
+                <div class="stat-label">Trend</div>
+            </div>
+        </div>
+
+        <div class="chart-wrapper" role="img" aria-label="Line chart showing view count history over the selected time period">
+            <canvas id="@chartId"></canvas>
+        </div>
+        </div>
+    }
+</div>
+
+<style>
+    .views-chart-container {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .chart-header h4 {
+        margin: 0;
+        color: var(--bs-light);
+    }
+
+    .time-range-selector {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .time-range-selector .btn {
+        transition: all 0.3s ease;
+    }
+
+    .statistics-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--bs-light);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: var(--bs-secondary);
+    }
+
+    .chart-wrapper {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+
+    @@media (max-width: 768px) {
+        .chart-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .statistics-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public required string BankCode { get; set; }
+    [Parameter] public int TimeRange { get; set; } = 30;
+
+    private string chartId = $"viewsChart_{Guid.NewGuid():N}";
+    private bool isLoading = true;
+    private bool hasData = false;
+    private bool _firstRender = true;
+
+    // Statistics
+    private int totalViews = 0;
+    private double averageViews = 0;
+    private string trendIndicator = "→";
+    
+    // Store chart config for JS rendering
+    private object? _chartConfig = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadChartData();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadChartData();
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _chartConfig != null)
+        {
+            _firstRender = false;
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("renderChart", chartId, _chartConfig);
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit disconnected - user navigated away, this is expected
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected"))
+            {
+                // Alternative exception for circuit disconnect
+            }
+        }
+    }
+
+    private async Task ChangeTimeRange(int days)
+    {
+        TimeRange = days;
+        await LoadChartData();
+        
+        // Re-render chart with new data
+        if (_chartConfig != null)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("renderChart", chartId, _chartConfig);
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit disconnected - user navigated away
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected"))
+            {
+                // Alternative exception for circuit disconnect
+            }
+        }
+    }
+
+    private async Task LoadChartData()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var chartData = await ChartDataService.GetViewHistoryDataAsync(BankCode, TimeRange);
+
+            if (chartData.Data == null || !chartData.Data.Any() || chartData.Data.All(d => d == 0))
+            {
+                hasData = false;
+                isLoading = false;
+                return;
+            }
+
+            hasData = true;
+
+            // Calculate statistics
+            var nonNullData = chartData.Data.Where(d => d.HasValue).Select(d => d!.Value).ToList();
+            totalViews = (int)nonNullData.Sum();
+            averageViews = (double)nonNullData.Average();
+
+            // Calculate trend
+            var halfPoint = nonNullData.Count / 2;
+            if (halfPoint > 0)
+            {
+                var firstHalf = nonNullData.Take(halfPoint).Average();
+                var secondHalf = nonNullData.Skip(halfPoint).Average();
+                var percentChange = firstHalf > 0 ? ((secondHalf - firstHalf) / firstHalf) * 100 : 0;
+
+                if (percentChange > 10)
+                    trendIndicator = "↑";
+                else if (percentChange < -10)
+                    trendIndicator = "↓";
+                else
+                    trendIndicator = "→";
+            }
+
+            // Prepare chart configuration for JavaScript
+            var config = new
+            {
+                type = "line",
+                data = new
+                {
+                    labels = chartData.Labels,
+                    datasets = new[]
+                    {
+                        new
+                        {
+                            label = "Views",
+                            data = chartData.Data.Select(d => d ?? 0).ToArray(),
+                            backgroundColor = "rgba(13, 110, 253, 0.2)",
+                            borderColor = "rgba(13, 110, 253, 1)",
+                            borderWidth = 2,
+                            fill = true,
+                            pointBackgroundColor = "rgba(13, 110, 253, 1)",
+                            pointBorderColor = "rgba(255, 255, 255, 1)",
+                            pointBorderWidth = 2,
+                            pointRadius = 3,
+                            pointHoverRadius = 5,
+                            tension = 0.4
+                        }
+                    }
+                },
+                options = new
+                {
+                    responsive = true,
+                    maintainAspectRatio = false,
+                    plugins = new
+                    {
+                        legend = new { display = false },
+                        tooltip = new
+                        {
+                            mode = "index",
+                            intersect = false,
+                            backgroundColor = "rgba(0, 0, 0, 0.8)",
+                            titleColor = "rgba(255, 255, 255, 1)",
+                            bodyColor = "rgba(255, 255, 255, 0.9)",
+                            borderColor = "rgba(255, 255, 255, 0.2)",
+                            borderWidth = 1
+                        }
+                    },
+                    scales = new
+                    {
+                        x = new
+                        {
+                            grid = new
+                            {
+                                color = "rgba(255, 255, 255, 0.1)"
+                            },
+                            ticks = new
+                            {
+                                color = "rgba(255, 255, 255, 0.7)"
+                            }
+                        },
+                        y = new
+                        {
+                            beginAtZero = true,
+                            grid = new
+                            {
+                                color = "rgba(255, 255, 255, 0.1)"
+                            },
+                            ticks = new
+                            {
+                                color = "rgba(255, 255, 255, 0.7)"
+                            }
+                        }
+                    }
+                }
+            };
+
+            // Store chart config for later rendering in OnAfterRenderAsync
+            _chartConfig = config;
+        }
+        catch (ObjectDisposedException)
+        {
+            // Component was disposed during async operation - this is normal
+            Console.WriteLine("Component disposed during chart loading - this is expected.");
+            hasData = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading chart data: {ex.Message}");
+            hasData = false;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}
