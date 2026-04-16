@@ -1,5 +1,6 @@
 @inject ILocalizationService LocalizationService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <div class="language-selector">
     <select @onchange="ChangeLanguage" class="form-select" aria-label="Select language">
@@ -8,6 +9,8 @@
         <option value="de-DE" selected="@(_currentLang == "de-DE")">🇩🇪 Deutsch</option>
         <option value="fr-FR" selected="@(_currentLang == "fr-FR")">🇫🇷 Français</option>
         <option value="es-ES" selected="@(_currentLang == "es-ES")">🇪🇸 Español</option>
+        <option value="ru-RU" selected="@(_currentLang == "ru-RU")">🇷🇺 Русский</option>
+        <option value="ka-GE" selected="@(_currentLang == "ka-GE")">🇬🇪 ქართული</option>
     </select>
 </div>
 
@@ -28,7 +31,11 @@
 
         try
         {
-            await LocalizationService.SetLanguageAsync(selectedLanguage);
+            // Set cookie via JavaScript to avoid "Headers are read-only" error
+            // In Blazor Server, event handlers execute after HTTP response is sent
+            await JSRuntime.InvokeVoidAsync("setCookie", "lang", selectedLanguage, 365);
+            
+            // Reload the page to apply the new language
             NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
         }
         catch (Exception ex)

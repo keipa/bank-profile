@@ -7,6 +7,8 @@ public class ThemeService : IThemeService
     private const string DefaultTheme = "light";
     private readonly HashSet<string> _validThemes = new() { "light", "dark" };
 
+    public event Action<string>? OnThemeChanged;
+
     public ThemeService(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
@@ -51,7 +53,18 @@ public class ThemeService : IThemeService
             SameSite = SameSiteMode.Lax
         };
 
-        context.Response.Cookies.Append(ThemeCookieName, theme, cookieOptions);
+        try
+        {
+            context.Response.Cookies.Append(ThemeCookieName, theme, cookieOptions);
+            OnThemeChanged?.Invoke(theme);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("Headers are read-only"))
+        {
+            // Headers already sent - this is expected when called from event handlers
+            // Cookie should be set via JavaScript instead (see ThemeToggle.razor)
+            // Just log and continue - theme will be applied via JS
+            Console.WriteLine($"Warning: Cannot set theme cookie server-side (headers already sent). Use JavaScript cookie setting instead.");
+        }
 
         return Task.CompletedTask;
     }

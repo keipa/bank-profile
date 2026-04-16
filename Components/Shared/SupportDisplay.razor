@@ -1,0 +1,217 @@
+@using BankProfiles.Web.Models
+
+<div class="support-info">
+    @if (Support != null)
+    {
+        <div class="support-grid">
+            @* 24/7 Availability *@
+            <div class="support-section">
+                <div class="availability-badge @(Support.Available24x7 == true ? "available" : "limited")">
+                    <i class="fas fa-clock"></i>
+                    @if (Support.Available24x7 == true)
+                    {
+                        <span>24/7 Support Available</span>
+                    }
+                    else
+                    {
+                        <span>Business Hours Support</span>
+                    }
+                </div>
+            </div>
+
+            @* Support Channels *@
+            @if (Support.Channels != null && Support.Channels.Any())
+            {
+                <div class="support-section">
+                    <h6 class="section-title"><i class="fas fa-headset"></i> Contact Channels</h6>
+                    <div class="channels-grid">
+                        @if (Support.Channels.Contains("phone"))
+                        {
+                            <div class="channel-item">
+                                <i class="fas fa-phone"></i> Phone
+                            </div>
+                        }
+                        @if (Support.Channels.Contains("email"))
+                        {
+                            <div class="channel-item">
+                                <i class="fas fa-envelope"></i> Email
+                            </div>
+                        }
+                        @if (Support.Channels.Contains("chat"))
+                        {
+                            <div class="channel-item">
+                                <i class="fas fa-comments"></i> Live Chat
+                            </div>
+                        }
+                        @if (Support.Channels.Contains("branch"))
+                        {
+                            <div class="channel-item">
+                                <i class="fas fa-building"></i> In-Branch
+                            </div>
+                        }
+                        @if (Support.Channels.Contains("app"))
+                        {
+                            <div class="channel-item">
+                                <i class="fas fa-mobile-alt"></i> In-App
+                            </div>
+                        }
+                        @if (Support.Channels.Contains("web"))
+                        {
+                            <div class="channel-item">
+                                <i class="fas fa-globe"></i> Web Portal
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @* Response Time *@
+            @if (Support.AverageResponseTimeMinutes.HasValue)
+            {
+                <div class="support-section">
+                    <h6 class="section-title"><i class="fas fa-stopwatch"></i> Response Time</h6>
+                    <div class="response-time @GetResponseTimeClass(Support.AverageResponseTimeMinutes.Value)">
+                        <div class="time-value">~@Support.AverageResponseTimeMinutes mins</div>
+                        <div class="time-label">Average Response</div>
+                    </div>
+                </div>
+            }
+
+            @* Languages Supported *@
+            @if (Support.Languages != null && Support.Languages.Any())
+            {
+                <div class="support-section">
+                    <h6 class="section-title"><i class="fas fa-language"></i> Languages</h6>
+                    <div class="language-badges">
+                        @foreach (var lang in Support.Languages)
+                        {
+                            <span class="badge bg-secondary">@lang.ToUpper()</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No support information available</p>
+    }
+</div>
+
+<style>
+    .support-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .support-section {
+        padding: 0.5rem 0;
+    }
+
+    .section-title {
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .availability-badge {
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        text-align: center;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .availability-badge.available {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success);
+        border: 2px solid var(--success);
+    }
+
+    .availability-badge.limited {
+        background: rgba(255, 193, 7, 0.1);
+        color: var(--warning);
+        border: 2px solid var(--warning);
+    }
+
+    .channels-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.5rem;
+    }
+
+    .channel-item {
+        padding: 0.5rem;
+        background: var(--bg-secondary);
+        border-radius: 0.25rem;
+        text-align: center;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+    }
+
+    .channel-item i {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-size: 1.2rem;
+        color: var(--primary);
+    }
+
+    .response-time {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        text-align: center;
+        background: var(--bg-secondary);
+    }
+
+    .time-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .time-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .response-time.fast .time-value {
+        color: var(--success);
+    }
+
+    .response-time.moderate .time-value {
+        color: var(--info);
+    }
+
+    .response-time.slow .time-value {
+        color: var(--warning);
+    }
+
+    .language-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .language-badges .badge {
+        font-size: 0.75rem;
+        padding: 0.3rem 0.5rem;
+    }
+</style>
+
+@code {
+    [Parameter] public BankSupport? Support { get; set; }
+
+    private string GetResponseTimeClass(double minutes)
+    {
+        if (minutes <= 15) return "fast";
+        if (minutes <= 60) return "moderate";
+        return "slow";
+    }
+}

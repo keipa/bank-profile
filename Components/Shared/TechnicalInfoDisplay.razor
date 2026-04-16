@@ -1,47 +1,113 @@
 @using BankProfiles.Web.Models
 
 <div class="technical-info">
-    @if (Info != null)
+    @if (Bank != null)
     {
-        <div class="accordion" id="techAccordion">
-            @if (Info.Commissions != null)
-            {
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseComm">
-                            Commissions
-                        </button>
-                    </h2>
-                    <div id="collapseComm" class="accordion-collapse collapse show">
-                        <div class="accordion-body">
-                            <p><strong>Domestic:</strong> Incoming @Info.Commissions.IncomingTransfer?.Domestic, Outgoing @Info.Commissions.OutgoingTransfer?.Domestic</p>
-                            <p><strong>International:</strong> Incoming @Info.Commissions.IncomingTransfer?.International, Outgoing @Info.Commissions.OutgoingTransfer?.International</p>
-                        </div>
-                    </div>
-                </div>
-            }
-            @if (Info.AvailableCurrencies != null)
-            {
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCurr">
-                            Available Currencies
-                        </button>
-                    </h2>
-                    <div id="collapseCurr" class="accordion-collapse collapse">
-                        <div class="accordion-body">
-                            @foreach (var currency in Info.AvailableCurrencies)
+        @* Systems Section *@
+        @if (Bank.Systems != null)
+        {
+            <div class="info-section mb-3">
+                <h6 class="section-title">Payment Systems</h6>
+                <div class="system-badges">
+                    @if (Bank.Systems.CardSystems != null && Bank.Systems.CardSystems.Any())
+                    {
+                        <div class="mb-2">
+                            <small class="text-muted">Card Networks:</small><br />
+                            @foreach (var card in Bank.Systems.CardSystems)
                             {
-                                <span class="badge bg-secondary me-1">@currency</span>
+                                <span class="badge bg-info me-1">@card</span>
                             }
                         </div>
+                    }
+                    <div class="system-features">
+                        @if (Bank.Systems.SwiftAvailable == true)
+                        {
+                            <span class="badge bg-success me-1"><i class="fas fa-check"></i> SWIFT</span>
+                        }
+                        @if (Bank.Systems.IbanSupported == true)
+                        {
+                            <span class="badge bg-success me-1"><i class="fas fa-check"></i> IBAN</span>
+                        }
+                        @if (Bank.Systems.SepaAvailable == true)
+                        {
+                            <span class="badge bg-success me-1"><i class="fas fa-check"></i> SEPA</span>
+                        }
+                        @if (Bank.Systems.InstantTransfers == true)
+                        {
+                            <span class="badge bg-success me-1"><i class="fas fa-bolt"></i> Instant Transfers</span>
+                        }
                     </div>
                 </div>
-            }
-        </div>
+            </div>
+        }
+
+        @* Currencies Section *@
+        @if (Bank.Currencies?.Available != null && Bank.Currencies.Available.Any())
+        {
+            <div class="info-section mb-3">
+                <h6 class="section-title">Available Currencies</h6>
+                <div class="currency-list">
+                    @foreach (var currency in Bank.Currencies.Available)
+                    {
+                        <span class="badge bg-secondary me-1">@currency</span>
+                    }
+                </div>
+            </div>
+        }
+
+        @* Fees Summary *@
+        @if (Bank.Fees != null)
+        {
+            <div class="info-section">
+                <h6 class="section-title">Fee Structure</h6>
+                <div class="fees-grid">
+                    @if (Bank.Fees.AccountFees != null)
+                    {
+                        <div class="fee-item">
+                            <small class="text-muted">Monthly Maintenance:</small>
+                            <strong>@FormatFee(Bank.Fees.AccountFees.MonthlyMaintenance)</strong>
+                        </div>
+                    }
+                    @if (Bank.Fees.CardFees != null)
+                    {
+                        <div class="fee-item">
+                            <small class="text-muted">Card Issuance:</small>
+                            <strong>@FormatFee(Bank.Fees.CardFees.CardIssuance)</strong>
+                        </div>
+                    }
+                    @if (Bank.Fees.Commissions != null)
+                    {
+                        <div class="fee-item">
+                            <small class="text-muted">Incoming Domestic:</small>
+                            <strong>@FormatPercent(Bank.Fees.Commissions.IncomingDomesticPercent)</strong>
+                        </div>
+                        <div class="fee-item">
+                            <small class="text-muted">Outgoing Domestic:</small>
+                            <strong>@FormatPercent(Bank.Fees.Commissions.OutgoingDomesticPercent)</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p class="text-muted">No technical information available</p>
     }
 </div>
 
 @code {
-    [Parameter] public TechnicalInfo? Info { get; set; }
+    [Parameter] public BankProfile? Bank { get; set; }
+
+    private string FormatFee(double? amount)
+    {
+        if (!amount.HasValue || amount.Value == 0) return "Free";
+        return $"€{amount.Value:F2}";
+    }
+
+    private string FormatPercent(double? percent)
+    {
+        if (!percent.HasValue || percent.Value == 0) return "0%";
+        return $"{percent.Value:F2}%";
+    }
 }

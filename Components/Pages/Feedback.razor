@@ -1,0 +1,404 @@
+@page "/feedback"
+@using BankProfiles.Web.Data.Entities
+@using BankProfiles.Web.Services
+@inject ILocalizationService Localization
+@inject IFeedbackService FeedbackService
+@inject IBankDataService BankDataService
+@inject IHttpContextAccessor HttpContextAccessor
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<PageTitle>@Localization.GetString("page.feedback.pageTitle")</PageTitle>
+
+<div class="feedback-page container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-comment-dots me-2" aria-hidden="true"></i>
+                        @Localization.GetString("page.feedback.title")
+                    </h1>
+                </div>
+                <div class="card-body p-4">
+                    @if (!_submitted)
+                    {
+                        <div class="alert alert-info mb-4" role="status">
+                            <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
+                            <p class="mb-2">@Localization.GetString("page.feedback.description")</p>
+                            <small>@Localization.GetString("page.feedback.instructions")</small>
+                        </div>
+
+                        @if (_remainingSubmissions >= 0 && _remainingSubmissions < 10)
+                        {
+                            <div class="alert @(_remainingSubmissions > 0 ? "alert-warning" : "alert-danger") mb-3" role="status">
+                                <i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>
+                                @if (_remainingSubmissions > 0)
+                                {
+                                    <text>@string.Format(Localization.GetString("feedback.rateLimit.remaining"), _remainingSubmissions)</text>
+                                }
+                                else
+                                {
+                                    <text>@string.Format(Localization.GetString("feedback.rateLimit.exceeded"), 24)</text>
+                                }
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(_errorMessage))
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-circle me-2" aria-hidden="true"></i>
+                                <strong>@Localization.GetString("feedback.error.title"):</strong>
+                                @_errorMessage
+                            </div>
+                        }
+
+                        <EditForm Model="@_feedback" OnValidSubmit="HandleSubmit" FormName="FeedbackForm">
+                            <DataAnnotationsValidator />
+                            
+                            <!-- Bank Selection -->
+                            <div class="mb-4">
+                                <label for="bankSelector" class="form-label">
+                                    @Localization.GetString("feedback.selectBank")
+                                </label>
+                                <select id="bankSelector" class="form-select" @onchange="OnBankChanged">
+                                    <option value="">@Localization.GetString("feedback.generalFeedback")</option>
+                                    @foreach (var bank in _banks)
+                                    {
+                                        <option value="@bank.BankId">@bank.Name</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <!-- Metric Category -->
+                            <div class="mb-4">
+                                <label for="categorySelector" class="form-label fw-bold">
+                                    @Localization.GetString("feedback.metricCategory")
+                                </label>
+                                <select id="categorySelector" class="form-select @(_validationErrors.ContainsKey("category") ? "is-invalid" : "")" 
+                                        @bind="_selectedCategory" @bind:after="OnCategoryChanged" required>
+                                    <option value="">@Localization.GetString("feedback.selectCategory")</option>
+                                    @foreach (var category in _categories)
+                                    {
+                                        <option value="@category.Key">@category.Value</option>
+                                    }
+                                </select>
+                                @if (_validationErrors.ContainsKey("category"))
+                                {
+                                    <div class="invalid-feedback d-block">@_validationErrors["category"]</div>
+                                }
+                            </div>
+
+                            <!-- Metric Name -->
+                            <div class="mb-4">
+                                <label for="metricSelector" class="form-label fw-bold">
+                                    @Localization.GetString("feedback.metricName")
+                                </label>
+                                <select id="metricSelector" class="form-select @(_validationErrors.ContainsKey("metric") ? "is-invalid" : "")" 
+                                        @bind="_selectedMetric" disabled="@(string.IsNullOrEmpty(_selectedCategory))" required>
+                                    <option value="">@Localization.GetString("feedback.selectMetric")</option>
+                                    @if (_currentMetrics != null)
+                                    {
+                                        @foreach (var metric in _currentMetrics)
+                                        {
+                                            <option value="@metric">@metric</option>
+                                        }
+                                    }
+                                </select>
+                                @if (_validationErrors.ContainsKey("metric"))
+                                {
+                                    <div class="invalid-feedback d-block">@_validationErrors["metric"]</div>
+                                }
+                            </div>
+
+                            <!-- Current Value -->
+                            <div class="mb-4">
+                                <label for="currentValue" class="form-label">
+                                    @Localization.GetString("feedback.currentValue")
+                                </label>
+                                <input type="text" class="form-control @(_validationErrors.ContainsKey("currentValue") ? "is-invalid" : "")" 
+                                       id="currentValue" @bind="_feedback.CurrentValue" maxlength="500" />
+                                @if (_validationErrors.ContainsKey("currentValue"))
+                                {
+                                    <div class="invalid-feedback">@_validationErrors["currentValue"]</div>
+                                }
+                            </div>
+
+                            <!-- Suggested Value -->
+                            <div class="mb-4">
+                                <label for="suggestedValue" class="form-label">
+                                    @Localization.GetString("feedback.suggestedValue")
+                                </label>
+                                <input type="text" class="form-control @(_validationErrors.ContainsKey("suggestedValue") ? "is-invalid" : "")" 
+                                       id="suggestedValue" @bind="_feedback.SuggestedValue" maxlength="500" />
+                                @if (_validationErrors.ContainsKey("suggestedValue"))
+                                {
+                                    <div class="invalid-feedback">@_validationErrors["suggestedValue"]</div>
+                                }
+                            </div>
+
+                            <!-- Explanation -->
+                            <div class="mb-4">
+                                <label for="explanation" class="form-label fw-bold">
+                                    @Localization.GetString("feedback.explanation")
+                                </label>
+                                <textarea class="form-control @(_validationErrors.ContainsKey("explanation") ? "is-invalid" : "")" 
+                                          id="explanation" rows="6" @bind="_feedback.Explanation" maxlength="2000" required
+                                          placeholder="@Localization.GetString("feedback.explainChanges")"></textarea>
+                                <small class="form-text text-muted">@(_feedback.Explanation?.Length ?? 0) / 2000</small>
+                                @if (_validationErrors.ContainsKey("explanation"))
+                                {
+                                    <div class="invalid-feedback">@_validationErrors["explanation"]</div>
+                                }
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" disabled="@(_isSubmitting || _remainingSubmissions <= 0)">
+                                    @if (_isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        <span>@Localization.GetString("feedback.submitting")</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-paper-plane me-2" aria-hidden="true"></i>
+                                        <span>@Localization.GetString("feedback.submitButton")</span>
+                                    }
+                                </button>
+                            </div>
+                        </EditForm>
+                    }
+                    else
+                    {
+                        <!-- Success Message -->
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <i class="fas fa-check-circle text-success" style="font-size: 5rem;" aria-hidden="true"></i>
+                            </div>
+                            <h2 class="h3 mb-3">@Localization.GetString("feedback.success.title")</h2>
+                            <p class="lead text-muted mb-4">@Localization.GetString("feedback.success.message")</p>
+                            <div class="d-grid gap-2 col-md-6 mx-auto">
+                                <button type="button" class="btn btn-primary" @onclick="ResetForm">
+                                    <i class="fas fa-plus-circle me-2" aria-hidden="true"></i>
+                                    @Localization.GetString("feedback.submitAnother")
+                                </button>
+                                <a href="/banks" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2" aria-hidden="true"></i>
+                                    @Localization.GetString("page.home.viewAllBanks")
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private MetricFeedback _feedback = new() { MetricCategory = "", MetricName = "", Explanation = "" };
+    private List<BankProfile> _banks = new();
+    private bool _isSubmitting = false;
+    private bool _submitted = false;
+    private string? _errorMessage;
+    private int _remainingSubmissions = 10;
+    private Dictionary<string, string> _validationErrors = new();
+    
+    private string _selectedCategory = "";
+    private string _selectedMetric = "";
+    private List<string>? _currentMetrics;
+
+    private Dictionary<string, string> _categories = new();
+    
+    // Metric definitions by category
+    private Dictionary<string, List<string>> _metricsByCategory = new()
+    {
+        { "fees", new List<string> { "incomingDomesticPercent", "incomingInternationalPercent", "outgoingDomesticPercent", "outgoingInternationalPercent", "cashWithdrawalLocalAtmPercent", "cashWithdrawalInternationalAtmPercent", "fxMarkupPercent", "accountOpening", "monthlyMaintenance", "accountClosure", "dormancyFee", "cardIssuance", "premiumCardAnnualFee", "replacementCardFee", "swiftPaymentProcessing", "urgentPaymentSurcharge", "chargebackHandling" } },
+        { "systems", new List<string> { "cardSystems", "swiftAvailable", "ibanSupported", "sepaAvailable", "localClearing", "instantTransfers", "cryptoExposure" } },
+        { "currencies", new List<string> { "available", "baseCurrency", "multiCurrencyAccounts", "fxMarkupPercent" } },
+        { "branches", new List<string> { "count", "countries", "atmCount", "partnerAtmNetwork" } },
+        { "clients", new List<string> { "total", "retail", "business", "corporate", "privateBanking" } },
+        { "compliance", new List<string> { "sanctionsRisk", "governmentAffiliate", "pepExposure", "offshoreLinks", "amlStatus", "kycStatus", "fATCA", "crs", "auditPublished", "depositInsurance" } },
+        { "digitalChannels", new List<string> { "mobileApp", "webBanking", "ios", "android", "apiAccess", "biometricLogin", "deviceTrust", "pushNotifications", "uptimePercent", "averageAccountOpeningMinutes" } },
+        { "support", new List<string> { "available24x7", "channels", "averageResponseTimeMinutes", "languages" } },
+        { "products", new List<string> { "accounts", "cards", "savings", "loans", "mortgages", "investmentTools", "merchantAcquiring", "payroll", "escrow", "tradeFinance" } },
+        { "metrics", new List<string> { "clientSatisfactionPercent", "corporateSatisfactionPercent", "complaintRatioPercent", "avgRemediationDays", "openIssues", "resolvedEvents" } },
+        { "overview", new List<string> { "type", "segment", "foundedYear", "description", "logoUrl" } }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load categories with localization
+        _categories = new Dictionary<string, string>
+        {
+            { "fees", Localization.GetString("feedback.category.fees") },
+            { "systems", Localization.GetString("feedback.category.systems") },
+            { "currencies", Localization.GetString("feedback.category.currencies") },
+            { "branches", Localization.GetString("feedback.category.branches") },
+            { "clients", Localization.GetString("feedback.category.clients") },
+            { "compliance", Localization.GetString("feedback.category.compliance") },
+            { "digitalChannels", Localization.GetString("feedback.category.digitalChannels") },
+            { "support", Localization.GetString("feedback.category.support") },
+            { "products", Localization.GetString("feedback.category.products") },
+            { "metrics", Localization.GetString("feedback.category.metrics") },
+            { "overview", Localization.GetString("feedback.category.overview") }
+        };
+
+        // Load banks
+        var allBanks = await BankDataService.GetAllBanksAsync();
+        _banks = allBanks.OrderBy(b => b.Name).ToList();
+
+        // Check rate limit
+        var ipAddress = GetClientIpAddress();
+        if (!string.IsNullOrEmpty(ipAddress))
+        {
+            _remainingSubmissions = await FeedbackService.GetRemainingSubmissionsAsync(ipAddress);
+        }
+    }
+
+    private void OnBankChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int bankId))
+        {
+            _feedback.BankId = bankId;
+        }
+        else
+        {
+            _feedback.BankId = null;
+        }
+    }
+
+    private void OnCategoryChanged()
+    {
+        _selectedMetric = "";
+        _currentMetrics = null;
+        
+        if (!string.IsNullOrEmpty(_selectedCategory) && _metricsByCategory.ContainsKey(_selectedCategory))
+        {
+            _currentMetrics = _metricsByCategory[_selectedCategory];
+        }
+        
+        _validationErrors.Remove("category");
+    }
+
+    private async Task HandleSubmit()
+    {
+        _validationErrors.Clear();
+        _errorMessage = null;
+
+        // Client-side validation
+        if (string.IsNullOrWhiteSpace(_selectedCategory))
+        {
+            _validationErrors["category"] = Localization.GetString("feedback.validation.categoryRequired");
+        }
+
+        if (string.IsNullOrWhiteSpace(_selectedMetric))
+        {
+            _validationErrors["metric"] = Localization.GetString("feedback.validation.metricRequired");
+        }
+
+        if (string.IsNullOrWhiteSpace(_feedback.Explanation))
+        {
+            _validationErrors["explanation"] = Localization.GetString("feedback.validation.explanationRequired");
+        }
+        else if (_feedback.Explanation.Length < 20)
+        {
+            _validationErrors["explanation"] = Localization.GetString("feedback.validation.explanationMinLength");
+        }
+        else if (_feedback.Explanation.Length > 2000)
+        {
+            _validationErrors["explanation"] = Localization.GetString("feedback.validation.explanationMaxLength");
+        }
+
+        if (_feedback.CurrentValue?.Length > 500)
+        {
+            _validationErrors["currentValue"] = Localization.GetString("feedback.validation.currentValueMaxLength");
+        }
+
+        if (_feedback.SuggestedValue?.Length > 500)
+        {
+            _validationErrors["suggestedValue"] = Localization.GetString("feedback.validation.suggestedValueMaxLength");
+        }
+
+        if (_validationErrors.Any())
+        {
+            _errorMessage = Localization.GetString("feedback.error.validation");
+            return;
+        }
+
+        _isSubmitting = true;
+
+        try
+        {
+            // Set feedback properties
+            _feedback.MetricCategory = _selectedCategory;
+            _feedback.MetricName = _selectedMetric;
+            _feedback.SubmitterIP = GetClientIpAddress();
+            _feedback.SubmittedDate = DateTime.UtcNow;
+
+            var success = await FeedbackService.SubmitFeedbackAsync(_feedback);
+
+            if (success)
+            {
+                _submitted = true;
+                _remainingSubmissions = await FeedbackService.GetRemainingSubmissionsAsync(_feedback.SubmitterIP ?? "");
+            }
+            else
+            {
+                // Check if it's a rate limit error
+                var canSubmit = await FeedbackService.CheckRateLimitAsync(_feedback.SubmitterIP ?? "");
+                if (!canSubmit)
+                {
+                    _errorMessage = Localization.GetString("feedback.error.rateLimit");
+                    _remainingSubmissions = 0;
+                }
+                else
+                {
+                    _errorMessage = Localization.GetString("feedback.error.generic");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = Localization.GetString("feedback.error.generic");
+            Console.WriteLine($"Error submitting feedback: {ex.Message}");
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void ResetForm()
+    {
+        _feedback = new MetricFeedback { MetricCategory = "", MetricName = "", Explanation = "" };
+        _selectedCategory = "";
+        _selectedMetric = "";
+        _currentMetrics = null;
+        _submitted = false;
+        _errorMessage = null;
+        _validationErrors.Clear();
+    }
+
+    private string GetClientIpAddress()
+    {
+        var httpContext = HttpContextAccessor.HttpContext;
+        if (httpContext == null) return "";
+
+        // Try to get the real IP from headers (for reverse proxies)
+        var forwardedFor = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(forwardedFor))
+        {
+            return forwardedFor.Split(',')[0].Trim();
+        }
+
+        var realIp = httpContext.Request.Headers["X-Real-IP"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(realIp))
+        {
+            return realIp;
+        }
+
+        return httpContext.Connection.RemoteIpAddress?.ToString() ?? "";
+    }
+}

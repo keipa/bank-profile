@@ -32,6 +32,14 @@ A comprehensive bank comparison platform built with .NET 10 Blazor Server, featu
 - **Light/Dark Mode Toggle** - Theme switcher with persistent preference
 - **Animated Backgrounds** - SVG animations with gradients and floating elements
 
+#### 🎯 Apple-Style Tile Layout (Latest)
+- **Large Typography** - Helvetica/SF font family with 56px bank names
+- **Metric Tiles** - 50+ individual tiles with auto-fit responsive grid
+- **Color-Coded Booleans** - Green tiles for active features, gray for inactive
+- **5 Grouped Sections** - Overview & Ratings, Systems & Currencies, Fees, Compliance & Risk, Digital & Support
+- **Smooth Animations** - Staggered fade-in, hover effects with scale transforms
+- **Mobile-First** - Responsive from 320px to 4K displays
+
 #### 🌍 Internationalization (i18n)
 - **5 Languages Supported**: 
   - 🇺🇸 English (US) - en-US
@@ -59,6 +67,17 @@ A comprehensive bank comparison platform built with .NET 10 Blazor Server, featu
 - **Font Awesome** - Icon library
 - **Chart.js** - Interactive charts via PSC.Blazor.Components.Chartjs
 - **SVG Animations** - Custom animated backgrounds with CSS keyframes
+- **Built-in Rate Limiting** - DDoS protection with System.Threading.RateLimiting
+
+## Security Features
+
+### DDoS Protection
+- **IP Rate Limiting**: 30 requests/minute per IP address
+- **Circuit Limiting**: 5 concurrent SignalR circuits per IP
+- **Connection Pool**: Optimized with 512 max connections
+- **Custom 429 Page**: User-friendly rate limit exceeded page
+
+See [SECURITY.md](SECURITY.md) for detailed security documentation.
 
 ## Prerequisites
 

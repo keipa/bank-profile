@@ -1,88 +1,157 @@
 {
-  "bankCode": "bank-epsilon",
-  "countryCode": "es",
-  "defaultLanguage": "es-ES",
-  "bankName": "Epsilon International Bank",
-  "description": "Global banking powerhouse with presence in 50+ countries. Premium banking services for high-net-worth individuals and corporations since 1950.",
-  "websiteUrl": "https://www.epsiloninternational.com",
-  "logoUrl": "/images/banks/epsilon-logo.png",
+  "bankId": "bank-epsilon",
+  "name": "Epsilon International Bank",
+  "legalName": "Epsilon International Bank SA",
+  "status": "active",
+  "countryOfOwnerResidence": "Spain",
+  "headquartersCountry": "Spain",
+  "jurisdiction": "Banco de España",
+  "overview": {
+    "type": "private bank",
+    "segment": "Private Banking & Wealth Management",
+    "foundedYear": 1950,
+    "description": "Global banking powerhouse with presence in 50+ countries. Premium banking services for high-net-worth individuals and corporations since 1950.",
+    "logoUrl": "/images/banks/epsilon-logo.png"
+  },
+  "systems": {
+    "cardSystems": ["visa", "mastercard", "amex", "unionpay"],
+    "swiftAvailable": true,
+    "ibanSupported": true,
+    "sepaAvailable": true,
+    "localClearing": true,
+    "instantTransfers": true,
+    "cryptoExposure": "low"
+  },
+  "currencies": {
+    "available": ["USD", "EUR", "GBP", "CHF", "JPY", "AUD", "CAD", "CNY", "SGD", "HKD", "AED", "SEK"],
+    "baseCurrency": "EUR",
+    "multiCurrencyAccounts": true,
+    "fxMarkupPercent": 0.3
+  },
+  "fees": {
+    "commissions": {
+      "incomingDomesticPercent": 0.0,
+      "incomingInternationalPercent": 0.1,
+      "outgoingDomesticPercent": 0.0,
+      "outgoingInternationalPercent": 0.15,
+      "cashWithdrawalLocalAtmPercent": 0.0,
+      "cashWithdrawalInternationalAtmPercent": 0.0,
+      "fxMarkupPercent": 0.3
+    },
+    "accountFees": {
+      "accountOpening": 0.0,
+      "monthlyMaintenance": 0.0,
+      "accountClosure": 0.0,
+      "dormancyAfterMonths": 60,
+      "dormancyFee": 0.0
+    },
+    "cardFees": {
+      "cardIssuance": 25.0,
+      "premiumCardAnnualFee": 50.0,
+      "replacementCardFee": 20.0
+    },
+    "transferFees": {
+      "swiftPaymentProcessing": 15.0,
+      "urgentPaymentSurcharge": 5.0,
+      "chargebackHandling": 20.0
+    }
+  },
+  "branches": {
+    "count": 850,
+    "countries": ["Spain", "United Kingdom", "France", "Germany", "Switzerland", "United States", "Singapore", "Hong Kong", "UAE"],
+    "atmCount": 2500,
+    "partnerAtmNetwork": 100000
+  },
+  "clients": {
+    "total": 15000000,
+    "retail": 10000000,
+    "business": 3000000,
+    "corporate": 1500000,
+    "privateBanking": 500000
+  },
+  "ratings": {
+    "overall": 4.6,
+    "history": [],
+    "source": "internal",
+    "lastUpdated": "2026-04-10T00:00:00Z"
+  },
+  "compliance": {
+    "sanctionsRisk": "low",
+    "governmentAffiliate": false,
+    "pepExposure": "moderate",
+    "offshoreLinks": "limited",
+    "amlStatus": "good",
+    "kycStatus": "complete",
+    "fATCA": true,
+    "crs": true,
+    "auditPublished": true,
+    "depositInsurance": true
+  },
+  "digitalChannels": {
+    "mobileApp": true,
+    "webBanking": true,
+    "ios": true,
+    "android": true,
+    "apiAccess": true,
+    "biometricLogin": true,
+    "deviceTrust": true,
+    "pushNotifications": true,
+    "uptimePercent": 99.95,
+    "averageAccountOpeningMinutes": 10
+  },
+  "support": {
+    "available24x7": true,
+    "channels": ["phone", "email", "chat", "branch", "app", "web"],
+    "averageResponseTimeMinutes": 3,
+    "languages": ["English", "Spanish", "French", "German", "Mandarin", "Japanese", "Arabic"]
+  },
+  "products": {
+    "accounts": true,
+    "cards": true,
+    "savings": true,
+    "loans": true,
+    "mortgages": true,
+    "investmentTools": true,
+    "merchantAcquiring": true,
+    "payroll": true,
+    "escrow": true,
+    "tradeFinance": true
+  },
+  "redFlags": [],
+  "metrics": {
+    "clientSatisfactionPercent": 93.0,
+    "corporateSatisfactionPercent": 95.0,
+    "complaintRatioPercent": 0.3,
+    "avgRemediationDays": 3,
+    "openIssues": 8,
+    "resolvedEvents": 412
+  },
+  "metadata": {
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-04-10T00:00:00Z",
+    "lastReviewed": "2026-04-10T08:20:00Z",
+    "source": "internal",
+    "confidence": 0.96
+  },
   "theme": {
     "primaryColor": "#004d40",
     "secondaryColor": "#00695c",
     "fontFamily": "Merriweather, serif",
-    "accentColor": "#ffd600"
-  },
-  "technicalInfo": {
-    "commissions": {
-      "incomingTransfer": {
-        "domestic": 0.0,
-        "international": 10.0,
-        "currency": "USD"
-      },
-      "outgoingTransfer": {
-        "domestic": 0.0,
-        "international": 15.0,
-        "currency": "USD"
-      }
+    "accentColor": "#ffd600",
+    "darkTheme": {
+      "primaryColor": "#26a69a",
+      "secondaryColor": "#4db6ac",
+      "accentColor": "#ffee58",
+      "backgroundStart": "#0a1f1c",
+      "backgroundEnd": "#1a3a35"
     },
-    "cardServices": {
-      "debitCardOpeningFee": 25.0,
-      "creditCardOpeningFee": 50.0,
-      "annualMaintenanceFee": 50.0,
-      "currency": "USD"
-    },
-    "availableCurrencies": ["USD", "EUR", "GBP", "CHF", "JPY", "AUD", "CAD", "CNY", "SGD", "HKD", "AED", "SEK"],
-    "premiumBanking": {
-      "available": true,
-      "minimumBalance": 100000,
-      "monthlyFee": 0,
-      "benefits": [
-        "Dedicated wealth manager",
-        "Concierge service 24/7",
-        "Free global transfers",
-        "Platinum credit card with unlimited lounge access",
-        "Private banking events",
-        "Investment banking access",
-        "Multi-currency accounts",
-        "Tax optimization services"
-      ]
-    },
-    "digitalServices": {
-      "mobileBanking": true,
-      "onlineTrading": true,
-      "cryptocurrency": false,
-      "roboAdvisor": true
-    },
-    "accountTypes": [
-      {
-        "name": "Global Checking",
-        "minimumBalance": 10000,
-        "monthlyFee": 0,
-        "features": ["Multi-currency debit card", "Online banking", "Global transfers", "Priority support"]
-      },
-      {
-        "name": "Wealth Management",
-        "minimumBalance": 50000,
-        "monthlyFee": 0,
-        "features": ["Investment advisory", "Portfolio management", "Tax planning", "Estate planning"]
-      },
-      {
-        "name": "Corporate Banking",
-        "minimumBalance": 100000,
-        "monthlyFee": 50,
-        "features": ["Business checking", "Merchant services", "Payroll services", "Trade financing"]
-      }
-    ],
-    "atmNetwork": {
-      "ownAtms": 2000,
-      "partnerAtms": 100000,
-      "internationalAccess": true
+    "lightTheme": {
+      "primaryColor": "#00897b",
+      "secondaryColor": "#26a69a",
+      "accentColor": "#fbc02d",
+      "backgroundStart": "#e0f2f1",
+      "backgroundEnd": "#b2dfdb"
     }
-  },
-  "contactInfo": {
-    "phone": "+1-800-EPSILON-INT",
-    "email": "wealth@epsiloninternational.com",
-    "address": "555 Park Avenue, New York, NY 10022, USA"
   },
   "animationConfig": {
     "gradientStops": [
@@ -90,10 +159,17 @@
       { "offset": "100%", "color": "#00695c" }
     ],
     "balls": [
-      { "centerX": 180, "centerY": 220, "radius": 110, "color": "#ffd600" },
-      { "centerX": 480, "centerY": 280, "radius": 170, "color": "#00695c" },
-      { "centerX": 350, "centerY": 120, "radius": 90, "color": "#ffd600" }
+      { "centerX": 180, "centerY": 180, "radius": 140, "color": "#ffd600" },
+      { "centerX": 420, "centerY": 320, "radius": 170, "color": "#00695c" },
+      { "centerX": 320, "centerY": 450, "radius": 110, "color": "#ffd600" }
     ],
     "animationType": "wave"
+  },
+  "defaultLanguage": "es-ES",
+  "websiteUrl": "https://www.epsiloninternational.com",
+  "contactInfo": {
+    "phone": "+34-900-EPSILON",
+    "email": "contact@epsiloninternational.com",
+    "address": "Gran Vía 28, Madrid 28013, Spain"
   }
 }

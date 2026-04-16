@@ -1,86 +1,157 @@
 {
-  "bankCode": "bank-gamma",
-  "countryCode": "de",
-  "defaultLanguage": "de-DE",
-  "bankName": "Gamma Digital Bank",
-  "description": "Modern digital-first bank with cutting-edge technology, zero fees, and 24/7 customer support. Built for the digital age since 2015.",
-  "websiteUrl": "https://www.gammadigital.com",
-  "logoUrl": "/images/banks/gamma-logo.png",
+  "bankId": "bank-gamma",
+  "name": "Gamma Digital Bank",
+  "legalName": "Gamma Digital Bank GmbH",
+  "status": "active",
+  "countryOfOwnerResidence": "Germany",
+  "headquartersCountry": "Germany",
+  "jurisdiction": "BaFin (German Federal Financial Supervisory Authority)",
+  "overview": {
+    "type": "digital bank",
+    "segment": "Digital Banking",
+    "foundedYear": 2015,
+    "description": "Modern digital-first bank with cutting-edge technology, zero fees, and 24/7 customer support. Built for the digital age since 2015.",
+    "logoUrl": "/images/banks/gamma-logo.png"
+  },
+  "systems": {
+    "cardSystems": ["visa", "mastercard", "maestro"],
+    "swiftAvailable": true,
+    "ibanSupported": true,
+    "sepaAvailable": true,
+    "localClearing": true,
+    "instantTransfers": true,
+    "cryptoExposure": "moderate"
+  },
+  "currencies": {
+    "available": ["USD", "EUR", "GBP", "CHF", "JPY", "AUD", "CAD", "CNY"],
+    "baseCurrency": "EUR",
+    "multiCurrencyAccounts": true,
+    "fxMarkupPercent": 0.0
+  },
+  "fees": {
+    "commissions": {
+      "incomingDomesticPercent": 0.0,
+      "incomingInternationalPercent": 0.0,
+      "outgoingDomesticPercent": 0.0,
+      "outgoingInternationalPercent": 0.05,
+      "cashWithdrawalLocalAtmPercent": 0.0,
+      "cashWithdrawalInternationalAtmPercent": 0.0,
+      "fxMarkupPercent": 0.0
+    },
+    "accountFees": {
+      "accountOpening": 0.0,
+      "monthlyMaintenance": 0.0,
+      "accountClosure": 0.0,
+      "dormancyAfterMonths": 36,
+      "dormancyFee": 0.0
+    },
+    "cardFees": {
+      "cardIssuance": 0.0,
+      "premiumCardAnnualFee": 0.0,
+      "replacementCardFee": 5.0
+    },
+    "transferFees": {
+      "swiftPaymentProcessing": 5.0,
+      "urgentPaymentSurcharge": 0.0,
+      "chargebackHandling": 0.0
+    }
+  },
+  "branches": {
+    "count": 0,
+    "countries": ["Germany"],
+    "atmCount": 0,
+    "partnerAtmNetwork": 50000
+  },
+  "clients": {
+    "total": 2000000,
+    "retail": 1900000,
+    "business": 95000,
+    "corporate": 5000,
+    "privateBanking": 0
+  },
+  "ratings": {
+    "overall": 4.7,
+    "history": [],
+    "source": "internal",
+    "lastUpdated": "2026-04-10T00:00:00Z"
+  },
+  "compliance": {
+    "sanctionsRisk": "low",
+    "governmentAffiliate": false,
+    "pepExposure": "low",
+    "offshoreLinks": "none",
+    "amlStatus": "good",
+    "kycStatus": "complete",
+    "fATCA": true,
+    "crs": true,
+    "auditPublished": true,
+    "depositInsurance": true
+  },
+  "digitalChannels": {
+    "mobileApp": true,
+    "webBanking": true,
+    "ios": true,
+    "android": true,
+    "apiAccess": true,
+    "biometricLogin": true,
+    "deviceTrust": true,
+    "pushNotifications": true,
+    "uptimePercent": 99.99,
+    "averageAccountOpeningMinutes": 5
+  },
+  "support": {
+    "available24x7": true,
+    "channels": ["chat", "email", "app", "web"],
+    "averageResponseTimeMinutes": 2,
+    "languages": ["English", "German", "French", "Spanish", "Italian"]
+  },
+  "products": {
+    "accounts": true,
+    "cards": true,
+    "savings": true,
+    "loans": false,
+    "mortgages": false,
+    "investmentTools": true,
+    "merchantAcquiring": false,
+    "payroll": false,
+    "escrow": false,
+    "tradeFinance": false
+  },
+  "redFlags": [],
+  "metrics": {
+    "clientSatisfactionPercent": 94.0,
+    "corporateSatisfactionPercent": 89.0,
+    "complaintRatioPercent": 0.2,
+    "avgRemediationDays": 2,
+    "openIssues": 5,
+    "resolvedEvents": 234
+  },
+  "metadata": {
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-04-10T00:00:00Z",
+    "lastReviewed": "2026-04-09T16:45:00Z",
+    "source": "internal",
+    "confidence": 0.98
+  },
   "theme": {
     "primaryColor": "#6a1b9a",
     "secondaryColor": "#9c27b0",
     "fontFamily": "Inter, sans-serif",
-    "accentColor": "#00e676"
-  },
-  "technicalInfo": {
-    "commissions": {
-      "incomingTransfer": {
-        "domestic": 0.0,
-        "international": 0.0,
-        "currency": "USD"
-      },
-      "outgoingTransfer": {
-        "domestic": 0.0,
-        "international": 5.0,
-        "currency": "USD"
-      }
+    "accentColor": "#00e676",
+    "darkTheme": {
+      "primaryColor": "#ab47bc",
+      "secondaryColor": "#ba68c8",
+      "accentColor": "#69f0ae",
+      "backgroundStart": "#1e1b4b",
+      "backgroundEnd": "#312e81"
     },
-    "cardServices": {
-      "debitCardOpeningFee": 0.0,
-      "creditCardOpeningFee": 0.0,
-      "annualMaintenanceFee": 0.0,
-      "currency": "USD"
-    },
-    "availableCurrencies": ["USD", "EUR", "GBP", "CHF", "JPY", "AUD", "CAD", "CNY", "BTC", "ETH"],
-    "premiumBanking": {
-      "available": true,
-      "minimumBalance": 10000,
-      "monthlyFee": 0,
-      "benefits": [
-        "AI-powered financial advisor",
-        "Crypto trading integration",
-        "Premium investment tools",
-        "Global ATM fee reimbursement",
-        "Travel insurance",
-        "Purchase protection"
-      ]
-    },
-    "digitalServices": {
-      "mobileBanking": true,
-      "onlineTrading": true,
-      "cryptocurrency": true,
-      "roboAdvisor": true
-    },
-    "accountTypes": [
-      {
-        "name": "Smart Checking",
-        "minimumBalance": 0,
-        "monthlyFee": 0,
-        "features": ["Virtual debit card", "Mobile banking", "Instant notifications", "Budgeting tools", "Round-up savings"]
-      },
-      {
-        "name": "High-Yield Savings",
-        "minimumBalance": 0,
-        "monthlyFee": 0,
-        "features": ["4.5% APY", "No minimum balance", "Unlimited transfers", "Auto-save features"]
-      },
-      {
-        "name": "Crypto Account",
-        "minimumBalance": 100,
-        "monthlyFee": 0,
-        "features": ["Bitcoin trading", "Ethereum trading", "Cold storage", "Real-time pricing", "Tax reporting"]
-      }
-    ],
-    "atmNetwork": {
-      "ownAtms": 0,
-      "partnerAtms": 50000,
-      "internationalAccess": true
+    "lightTheme": {
+      "primaryColor": "#8e24aa",
+      "secondaryColor": "#ab47bc",
+      "accentColor": "#00e676",
+      "backgroundStart": "#f3e5f5",
+      "backgroundEnd": "#e1bee7"
     }
-  },
-  "contactInfo": {
-    "phone": "+1-877-GAMMA-DIG",
-    "email": "hello@gammadigital.com",
-    "address": "789 Innovation Way, San Francisco, CA 94105, USA"
   },
   "animationConfig": {
     "gradientStops": [
@@ -93,5 +164,12 @@
       { "centerX": 300, "centerY": 100, "radius": 100, "color": "#00e676" }
     ],
     "animationType": "float"
+  },
+  "defaultLanguage": "de-DE",
+  "websiteUrl": "https://www.gammadigital.com",
+  "contactInfo": {
+    "phone": "+1-877-GAMMA-DIG",
+    "email": "hello@gammadigital.com",
+    "address": "789 Innovation Way, San Francisco, CA 94105, USA"
   }
 }

@@ -1,0 +1,387 @@
+/* ===================================
+   APPLE-STYLE TILE SYSTEM
+   =================================== */
+
+/* Section Styles */
+.tile-section {
+    margin-bottom: 48px;
+}
+
+.tile-section-header {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tile-section-header .section-icon {
+    font-size: 24px;
+    opacity: 0.7;
+}
+
+/* Grid Layout */
+.tile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .tile-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+    }
+}
+
+/* Base Tile Styles with Glass Morphism */
+.metric-tile {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    min-height: 160px;
+    padding: 24px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.metric-tile:hover {
+    transform: translateY(-4px) scale(1.02);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 16px 48px rgba(0, 0, 0, 0.15),
+        0 4px 16px rgba(0, 0, 0, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Dark theme glass tiles */
+[data-theme="dark"] .metric-tile {
+    background: rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .metric-tile:hover {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.metric-tile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+}
+
+/* Metric Header - Label and Icon */
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+/* Metric Icon - Top Right */
+.metric-icon {
+    font-size: 20px;
+    opacity: 0.6;
+    flex-shrink: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.metric-tile:hover .metric-icon {
+    opacity: 0.9;
+    transform: scale(1.1);
+}
+
+/* Metric Label - Top Left */
+.metric-label {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    flex: 1;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 0.7;
+    line-height: 1.4;
+}
+
+/* Metric Value */
+.metric-value {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    .metric-value {
+        font-size: 28px;
+    }
+}
+
+.metric-unit {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    opacity: 0.6;
+    margin-top: 4px;
+}
+
+/* Boolean Tiles - Apple Style */
+.metric-tile.boolean-true {
+    background: linear-gradient(135deg, #34C759 0%, #30D158 100%);
+    color: #ffffff;
+    border: none;
+}
+
+.metric-tile.boolean-true .metric-label,
+.metric-tile.boolean-true .metric-icon,
+.metric-tile.boolean-true .metric-unit {
+    opacity: 0.95;
+    color: #ffffff;
+}
+
+.metric-tile.boolean-false {
+    background: #F2F2F7;
+    color: #8E8E93;
+    border: 1px solid #E5E5EA;
+}
+
+.metric-tile.boolean-false .metric-label,
+.metric-tile.boolean-false .metric-icon {
+    opacity: 0.7;
+}
+
+/* Percentage Tiles */
+.metric-tile.percentage {
+    background: linear-gradient(135deg, #ffffff 0%, #f9f9fb 100%);
+    border: 2px solid #007AFF;
+}
+
+.metric-tile.percentage .metric-value {
+    color: #007AFF;
+}
+
+.percentage-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.progress-bar-wrapper {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 122, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #007AFF 0%, #00C7BE 100%);
+    border-radius: 3px;
+    transition: width 0.3s ease-out;
+}
+
+/* Currency Tiles */
+.metric-tile.currency {
+    background: linear-gradient(135deg, #ffffff 0%, #fffef9 100%);
+    border: 2px solid #FF9500;
+}
+
+.metric-tile.currency .metric-value {
+    color: #FF9500;
+}
+
+/* Numeric Tiles */
+.metric-tile.numeric {
+    background: #ffffff;
+    border: 1px solid #E5E5EA;
+}
+
+.metric-tile.numeric .metric-value {
+    color: #1d1d1f;
+}
+
+/* List/Text Tiles */
+.metric-tile.list,
+.metric-tile.text {
+    background: #ffffff;
+    border: 1px solid #E5E5EA;
+}
+
+.metric-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.chip {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #F2F2F7;
+    color: #1d1d1f;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.chip.more {
+    background: #007AFF;
+    color: #ffffff;
+}
+
+/* Alert Tiles */
+.metric-tile.alert-alert {
+    border: 2px solid #FF3B30;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+}
+
+.metric-tile.alert-alert .metric-value {
+    color: #FF3B30;
+}
+
+.metric-tile.alert-warning {
+    border: 2px solid #FF9500;
+    background: linear-gradient(135deg, #fffaf0 0%, #ffffff 100%);
+}
+
+.metric-tile.alert-warning .metric-value {
+    color: #FF9500;
+}
+
+/* Loading Skeleton */
+.metric-tile.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Entrance Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tile-section {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.metric-tile {
+    animation: fadeInUp 0.4s ease-out backwards;
+}
+
+/* Stagger animation for tiles */
+.metric-tile:nth-child(1) { animation-delay: 0.05s; }
+.metric-tile:nth-child(2) { animation-delay: 0.1s; }
+.metric-tile:nth-child(3) { animation-delay: 0.15s; }
+.metric-tile:nth-child(4) { animation-delay: 0.2s; }
+.metric-tile:nth-child(5) { animation-delay: 0.25s; }
+.metric-tile:nth-child(6) { animation-delay: 0.3s; }
+.metric-tile:nth-child(7) { animation-delay: 0.35s; }
+.metric-tile:nth-child(8) { animation-delay: 0.4s; }
+.metric-tile:nth-child(9) { animation-delay: 0.45s; }
+.metric-tile:nth-child(10) { animation-delay: 0.5s; }
+.metric-tile:nth-child(n+11) { animation-delay: 0.55s; }
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .metric-tile {
+        background: #1c1c1e;
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .metric-tile.numeric,
+    .metric-tile.list,
+    .metric-tile.text {
+        border-color: #3a3a3c;
+    }
+
+    .tile-section-header {
+        color: #ffffff;
+    }
+
+    .metric-tile.boolean-false {
+        background: #2c2c2e;
+        color: #98989d;
+        border-color: #3a3a3c;
+    }
+
+    .chip {
+        background: #3a3a3c;
+        color: #ffffff;
+    }
+}
+
+/* Accessibility */
+.metric-tile:focus {
+    outline: 3px solid #007AFF;
+    outline-offset: 2px;
+}
+
+.metric-tile:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .tile-section {
+        margin-bottom: 32px;
+    }
+
+    .tile-section-header {
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
+
+    .metric-tile {
+        padding: 18px;
+        min-height: 100px;
+    }
+
+    .metric-label {
+        font-size: 11px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .tile-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+    }
+}

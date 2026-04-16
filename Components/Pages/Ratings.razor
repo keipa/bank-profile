@@ -7,6 +7,11 @@
 
 <PageTitle>@Localization.GetString("page.ratings.pageTitle")</PageTitle>
 
+@* Neutral Nebula Background *@
+<DynamicNebulaBackground />
+
+<div style="position: relative; z-index: 1;">
+
 <h1><i class="fas fa-star" aria-hidden="true"></i> @Localization.GetString("page.ratings.title")</h1>
 
 @if (_loading)
@@ -60,6 +65,8 @@ else
         </div>
     </div>
 }
+
+</div>
 
 @code {
     private List<BankRatingsSummary> _ratingSummaries = new();

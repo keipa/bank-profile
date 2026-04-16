@@ -1,7 +1,13 @@
 @page "/{CountryCode}/{BankCode}"
+@using BankProfiles.Web.Models
+@using BankProfiles.Web.Services
 @inject ILocalizationService Localization
-@rendermode InteractiveServer
+@inject IBankDataService BankDataService
+@inject IRatingService RatingService
+@inject IViewCountService ViewCountService
 @inject ICountryService CountryService
+@inject IBankMetricsExtractorService MetricsExtractor
+@rendermode InteractiveServer
 
 <PageTitle>@_bank?.BankName ?? @Localization.GetString("page.bankDetail.pageTitle")</PageTitle>
 
@@ -18,161 +24,308 @@ else if (_bank == null)
 }
 else
 {
-    @* Animated Background *@
-    @if (_bank?.AnimationConfig != null)
-    {
-        <AnimatedBackground Config="_bank.AnimationConfig" />
-    }
+    @* Dynamic Nebula Background *@
+    <DynamicNebulaBackground BankTheme="_bank?.Theme" />
 
-    <div class="bank-detail-container fade-in">
-        @* Breadcrumb Navigation *@
-        <nav aria-label="breadcrumb" class="mb-3" style="position: relative; z-index: 10;">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">@Localization.GetString("nav.home")</a></li>
-                <li class="breadcrumb-item"><a href="/banks">@Localization.GetString("nav.banks")</a></li>
+    <div class="bank-detail-container-new fade-in" style="position: relative; z-index: 1;">
+        @* Simplified Breadcrumb *@
+        <nav aria-label="breadcrumb" class="mb-2" style="position: relative; z-index: 10;">
+            <ol class="breadcrumb" style="background: transparent; margin-bottom: 0;">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/banks">Banks</a></li>
                 @if (_countryInfo != null)
                 {
-                    <li class="breadcrumb-item"><span aria-hidden="true">@_countryInfo.Flag</span> @_countryInfo.Name</li>
+                    <li class="breadcrumb-item"><span>@_countryInfo.Flag @_countryInfo.Name</span></li>
                 }
-                <li class="breadcrumb-item active" aria-current="page">@_bank.BankName</li>
             </ol>
         </nav>
 
-        @* Center Section with Credit Card *@
-        <section class="center-section" aria-label="Bank card preview">
-            <CreditCard Bank="_bank" />
-        </section>
-
-        @* Glass Grid with Information Panels *@
-        <div class="glass-grid" role="region" aria-label="Bank information panels">
-            <GlassWindow Title="@Localization.GetString("page.bankDetail.ratings")" Elevation="medium">
-                <RatingCriteriaDisplay Ratings="_ratings" OverallRating="_overallRating" />
-            </GlassWindow>
-
-            <GlassWindow Title="@Localization.GetString("page.bankDetail.technicalInfo")" Elevation="medium">
-                <TechnicalInfoDisplay Info="_bank.TechnicalInfo" />
-            </GlassWindow>
-
-            <GlassWindow Title="@Localization.GetString("page.bankDetail.ratingTrends")" Elevation="medium">
-                <ErrorBoundary>
-                    <ChildContent>
-                        <RatingChart BankCode="@BankCode" />
-                    </ChildContent>
-                    <ErrorContent>
-                        <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-                            Failed to load rating chart. Please try again.
-                        </div>
-                    </ErrorContent>
-                </ErrorBoundary>
-            </GlassWindow>
-
-            <GlassWindow Title="@Localization.GetString("page.bankDetail.viewHistory")" Elevation="medium">
-                <ErrorBoundary>
-                    <ChildContent>
-                        <ViewsChart BankCode="@BankCode" />
-                    </ChildContent>
-                    <ErrorContent>
-                        <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
-                            Failed to load view history chart. Please try again.
-                        </div>
-                    </ErrorContent>
-                </ErrorBoundary>
-            </GlassWindow>
-
-            @* Additional Information Sections *@
-            @if (!string.IsNullOrEmpty(_bank.WebsiteUrl) || _viewCount > 0)
+        @* Large Bank Name Header - Apple Style *@
+        <header class="bank-header-apple" role="banner">
+            <div class="bank-status-badge @GetStatusClass()">
+                <i class="fas @GetStatusIcon()"></i>
+                @_bank.Status
+            </div>
+            <h1 class="bank-name-apple">@_bank.BankName</h1>
+            @if (!string.IsNullOrEmpty(_bank.LegalName) && _bank.LegalName != _bank.Name)
             {
-                <GlassWindow Title="@Localization.GetString("page.bankDetail.quickInfo")" Elevation="medium">
-                    <div class="quick-info">
-                        @if (!string.IsNullOrEmpty(_bank.WebsiteUrl))
-                        {
-                            <a href="@_bank.WebsiteUrl" target="_blank" rel="noopener noreferrer" class="btn btn-primary mb-2 w-100" aria-label="Visit @_bank.BankName website (opens in new tab)">
-                                <i class="fas fa-globe" aria-hidden="true"></i> @Localization.GetString("page.bankDetail.visitWebsite")
-                            </a>
-                        }
-                        <div class="view-count-badge" aria-label="Total views: @_viewCount">
-                            <i class="fas fa-eye" aria-hidden="true"></i> @_viewCount @Localization.GetString("page.bankDetail.views")
-                        </div>
-                    </div>
-                </GlassWindow>
+                <p class="bank-legal-name">@_bank.LegalName</p>
             }
-
-            @if (_bank.ContactInfo != null && (!string.IsNullOrEmpty(_bank.ContactInfo.Phone) || 
-                                                !string.IsNullOrEmpty(_bank.ContactInfo.Email) || 
-                                                !string.IsNullOrEmpty(_bank.ContactInfo.Address)))
+            @if (_bank.Metadata?.LastReviewed != null)
             {
-                <GlassWindow Title="@Localization.GetString("page.bankDetail.contactInfo")" Elevation="medium">
-                    <address class="contact-info">
-                        @if (!string.IsNullOrEmpty(_bank.ContactInfo.Phone))
-                        {
-                            <p><i class="fas fa-phone" aria-hidden="true"></i> <a href="tel:@_bank.ContactInfo.Phone">@_bank.ContactInfo.Phone</a></p>
-                        }
-                        @if (!string.IsNullOrEmpty(_bank.ContactInfo.Email))
-                        {
-                            <p><i class="fas fa-envelope" aria-hidden="true"></i> <a href="mailto:@_bank.ContactInfo.Email">@_bank.ContactInfo.Email</a></p>
-                        }
-                        @if (!string.IsNullOrEmpty(_bank.ContactInfo.Address))
-                        {
-                            <p><i class="fas fa-map-marker-alt" aria-hidden="true"></i> @_bank.ContactInfo.Address</p>
-                        }
-                    </address>
-                </GlassWindow>
+                <div class="last-reviewed-compact">
+                    <i class="fas fa-check-circle"></i>
+                    Updated @GetTimeAgo(_bank.Metadata.LastReviewed.Value)
+                </div>
             }
+        </header>
+
+        @* Tile Sections *@
+        @if (_groupedMetrics != null)
+        {
+            <div class="tiles-container">
+                @foreach (var group in _groupedMetrics)
+                {
+                    <TileSection Title="@group.Key"
+                                 Metrics="@group.Value"
+                                 Icon="@GetSectionIcon(group.Key)"
+                                 ShowProgressBars="@group.Key.Contains("Ratings")" />
+                }
+            </div>
+        }
+
+        @* Charts Section (Keep existing charts) *@
+        <div class="charts-section mt-5">
+            <h2 class="tile-section-header">
+                <i class="fas fa-chart-line section-icon"></i>
+                Charts & Analytics
+            </h2>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <ErrorBoundary>
+                        <ChildContent>
+                            <RatingChart BankCode="@BankCode" />
+                        </ChildContent>
+                        <ErrorContent>
+                            <div class="alert alert-danger">Failed to load rating chart.</div>
+                        </ErrorContent>
+                    </ErrorBoundary>
+                </div>
+                <div class="chart-card">
+                    <ErrorBoundary>
+                        <ChildContent>
+                            <ViewsChart BankCode="@BankCode" />
+                        </ChildContent>
+                        <ErrorContent>
+                            <div class="alert alert-danger">Failed to load view history chart.</div>
+                        </ErrorContent>
+                    </ErrorBoundary>
+                </div>
+            </div>
         </div>
+
+        @* Quick Actions *@
+        @if (!string.IsNullOrEmpty(_bank.WebsiteUrl) || _viewCount > 0)
+        {
+            <div class="quick-actions mt-4">
+                @if (!string.IsNullOrEmpty(_bank.WebsiteUrl))
+                {
+                    <a href="@_bank.WebsiteUrl" target="_blank" rel="noopener noreferrer"
+                       class="btn btn-primary btn-lg">
+                        <i class="fas fa-globe"></i> Visit Website
+                    </a>
+                }
+                @if (_viewCount > 0)
+                {
+                    <div class="view-count-display">
+                        <i class="fas fa-eye"></i> @_viewCount views
+                    </div>
+                }
+            </div>
+        }
     </div>
+
+    @* Metric Detail Modal *@
+    <MetricDetailModal />
 }
+
+<style>
+    .bank-detail-container-new {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .bank-header-apple {
+        text-align: center;
+        padding: 40px 20px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .bank-status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: capitalize;
+        margin-bottom: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid #e5e5ea;
+        backdrop-filter: blur(10px);
+    }
+
+    .bank-status-badge.status-active {
+        background: linear-gradient(135deg, #34C759 0%, #30D158 100%);
+        color: white;
+        border: none;
+    }
+
+    .bank-status-badge.status-inactive {
+        background: #E5E5EA;
+        color: #8E8E93;
+    }
+
+    .bank-name-apple {
+        font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 56px;
+        font-weight: 700;
+        letter-spacing: -1.5px;
+        color: #1d1d1f;
+        margin: 0 0 12px 0;
+        line-height: 1.1;
+    }
+
+    .bank-legal-name {
+        font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 18px;
+        font-weight: 400;
+        color: #86868b;
+        margin: 0 0 12px 0;
+    }
+
+    .last-reviewed-compact {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #86868b;
+        font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    .last-reviewed-compact i {
+        color: #34C759;
+    }
+
+    .tiles-container {
+        margin-top: 40px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .charts-section {
+        position: relative;
+        z-index: 10;
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 24px;
+        margin-top: 20px;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .quick-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+        position: relative;
+        z-index: 10;
+    }
+
+    .view-count-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: #F2F2F7;
+        border-radius: 12px;
+        font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        color: #1d1d1f;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .bank-name-apple {
+            font-size: 36px;
+        }
+
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Dark mode */
+    @@media (prefers-color-scheme: dark) {
+        .bank-name-apple {
+            color: #f5f5f7;
+        }
+
+        .bank-legal-name {
+            color: #98989d;
+        }
+
+        .chart-card {
+            background: #1c1c1e;
+        }
+
+        .view-count-display {
+            background: #2c2c2e;
+            color: #f5f5f7;
+        }
+    }
+</style>
 
 @code {
     [Parameter] public string CountryCode { get; set; } = default!;
     [Parameter] public string BankCode { get; set; } = "";
     private BankProfile? _bank;
     private CountryInfo? _countryInfo;
-    private List<RatingData> _ratings = new();
-    private decimal _overallRating;
     private long _viewCount;
+    private double _overallRating;
+    private int _totalRatings;
     private bool _loading = true;
-
-    [Inject] private IBankDataService BankService { get; set; } = default!;
-    [Inject] private IRatingService RatingService { get; set; } = default!;
-    [Inject] private IViewCountService ViewCountService { get; set; } = default!;
-    [Inject] private ILocalizationService LocalizationService { get; set; } = default!;
+    private Dictionary<string, List<MetricDto>>? _groupedMetrics;
 
     protected override async Task OnInitializedAsync()
     {
-        _bank = await BankService.GetBankByCodeAsync(BankCode);
+        _bank = await BankDataService.GetBankByCodeAsync(BankCode);
         if (_bank != null)
         {
             _countryInfo = CountryService.GetCountryInfo(_bank.CountryCode ?? CountryCode);
-            _ratings = await RatingService.GetBankRatingsAsync(BankCode);
-            _overallRating = await RatingService.GetOverallRatingAsync(BankCode);
             _viewCount = await ViewCountService.GetViewCountAsync(BankCode);
-            
+            _overallRating = (double)await RatingService.GetOverallRatingAsync(BankCode);
+            var ratings = await RatingService.GetBankRatingsAsync(BankCode);
+            _totalRatings = ratings.Count;
+
+            // Extract metrics for tiles
+            _groupedMetrics = MetricsExtractor.ExtractMetrics(_bank);
+
             // Set default language based on country if no preference exists
-            // This must be done in OnInitializedAsync before response starts
             await SetDefaultLanguageIfNeededAsync();
         }
         _loading = false;
     }
-    
+
     private async Task SetDefaultLanguageIfNeededAsync()
     {
         try
         {
-            var currentLang = LocalizationService.GetCurrentLanguage();
-            
-            // Only set default if no preference exists (default en-US indicates no cookie set)
+            var currentLang = Localization.GetCurrentLanguage();
+
             if (string.IsNullOrEmpty(currentLang) || currentLang == "en-US")
             {
                 if (_bank?.CountryCode != null)
                 {
-                    var defaultLang = LocalizationService.GetDefaultLanguageForCountry(_bank.CountryCode);
-                    
-                    // Only set if the default is different from current
+                    var defaultLang = Localization.GetDefaultLanguageForCountry(_bank.CountryCode);
+
                     if (defaultLang != currentLang)
                     {
-                        await LocalizationService.SetLanguageAsync(defaultLang);
+                        await Localization.SetLanguageAsync(defaultLang);
                     }
                 }
             }
@@ -180,21 +333,74 @@ else
         catch (InvalidOperationException)
         {
             // Ignore cookie setting errors if response has already started
-            // This can happen during pre-rendering
         }
     }
 
-    // OnAfterRenderAsync is called after the component has rendered.
-    // Using firstRender ensures this runs only once, avoiding double-counting
-    // that occurs with InteractiveServer mode (prerender + SignalR connection).
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && _bank != null)
         {
             await ViewCountService.IncrementViewCountAsync(BankCode);
             _viewCount = await ViewCountService.GetViewCountAsync(BankCode);
-            
-            StateHasChanged(); // Refresh UI to show updated count
+
+            StateHasChanged();
         }
+    }
+
+    private string GetTimeAgo(DateTime date)
+    {
+        var now = DateTime.UtcNow;
+        var diff = now - date;
+
+        if (diff.TotalDays < 1)
+        {
+            if (diff.TotalHours < 1)
+                return "less than an hour ago";
+            var hours = (int)diff.TotalHours;
+            return hours == 1 ? "1 hour ago" : $"{hours} hours ago";
+        }
+        else if (diff.TotalDays < 7)
+        {
+            var days = (int)diff.TotalDays;
+            return days == 1 ? "1 day ago" : $"{days} days ago";
+        }
+        else if (diff.TotalDays < 30)
+        {
+            var weeks = (int)(diff.TotalDays / 7);
+            return weeks == 1 ? "1 week ago" : $"{weeks} weeks ago";
+        }
+        else if (diff.TotalDays < 365)
+        {
+            var months = (int)(diff.TotalDays / 30);
+            return months == 1 ? "1 month ago" : $"{months} months ago";
+        }
+        else
+        {
+            var years = (int)(diff.TotalDays / 365);
+            return years == 1 ? "1 year ago" : $"{years} years ago";
+        }
+    }
+
+    private string GetStatusClass()
+    {
+        return _bank?.Status.ToLowerInvariant() == "active" ? "status-active" : "status-inactive";
+    }
+
+    private string GetStatusIcon()
+    {
+        return _bank?.Status.ToLowerInvariant() == "active" ? "fa-check-circle" : "fa-circle";
+    }
+
+    private string GetSectionIcon(string sectionTitle)
+    {
+        return sectionTitle switch
+        {
+            "Overview & Ratings" => "fas fa-star",
+            "Systems & Currencies" => "fas fa-cog",
+            "Fees & Commissions" => "fas fa-dollar-sign",
+            "Compliance & Risk" => "fas fa-shield-alt",
+            "Digital & Support" => "fas fa-mobile-alt",
+            _ => "fas fa-info-circle"
+        };
     }
 }

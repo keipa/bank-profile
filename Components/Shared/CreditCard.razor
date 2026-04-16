@@ -1,8 +1,8 @@
 @using BankProfiles.Web.Models
 @using Microsoft.AspNetCore.Components
 
-<div class="credit-card-wrapper">
-    <svg class="credit-card" viewBox="0 0 340 540" xmlns="http://www.w3.org/2000/svg">
+<div class="credit-card-wrapper glass-card">
+    <svg class="credit-card" viewBox="0 0 340 540" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
         <defs>
             <linearGradient id="@GetGradientId("card")" x1="0%" y1="0%" x2="100%" y2="65%">
                 <stop offset="10%" stop-color="@Bank.Theme?.PrimaryColor" />
@@ -20,19 +20,26 @@
                 <stop offset="90%" stop-color="rgba(255,255,255,0.3)" />
             </linearGradient>
             
+            <filter id="@GetGradientId("glass")">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
+            </filter>
+            
             <pattern id="@GetGradientId("noise")" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
                 <rect width="40" height="40" fill="@Bank.Theme?.PrimaryColor" opacity="0.1"/>
             </pattern>
         </defs>
         
-        <!-- Card Background -->
+        <!-- Card Background with Glass Effect -->
         <rect fill="url(#@GetGradientId("card"))" width="340" height="540" rx="30" ry="30" />
         
+        <!-- Glass Overlay -->
+        <rect fill="rgba(255, 255, 255, 0.05)" width="340" height="540" rx="30" ry="30" />
+        
         <!-- Noise Pattern Overlay -->
-        <rect fill="url(#@GetGradientId("noise"))" width="340" height="540" rx="30" ry="30" opacity="0.3" />
+        <rect fill="url(#@GetGradientId("noise"))" width="340" height="540" rx="30" ry="30" opacity="0.2" />
         
         <!-- Card Border -->
-        <rect fill="none" stroke="#fff" opacity="0.3" stroke-width="2" width="340" height="540" rx="30" ry="30" />
+        <rect fill="none" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2" width="340" height="540" rx="30" ry="30" />
         
         <!-- Chip -->
         <g class="chip" transform="translate(30, 180)">
@@ -41,11 +48,11 @@
                   d="M58,54.05 M0,25.72c2.11,0.21,3.75,0.47,4.03,0.74c2.92,3.64,5.83,7.28,8.67,10.98c0.77,1,1.52,1.72,2.89,1.47c0.95-0.18,1.28,0.3,1.27,1.25c-0.04,4.03-0.01,8.03-0.02,12.07c8.44,0,16.73,0,25.08,0c0-8.43,0-25.32,0-25.32l-26.77,0c0,0-1.95,0-1.95-1.96c-0.4-1.85-0.4-14.9-0.34-24.95 M45.96,0c0,8.65,0.01,18.65-0.01,24.19c-0.01,2.9,0.27,2.55-2.38,2.84c0,3.91,0,7.82,0,12.17c4.69-3.07,7.28-8.53,11.07-12.63C55,26.06,56.3,25.72,58,25.5 M58,54.05c-0.55,0-0.89,0.01-0.89,0.01c-2.46,0.26-9.33-10.83-12.02-13.2c-0.41-0.36-1.57,0.2-1.57,0.2s-0.02,7.37-0.02,11.13c2.56,0.32,2.56,0.32,2.56,2.77c0,4.4,0,12.9,0,21.04 M13.1,76c0.01-8.57,0.04-17.77,0.07-22.53c-0.01-0.82,0.36-1.2,1.17-1.17c0.28,0.01,1.03-0.06,1.03-0.06l0.05-11.81c0,0-1.73,0.15-2.12,0.72c-0.39,0.57-6.16,7.63-9.18,11.5C3.9,52.85,2.19,53.11,0,53.35"/>
         </g>
         
-        <!-- Card Number -->
-        @((MarkupString)$"<text x=\"30\" y=\"350\" class=\"card-number\" fill=\"#f0f0f0\" font-size=\"23\" font-family=\"Courier New, monospace\" letter-spacing=\"2\">{CardNumber}</text>")
+        <!-- Card Number with Text Scaling -->
+        @((MarkupString)$"<text x=\"30\" y=\"350\" class=\"card-number\" fill=\"#f0f0f0\" font-size=\"{CalculateFontSize(CardNumber, 23)}\" font-family=\"Courier New, monospace\" letter-spacing=\"2\" textLength=\"280\" lengthAdjust=\"spacingAndGlyphs\">{CardNumber}</text>")
         
-        <!-- Cardholder Name -->
-        @((MarkupString)$"<text x=\"30\" y=\"420\" class=\"card-holder\" fill=\"#e4e4f4\" font-size=\"15\" font-family=\"Arial, sans-serif\" letter-spacing=\"1\">{CardHolder?.ToUpper()}</text>")
+        <!-- Cardholder Name with Text Scaling -->
+        @((MarkupString)$"<text x=\"30\" y=\"420\" class=\"card-holder\" fill=\"#e4e4f4\" font-size=\"{CalculateFontSize(CardHolder ?? Bank.BankName, 15)}\" font-family=\"Arial, sans-serif\" letter-spacing=\"1\" textLength=\"280\" lengthAdjust=\"spacingAndGlyphs\">{CardHolder?.ToUpper()}</text>")
         
         <!-- Bank Logo/Name -->
         @if (!string.IsNullOrEmpty(Bank.LogoUrl))
@@ -54,7 +61,7 @@
         }
         else
         {
-            @((MarkupString)$"<text x=\"30\" y=\"60\" fill=\"url(#{GetGradientId("overlay")})\" font-size=\"20\" font-family=\"{Bank.Theme?.FontFamily ?? "Arial, sans-serif"}\" font-weight=\"600\" letter-spacing=\"1\">{Bank.BankName}</text>")
+            @((MarkupString)$"<text x=\"30\" y=\"60\" fill=\"url(#{GetGradientId("overlay")})\" font-size=\"{CalculateFontSize(Bank.BankName, 20)}\" font-family=\"{Bank.Theme?.FontFamily ?? "Arial, sans-serif"}\" font-weight=\"600\" letter-spacing=\"1\" textLength=\"280\" lengthAdjust=\"spacingAndGlyphs\">{Bank.BankName}</text>")
         }
         
         <!-- Decorative Elements -->
@@ -62,6 +69,56 @@
         <circle fill="@Bank.Theme?.SecondaryColor" opacity="0.15" cx="300" cy="480" r="80"/>
     </svg>
 </div>
+
+<style>
+    .credit-card-wrapper {
+        width: 340px;
+        height: 540px;
+        position: relative;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .credit-card-wrapper.glass-card {
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.1),
+            0 2px 8px rgba(0, 0, 0, 0.05);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .credit-card-wrapper:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 
+            0 16px 48px rgba(0, 0, 0, 0.15),
+            0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .credit-card {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .chip {
+        transition: transform 0.3s ease;
+    }
+
+    .credit-card-wrapper:hover .chip {
+        transform: translate(30px, 180px) scale(1.05);
+    }
+
+    /* Responsive sizing */
+    @@media (max-width: 768px) {
+        .credit-card-wrapper {
+            width: 100%;
+            max-width: 340px;
+            height: auto;
+            aspect-ratio: 340 / 540;
+        }
+    }
+</style>
 
 @code {
     [Parameter]
@@ -83,5 +140,17 @@
     private string GetGradientId(string type)
     {
         return $"{type}-{_instanceId}";
+    }
+
+    private int CalculateFontSize(string text, int baseFontSize)
+    {
+        if (string.IsNullOrEmpty(text)) return baseFontSize;
+        
+        // Dynamically reduce font size for longer text
+        int length = text.Length;
+        if (length <= 20) return baseFontSize;
+        if (length <= 30) return (int)(baseFontSize * 0.9);
+        if (length <= 40) return (int)(baseFontSize * 0.8);
+        return (int)(baseFontSize * 0.7);
     }
 }

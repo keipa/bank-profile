@@ -1,0 +1,639 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/bank-profile.schema.json",
+  "title": "Bank Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "bankId",
+    "name",
+    "legalName",
+    "status",
+    "countryOfOwnerResidence",
+    "headquartersCountry",
+    "systems",
+    "currencies",
+    "fees",
+    "ratings",
+    "branches",
+    "clients",
+    "compliance",
+    "digitalChannels"
+  ],
+  "properties": {
+    "bankId": {
+      "type": "string",
+      "description": "Stable unique identifier for the bank profile."
+    },
+    "name": {
+      "type": "string",
+      "description": "Public-facing bank name."
+    },
+    "legalName": {
+      "type": "string",
+      "description": "Registered legal entity name."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "restricted",
+        "under_review",
+        "sanctioned",
+        "closed"
+      ]
+    },
+    "countryOfOwnerResidence": {
+      "type": "string",
+      "description": "Country where the ultimate owner or controlling shareholder resides."
+    },
+    "headquartersCountry": {
+      "type": "string",
+      "description": "Country of the bank's headquarters."
+    },
+    "jurisdiction": {
+      "type": "string",
+      "description": "Primary regulatory jurisdiction."
+    },
+    "overview": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Bank type or category.",
+          "examples": ["retail bank", "digital bank", "commercial bank", "private bank"]
+        },
+        "segment": {
+          "type": "string",
+          "description": "Primary market segment."
+        },
+        "foundedYear": {
+          "type": "integer",
+          "minimum": 1800,
+          "maximum": 2100
+        },
+        "description": {
+          "type": "string",
+          "description": "Short human-readable summary."
+        },
+        "logoUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional logo/image reference."
+        }
+      }
+    },
+    "systems": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cardSystems",
+        "swiftAvailable",
+        "ibanSupported",
+        "sepaAvailable"
+      ],
+      "properties": {
+        "cardSystems": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "string",
+            "enum": [
+              "visa",
+              "mastercard",
+              "amex",
+              "unionpay",
+              "jcb",
+              "diners_club",
+              "discover",
+              "maestro",
+              "mir",
+              "other"
+            ]
+          },
+          "description": "Supported card networks."
+        },
+        "swiftAvailable": {
+          "type": "boolean",
+          "description": "Whether SWIFT transfers are available."
+        },
+        "ibanSupported": {
+          "type": "boolean",
+          "description": "Whether IBAN is supported."
+        },
+        "sepaAvailable": {
+          "type": "boolean",
+          "description": "Whether SEPA transfers are available."
+        },
+        "localClearing": {
+          "type": "boolean",
+          "description": "Whether local clearing is supported."
+        },
+        "instantTransfers": {
+          "type": "boolean",
+          "description": "Whether instant transfers are available."
+        },
+        "cryptoExposure": {
+          "type": "string",
+          "enum": [
+            "none",
+            "low",
+            "moderate",
+            "high",
+            "unknown"
+          ],
+          "description": "Exposure to crypto-related services or customers."
+        }
+      }
+    },
+    "currencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["available"],
+      "properties": {
+        "available": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "description": "Supported currency codes in ISO 4217 format."
+        },
+        "baseCurrency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "multiCurrencyAccounts": {
+          "type": "boolean",
+          "description": "Whether multi-currency accounts are available."
+        },
+        "fxMarkupPercent": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "fees": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commissions", "accountFees", "cardFees", "transferFees"],
+      "properties": {
+        "commissions": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "incomingDomesticPercent": {
+              "type": "number",
+              "minimum": 0
+            },
+            "incomingInternationalPercent": {
+              "type": "number",
+              "minimum": 0
+            },
+            "outgoingDomesticPercent": {
+              "type": "number",
+              "minimum": 0
+            },
+            "outgoingInternationalPercent": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cashWithdrawalLocalAtmPercent": {
+              "type": "number",
+              "minimum": 0
+            },
+            "cashWithdrawalInternationalAtmPercent": {
+              "type": "number",
+              "minimum": 0
+            },
+            "fxMarkupPercent": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "accountFees": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "accountOpening": {
+              "type": "number",
+              "minimum": 0
+            },
+            "monthlyMaintenance": {
+              "type": "number",
+              "minimum": 0
+            },
+            "accountClosure": {
+              "type": "number",
+              "minimum": 0
+            },
+            "dormancyAfterMonths": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "dormancyFee": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "cardFees": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cardIssuance": {
+              "type": "number",
+              "minimum": 0
+            },
+            "premiumCardAnnualFee": {
+              "type": "number",
+              "minimum": 0
+            },
+            "replacementCardFee": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "transferFees": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "swiftPaymentProcessing": {
+              "type": "number",
+              "minimum": 0
+            },
+            "urgentPaymentSurcharge": {
+              "type": "number",
+              "minimum": 0
+            },
+            "chargebackHandling": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "branches": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count"],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "countries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "atmCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "partnerAtmNetwork": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "clients": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "retail": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "business": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "corporate": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "privateBanking": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "growthHistory": {
+          "type": "array",
+          "description": "Client count history over time.",
+          "items": {
+            "$ref": "#/$defs/timestampedMetric"
+          }
+        }
+      }
+    },
+    "ratings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["overall"],
+      "properties": {
+        "overall": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "history": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ratingPoint"
+          }
+        },
+        "source": {
+          "type": "string",
+          "description": "Where the rating comes from."
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "compliance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sanctionsRisk", "amlStatus", "kycStatus"],
+      "properties": {
+        "sanctionsRisk": {
+          "type": "string",
+          "enum": ["low", "moderate", "high", "critical", "unknown"]
+        },
+        "governmentAffiliate": {
+          "type": "boolean",
+          "description": "Whether the bank has government ownership or affiliation."
+        },
+        "pepExposure": {
+          "type": "string",
+          "enum": ["low", "moderate", "high", "unknown"]
+        },
+        "offshoreLinks": {
+          "type": "string",
+          "enum": ["none", "limited", "moderate", "significant", "unknown"]
+        },
+        "amlStatus": {
+          "type": "string",
+          "enum": ["good", "watch", "review", "critical", "unknown"]
+        },
+        "kycStatus": {
+          "type": "string",
+          "enum": ["complete", "partial", "weak", "unknown"]
+        },
+        "fATCA": {
+          "type": "boolean"
+        },
+        "crs": {
+          "type": "boolean"
+        },
+        "auditPublished": {
+          "type": "boolean"
+        },
+        "depositInsurance": {
+          "type": "boolean"
+        }
+      }
+    },
+    "digitalChannels": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mobileApp": {
+          "type": "boolean"
+        },
+        "webBanking": {
+          "type": "boolean"
+        },
+        "ios": {
+          "type": "boolean"
+        },
+        "android": {
+          "type": "boolean"
+        },
+        "apiAccess": {
+          "type": "boolean"
+        },
+        "biometricLogin": {
+          "type": "boolean"
+        },
+        "deviceTrust": {
+          "type": "boolean"
+        },
+        "pushNotifications": {
+          "type": "boolean"
+        },
+        "uptimePercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "averageAccountOpeningMinutes": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "support": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "available24x7": {
+          "type": "boolean"
+        },
+        "channels": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["phone", "email", "chat", "branch", "app", "web"]
+          }
+        },
+        "averageResponseTimeMinutes": {
+          "type": "number",
+          "minimum": 0
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "products": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "accounts": {
+          "type": "boolean"
+        },
+        "cards": {
+          "type": "boolean"
+        },
+        "savings": {
+          "type": "boolean"
+        },
+        "loans": {
+          "type": "boolean"
+        },
+        "mortgages": {
+          "type": "boolean"
+        },
+        "investmentTools": {
+          "type": "boolean"
+        },
+        "merchantAcquiring": {
+          "type": "boolean"
+        },
+        "payroll": {
+          "type": "boolean"
+        },
+        "escrow": {
+          "type": "boolean"
+        },
+        "tradeFinance": {
+          "type": "boolean"
+        }
+      }
+    },
+    "redFlags": {
+      "type": "array",
+      "description": "Timeline events or concerns that may affect trust, compliance, or operational quality.",
+      "items": {
+        "$ref": "#/$defs/redFlagEvent"
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "clientSatisfactionPercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "corporateSatisfactionPercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "complaintRatioPercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "avgRemediationDays": {
+          "type": "number",
+          "minimum": 0
+        },
+        "openIssues": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "resolvedEvents": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string",
+          "description": "Origin of the profile data."
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    }
+  },
+  "$defs": {
+    "timestampedMetric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "value"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "value": {
+          "type": "number"
+        }
+      }
+    },
+    "ratingPoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "rating"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "rating": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "note": {
+          "type": "string"
+        }
+      }
+    },
+    "redFlagEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "title", "severity", "status"],
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["low", "moderate", "high", "critical"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["open", "monitoring", "resolved", "closed"]
+        },
+        "impact": {
+          "type": "string",
+          "enum": ["none", "low", "moderate", "high"]
+        }
+      }
+    }
+  }
+}

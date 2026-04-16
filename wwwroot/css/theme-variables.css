@@ -3,38 +3,38 @@
 /* WCAG AA compliant contrast ratios (4.5:1 for normal text, 3:1 for large text) */
 
 :root[data-theme="light"] {
-  /* Backgrounds */
+  /* Backgrounds - Clean white palette */
   --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-tertiary: #e9ecef;
-  --bg-hover: #f1f3f5;
-  --bg-active: #dee2e6;
-  --bg-disabled: #f8f9fa;
+  --bg-secondary: #f8f8f8;
+  --bg-tertiary: #f0f0f0;
+  --bg-hover: #f5f5f5;
+  --bg-active: #e8e8e8;
+  --bg-disabled: #f8f8f8;
   
-  /* Text colors - WCAG AA compliant */
-  --text-primary: #212529;        /* 16.6:1 contrast on white */
-  --text-secondary: #6c757d;      /* 4.5:1 contrast on white */
-  --text-muted: #868e96;          /* 3.8:1 contrast - for large text only */
-  --text-disabled: #adb5bd;
+  /* Text colors - Neutral blacks and grays - WCAG AA compliant */
+  --text-primary: #1a1a1a;        /* Almost black for readability */
+  --text-secondary: #555555;      /* Dark gray */
+  --text-muted: #777777;          /* Medium gray */
+  --text-disabled: #aaaaaa;       /* Light gray */
   --text-inverse: #ffffff;
-  --text-link: #006bb7;           /* 4.55:1 contrast on white */
-  --text-link-hover: #004a7c;
+  --text-link: #000000;           /* Black links for neutral look */
+  --text-link-hover: #333333;     /* Dark gray hover */
   
   /* Borders */
-  --border-color: #dee2e6;
-  --border-color-light: #e9ecef;
-  --border-color-dark: #ced4da;
+  --border-color: #e0e0e0;
+  --border-color-light: #f0f0f0;
+  --border-color-dark: #d0d0d0;
   --border-radius-sm: 0.25rem;
   --border-radius-md: 0.375rem;
   --border-radius-lg: 0.5rem;
   --border-radius-xl: 1rem;
   
   /* Glass effects */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-bg-medium: rgba(255, 255, 255, 0.15);
-  --glass-bg-strong: rgba(255, 255, 255, 0.2);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-border-strong: rgba(255, 255, 255, 0.3);
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg-medium: rgba(255, 255, 255, 0.7);
+  --glass-bg-strong: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-strong: rgba(0, 0, 0, 0.12);
   
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -45,33 +45,33 @@
   --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
   --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
   
-  /* Brand colors */
-  --primary: #1b6ec2;
-  --primary-hover: #1861ac;
-  --primary-active: #155a98;
-  --secondary: #6c757d;
-  --success: #26b050;
-  --danger: #dc3545;
-  --warning: #ffc107;
-  --info: #17a2b8;
+  /* Brand colors - Neutral grays (no blue) */
+  --primary: #333333;             /* Dark gray for primary */
+  --primary-hover: #1a1a1a;       /* Darker gray hover */
+  --primary-active: #000000;      /* Black active */
+  --secondary: #666666;           /* Medium gray for secondary */
+  --success: #26b050;             /* Keep green for semantic */
+  --danger: #dc3545;              /* Keep red for semantic */
+  --warning: #ffc107;             /* Keep yellow for semantic */
+  --info: #555555;                /* Neutral gray instead of blue */
   
-  /* State colors */
-  --focus-ring: rgba(37, 140, 251, 0.5);
-  --focus-color: #258cfb;
-  --valid-color: #26b050;
-  --invalid-color: #e50000;
+  /* State colors - Neutral focus */
+  --focus-ring: rgba(51, 51, 51, 0.3);  /* Subtle gray focus ring */
+  --focus-color: #333333;         /* Dark gray focus */
+  --valid-color: #26b050;         /* Keep green */
+  --invalid-color: #dc3545;       /* Keep red */
   
   /* Card and container styles */
   --card-bg: #ffffff;
-  --card-border: #dee2e6;
+  --card-border: #e0e0e0;
   --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
   
   /* Form elements */
   --input-bg: #ffffff;
-  --input-border: #ced4da;
-  --input-border-focus: #86b7fe;
-  --input-placeholder: #6c757d;
-  --input-disabled-bg: #e9ecef;
+  --input-border: #d0d0d0;
+  --input-border-focus: #333333;  /* Gray focus instead of blue */
+  --input-placeholder: #777777;
+  --input-disabled-bg: #f0f0f0;
   
   /* Overlays */
   --overlay-bg: rgba(0, 0, 0, 0.5);
@@ -79,115 +79,115 @@
 }
 
 :root[data-theme="dark"] {
-  /* Backgrounds */
-  --bg-primary: #121212;
-  --bg-secondary: #1e1e1e;
-  --bg-tertiary: #2d2d2d;
-  --bg-hover: #2a2a2a;
-  --bg-active: #3a3a3a;
-  --bg-disabled: #1e1e1e;
+  /* Backgrounds - Pure dark for true dark mode */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  --bg-hover: #252525;
+  --bg-active: #353535;
+  --bg-disabled: #1a1a1a;
   
-  /* Text colors - WCAG AA compliant */
-  --text-primary: #ffffff;        /* 21:1 contrast on #121212 */
-  --text-secondary: #b0b0b0;      /* 8.5:1 contrast on #121212 */
-  --text-muted: #909090;          /* 5.8:1 contrast - for large text */
-  --text-disabled: #6c757d;
-  --text-inverse: #212529;
-  --text-link: #4dabf7;           /* 8.1:1 contrast on #121212 */
-  --text-link-hover: #74c0fc;
+  /* Text colors - Neutral whites and grays - WCAG AA compliant */
+  --text-primary: #ffffff;        /* Pure white for maximum contrast */
+  --text-secondary: #cccccc;      /* Light gray */
+  --text-muted: #999999;          /* Medium gray */
+  --text-disabled: #666666;       /* Dark gray */
+  --text-inverse: #1a1a1a;
+  --text-link: #ffffff;           /* White links for neutral look */
+  --text-link-hover: #e0e0e0;     /* Light gray hover */
   
-  /* Borders */
-  --border-color: #3d3d3d;
-  --border-color-light: #2d2d2d;
-  --border-color-dark: #4d4d4d;
+  /* Borders - Darker for true dark theme */
+  --border-color: #333333;
+  --border-color-light: #2a2a2a;
+  --border-color-dark: #404040;
   --border-radius-sm: 0.25rem;
   --border-radius-md: 0.375rem;
   --border-radius-lg: 0.5rem;
   --border-radius-xl: 1rem;
   
-  /* Glass effects */
-  --glass-bg: rgba(0, 0, 0, 0.3);
-  --glass-bg-medium: rgba(0, 0, 0, 0.4);
-  --glass-bg-strong: rgba(0, 0, 0, 0.5);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-border-strong: rgba(255, 255, 255, 0.15);
+  /* Glass effects - Stronger for dark theme */
+  --glass-bg: rgba(0, 0, 0, 0.5);
+  --glass-bg-medium: rgba(0, 0, 0, 0.6);
+  --glass-bg-strong: rgba(0, 0, 0, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-strong: rgba(255, 255, 255, 0.12);
   
-  /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
-  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.7);
-  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  /* Shadows - Deeper for true dark */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.8);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.9);
+  --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.5);
   
-  /* Brand colors - adjusted for dark mode */
-  --primary: #4dabf7;
-  --primary-hover: #74c0fc;
-  --primary-active: #a5d8ff;
-  --secondary: #adb5bd;
-  --success: #51cf66;
-  --danger: #ff6b6b;
-  --warning: #ffd43b;
-  --info: #4dabf7;
+  /* Brand colors - Neutral grays (no blue) */
+  --primary: #e0e0e0;             /* Light gray for primary */
+  --primary-hover: #cccccc;       /* Medium gray hover */
+  --primary-active: #b0b0b0;      /* Darker gray active */
+  --secondary: #999999;           /* Medium gray for secondary */
+  --success: #51cf66;             /* Keep green for semantic */
+  --danger: #ff6b6b;              /* Keep red for semantic */
+  --warning: #ffd43b;             /* Keep yellow for semantic */
+  --info: #888888;                /* Neutral gray instead of blue */
   
-  /* State colors */
-  --focus-ring: rgba(77, 171, 247, 0.5);
-  --focus-color: #4dabf7;
-  --valid-color: #51cf66;
-  --invalid-color: #ff6b6b;
+  /* State colors - Neutral focus */
+  --focus-ring: rgba(224, 224, 224, 0.4);  /* Subtle gray focus ring */
+  --focus-color: #e0e0e0;         /* Light gray focus */
+  --valid-color: #51cf66;         /* Keep green */
+  --invalid-color: #ff6b6b;       /* Keep red */
   
   /* Card and container styles */
-  --card-bg: #1e1e1e;
-  --card-border: #3d3d3d;
-  --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  --card-bg: #1a1a1a;
+  --card-border: #333333;
+  --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
   
   /* Form elements */
-  --input-bg: #2d2d2d;
-  --input-border: #4d4d4d;
-  --input-border-focus: #4dabf7;
-  --input-placeholder: #909090;
-  --input-disabled-bg: #1e1e1e;
+  --input-bg: #2a2a2a;
+  --input-border: #404040;
+  --input-border-focus: #e0e0e0;  /* Gray focus instead of blue */
+  --input-placeholder: #888888;
+  --input-disabled-bg: #1a1a1a;
   
   /* Overlays */
-  --overlay-bg: rgba(0, 0, 0, 0.7);
-  --modal-backdrop: rgba(0, 0, 0, 0.6);
+  --overlay-bg: rgba(0, 0, 0, 0.8);
+  --modal-backdrop: rgba(0, 0, 0, 0.7);
 }
 
 /* Default theme (fallback to light if no data-theme attribute) */
 :root {
-  /* Backgrounds */
+  /* Backgrounds - Clean white palette */
   --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
-  --bg-tertiary: #e9ecef;
-  --bg-hover: #f1f3f5;
-  --bg-active: #dee2e6;
-  --bg-disabled: #f8f9fa;
+  --bg-secondary: #f8f8f8;
+  --bg-tertiary: #f0f0f0;
+  --bg-hover: #f5f5f5;
+  --bg-active: #e8e8e8;
+  --bg-disabled: #f8f8f8;
   
-  /* Text colors */
-  --text-primary: #212529;
-  --text-secondary: #6c757d;
-  --text-muted: #868e96;
-  --text-disabled: #adb5bd;
+  /* Text colors - Neutral blacks and grays */
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --text-muted: #777777;
+  --text-disabled: #aaaaaa;
   --text-inverse: #ffffff;
-  --text-link: #006bb7;
-  --text-link-hover: #004a7c;
+  --text-link: #000000;
+  --text-link-hover: #333333;
   
   /* Borders */
-  --border-color: #dee2e6;
-  --border-color-light: #e9ecef;
-  --border-color-dark: #ced4da;
+  --border-color: #e0e0e0;
+  --border-color-light: #f0f0f0;
+  --border-color-dark: #d0d0d0;
   --border-radius-sm: 0.25rem;
   --border-radius-md: 0.375rem;
   --border-radius-lg: 0.5rem;
   --border-radius-xl: 1rem;
   
   /* Glass effects */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-bg-medium: rgba(255, 255, 255, 0.15);
-  --glass-bg-strong: rgba(255, 255, 255, 0.2);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-border-strong: rgba(255, 255, 255, 0.3);
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg-medium: rgba(255, 255, 255, 0.7);
+  --glass-bg-strong: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-strong: rgba(0, 0, 0, 0.12);
   
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -198,33 +198,33 @@
   --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
   --shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.06);
   
-  /* Brand colors */
-  --primary: #1b6ec2;
-  --primary-hover: #1861ac;
-  --primary-active: #155a98;
-  --secondary: #6c757d;
+  /* Brand colors - Neutral grays */
+  --primary: #333333;
+  --primary-hover: #1a1a1a;
+  --primary-active: #000000;
+  --secondary: #666666;
   --success: #26b050;
   --danger: #dc3545;
   --warning: #ffc107;
-  --info: #17a2b8;
+  --info: #555555;
   
   /* State colors */
-  --focus-ring: rgba(37, 140, 251, 0.5);
-  --focus-color: #258cfb;
+  --focus-ring: rgba(51, 51, 51, 0.3);
+  --focus-color: #333333;
   --valid-color: #26b050;
-  --invalid-color: #e50000;
+  --invalid-color: #dc3545;
   
   /* Card and container styles */
   --card-bg: #ffffff;
-  --card-border: #dee2e6;
+  --card-border: #e0e0e0;
   --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
   
   /* Form elements */
   --input-bg: #ffffff;
-  --input-border: #ced4da;
-  --input-border-focus: #86b7fe;
-  --input-placeholder: #6c757d;
-  --input-disabled-bg: #e9ecef;
+  --input-border: #d0d0d0;
+  --input-border-focus: #333333;
+  --input-placeholder: #777777;
+  --input-disabled-bg: #f0f0f0;
   
   /* Overlays */
   --overlay-bg: rgba(0, 0, 0, 0.5);

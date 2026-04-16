@@ -1,0 +1,126 @@
+@page "/rate-limit-exceeded"
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager Navigation
+
+<PageTitle>Rate Limit Exceeded</PageTitle>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Rate Limit Exceeded
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <h5 class="alert-heading">Too Many Requests</h5>
+                        <p>You have exceeded the rate limit for this service. This protection is in place to ensure fair usage for all users.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-info-circle me-2"></i>What happened?</h6>
+                        <ul class="mb-0">
+                            <li>You made more than 30 requests per minute, or</li>
+                            <li>You have more than 5 active connections</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="fas fa-clock me-2"></i>What should I do?</h6>
+                        <p class="mb-1">Please wait a moment and try again. The limit resets every minute.</p>
+                        <p class="mb-0">If you continue to experience issues, please contact support.</p>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" @onclick="RetryAfterDelay">
+                            <i class="fas fa-redo me-2"></i>Try Again in <span id="countdown">@_countdown</span> seconds
+                        </button>
+                        <button class="btn btn-outline-secondary" @onclick="GoHome">
+                            <i class="fas fa-home me-2"></i>Return to Home
+                        </button>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    <small>
+                        <i class="fas fa-shield-alt me-1"></i>
+                        This protection helps maintain service quality and prevents abuse.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .alert-warning {
+        border-left: 4px solid #ffc107;
+    }
+
+    ul {
+        padding-left: 1.5rem;
+    }
+
+    li {
+        margin-bottom: 0.5rem;
+    }
+
+    h6 {
+        color: #495057;
+        font-weight: 600;
+    }
+</style>
+
+@code {
+    private int _countdown = 60;
+    private System.Threading.Timer? _timer;
+
+    protected override void OnInitialized()
+    {
+        StartCountdown();
+    }
+
+    private void StartCountdown()
+    {
+        _timer = new System.Threading.Timer(_ =>
+        {
+            if (_countdown > 0)
+            {
+                _countdown--;
+                InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                _timer?.Dispose();
+            }
+        }, null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
+    }
+
+    private void RetryAfterDelay()
+    {
+        if (_countdown == 0)
+        {
+            Navigation.NavigateTo("/", forceLoad: true);
+        }
+    }
+
+    private void GoHome()
+    {
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+}

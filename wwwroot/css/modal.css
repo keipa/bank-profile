@@ -1,0 +1,354 @@
+/* ===================================
+   APPLE-STYLE MODAL SYSTEM
+   =================================== */
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    animation: fadeIn 0.2s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-overlay.closing {
+    animation: fadeOut 0.2s ease-out forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* Modal Container */
+.modal-container {
+    background: #ffffff;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+    transform: scale(0.95);
+    animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation-delay: 0.05s;
+}
+
+@keyframes scaleUp {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-container.closing {
+    animation: scaleDown 0.2s ease-out forwards;
+}
+
+@keyframes scaleDown {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+}
+
+/* Modal Header */
+.modal-header {
+    position: relative;
+    padding: 32px 32px 24px 32px;
+    border-bottom: 1px solid #e5e5ea;
+}
+
+.modal-close-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #f5f5f7;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.modal-close-button:hover {
+    background: #e5e5ea;
+    transform: scale(1.1);
+}
+
+.modal-close-button:active {
+    transform: scale(0.95);
+}
+
+.modal-close-button svg {
+    width: 16px;
+    height: 16px;
+    stroke: #1d1d1f;
+    stroke-width: 2;
+}
+
+.modal-title {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0;
+    letter-spacing: -0.5px;
+    padding-right: 40px;
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 32px;
+    max-height: calc(80vh - 120px);
+    overflow-y: auto;
+}
+
+.modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #c7c7cc;
+    border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+    background: #aeaeb2;
+}
+
+/* Metric Details */
+.metric-detail-section {
+    margin-bottom: 32px;
+}
+
+.metric-detail-section:last-child {
+    margin-bottom: 0;
+}
+
+.metric-detail-label {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #86868b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.metric-detail-value {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 48px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 16px;
+    line-height: 1.1;
+}
+
+.metric-detail-value.small {
+    font-size: 32px;
+}
+
+.metric-detail-type {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #6e6e73;
+    display: inline-block;
+    padding: 6px 12px;
+    background: #f5f5f7;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.metric-detail-description {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    color: #6e6e73;
+    line-height: 1.6;
+    margin-top: 16px;
+}
+
+/* Boolean Indicator */
+.metric-boolean-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: 600;
+    margin-top: 16px;
+}
+
+.metric-boolean-indicator.true {
+    background: #34C759;
+    color: white;
+}
+
+.metric-boolean-indicator.false {
+    background: #E5E5EA;
+    color: #86868b;
+}
+
+.metric-boolean-indicator svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* List Display */
+.metric-detail-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.metric-detail-list .chip {
+    background: #f5f5f7;
+    color: #1d1d1f;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.metric-detail-list .chip:hover {
+    background: #e5e5ea;
+    transform: translateY(-2px);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .modal-container {
+        background: #1c1c1e;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #38383a;
+    }
+
+    .modal-close-button {
+        background: #2c2c2e;
+    }
+
+    .modal-close-button:hover {
+        background: #3a3a3c;
+    }
+
+    .modal-close-button svg {
+        stroke: #f5f5f7;
+    }
+
+    .modal-title {
+        color: #f5f5f7;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #48484a;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb:hover {
+        background: #636366;
+    }
+
+    .metric-detail-label {
+        color: #98989d;
+    }
+
+    .metric-detail-value {
+        color: #f5f5f7;
+    }
+
+    .metric-detail-type {
+        background: #2c2c2e;
+        color: #e5e5ea;
+    }
+
+    .metric-detail-description {
+        color: #aeaeb2;
+    }
+
+    .metric-boolean-indicator.false {
+        background: #3a3a3c;
+        color: #98989d;
+    }
+
+    .metric-detail-list .chip {
+        background: #2c2c2e;
+        color: #f5f5f7;
+    }
+
+    .metric-detail-list .chip:hover {
+        background: #3a3a3c;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .modal-container {
+        max-width: 95%;
+        max-height: 90vh;
+    }
+
+    .modal-header {
+        padding: 24px 24px 20px 24px;
+    }
+
+    .modal-title {
+        font-size: 24px;
+    }
+
+    .modal-body {
+        padding: 24px;
+    }
+
+    .metric-detail-value {
+        font-size: 36px;
+    }
+
+    .metric-detail-value.small {
+        font-size: 24px;
+    }
+}

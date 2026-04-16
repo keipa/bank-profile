@@ -92,6 +92,100 @@ namespace BankProfiles.Web.Data.Migrations
                     b.ToTable("BankRatings");
                 });
 
+            modelBuilder.Entity("BankProfiles.Web.Data.Entities.FeedbackSubmission", b =>
+                {
+                    b.Property<int>("SubmissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubmissionId"));
+
+                    b.Property<DateTime>("SubmissionDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("SubmitterIP")
+                        .IsRequired()
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.HasKey("SubmissionId");
+
+                    b.HasIndex("SubmissionDate");
+
+                    b.HasIndex("SubmitterIP");
+
+                    b.HasIndex("SubmitterIP", "SubmissionDate");
+
+                    b.ToTable("FeedbackSubmissions");
+                });
+
+            modelBuilder.Entity("BankProfiles.Web.Data.Entities.MetricFeedback", b =>
+                {
+                    b.Property<int>("FeedbackId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeedbackId"));
+
+                    b.Property<int?>("BankId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CurrentValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Explanation")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("MetricCategory")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("MetricName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ReviewNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Pending");
+
+                    b.Property<DateTime>("SubmittedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("SubmitterIP")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<string>("SuggestedValue")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("FeedbackId");
+
+                    b.HasIndex("BankId");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("SubmittedDate");
+
+                    b.ToTable("MetricFeedbacks");
+                });
+
             modelBuilder.Entity("BankProfiles.Web.Data.Entities.RatingCriteria", b =>
                 {
                     b.Property<int>("CriteriaId")
@@ -222,6 +316,16 @@ namespace BankProfiles.Web.Data.Migrations
                     b.Navigation("Bank");
 
                     b.Navigation("Criteria");
+                });
+
+            modelBuilder.Entity("BankProfiles.Web.Data.Entities.MetricFeedback", b =>
+                {
+                    b.HasOne("BankProfiles.Web.Data.Entities.Bank", "Bank")
+                        .WithMany()
+                        .HasForeignKey("BankId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Bank");
                 });
 
             modelBuilder.Entity("BankProfiles.Web.Data.Entities.RatingHistory", b =>

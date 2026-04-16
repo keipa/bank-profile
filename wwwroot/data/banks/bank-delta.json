@@ -1,73 +1,157 @@
 {
-  "bankCode": "bank-delta",
-  "countryCode": "fr",
-  "defaultLanguage": "fr-FR",
-  "bankName": "Delta Regional Bank",
-  "description": "Trusted regional bank providing excellent service with a personal touch. Supporting local communities since 1978.",
-  "websiteUrl": "https://www.deltaregional.com",
-  "logoUrl": "/images/banks/delta-logo.png",
+  "bankId": "bank-delta",
+  "name": "Delta Regional Bank",
+  "legalName": "Delta Regional Bank SA",
+  "status": "active",
+  "countryOfOwnerResidence": "France",
+  "headquartersCountry": "France",
+  "jurisdiction": "Autorité de Contrôle Prudentiel et de Résolution (ACPR)",
+  "overview": {
+    "type": "retail bank",
+    "segment": "Regional Banking",
+    "foundedYear": 1978,
+    "description": "Trusted regional bank providing excellent service with a personal touch. Supporting local communities since 1978.",
+    "logoUrl": "/images/banks/delta-logo.png"
+  },
+  "systems": {
+    "cardSystems": ["visa", "mastercard"],
+    "swiftAvailable": true,
+    "ibanSupported": true,
+    "sepaAvailable": true,
+    "localClearing": true,
+    "instantTransfers": false,
+    "cryptoExposure": "none"
+  },
+  "currencies": {
+    "available": ["USD", "EUR", "GBP"],
+    "baseCurrency": "EUR",
+    "multiCurrencyAccounts": false,
+    "fxMarkupPercent": 1.5
+  },
+  "fees": {
+    "commissions": {
+      "incomingDomesticPercent": 0.0,
+      "incomingInternationalPercent": 0.18,
+      "outgoingDomesticPercent": 0.3,
+      "outgoingInternationalPercent": 0.3,
+      "cashWithdrawalLocalAtmPercent": 0.0,
+      "cashWithdrawalInternationalAtmPercent": 3.5,
+      "fxMarkupPercent": 1.5
+    },
+    "accountFees": {
+      "accountOpening": 0.0,
+      "monthlyMaintenance": 8.0,
+      "accountClosure": 0.0,
+      "dormancyAfterMonths": 18,
+      "dormancyFee": 20.0
+    },
+    "cardFees": {
+      "cardIssuance": 15.0,
+      "premiumCardAnnualFee": 20.0,
+      "replacementCardFee": 12.0
+    },
+    "transferFees": {
+      "swiftPaymentProcessing": 30.0,
+      "urgentPaymentSurcharge": 20.0,
+      "chargebackHandling": 35.0
+    }
+  },
+  "branches": {
+    "count": 120,
+    "countries": ["France"],
+    "atmCount": 300,
+    "partnerAtmNetwork": 8000
+  },
+  "clients": {
+    "total": 450000,
+    "retail": 380000,
+    "business": 65000,
+    "corporate": 5000,
+    "privateBanking": 0
+  },
+  "ratings": {
+    "overall": 3.9,
+    "history": [],
+    "source": "internal",
+    "lastUpdated": "2026-04-10T00:00:00Z"
+  },
+  "compliance": {
+    "sanctionsRisk": "low",
+    "governmentAffiliate": false,
+    "pepExposure": "low",
+    "offshoreLinks": "none",
+    "amlStatus": "good",
+    "kycStatus": "complete",
+    "fATCA": true,
+    "crs": true,
+    "auditPublished": true,
+    "depositInsurance": true
+  },
+  "digitalChannels": {
+    "mobileApp": true,
+    "webBanking": true,
+    "ios": true,
+    "android": false,
+    "apiAccess": false,
+    "biometricLogin": false,
+    "deviceTrust": false,
+    "pushNotifications": true,
+    "uptimePercent": 98.5,
+    "averageAccountOpeningMinutes": 30
+  },
+  "support": {
+    "available24x7": false,
+    "channels": ["phone", "email", "branch"],
+    "averageResponseTimeMinutes": 20,
+    "languages": ["French", "English"]
+  },
+  "products": {
+    "accounts": true,
+    "cards": true,
+    "savings": true,
+    "loans": true,
+    "mortgages": true,
+    "investmentTools": false,
+    "merchantAcquiring": true,
+    "payroll": false,
+    "escrow": false,
+    "tradeFinance": false
+  },
+  "redFlags": [],
+  "metrics": {
+    "clientSatisfactionPercent": 82.0,
+    "corporateSatisfactionPercent": 79.0,
+    "complaintRatioPercent": 1.2,
+    "avgRemediationDays": 10,
+    "openIssues": 18,
+    "resolvedEvents": 95
+  },
+  "metadata": {
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-04-10T00:00:00Z",
+    "lastReviewed": "2026-04-01T09:00:00Z",
+    "source": "internal",
+    "confidence": 0.88
+  },
   "theme": {
     "primaryColor": "#c62828",
     "secondaryColor": "#e53935",
     "fontFamily": "Lato, sans-serif",
-    "accentColor": "#ffab00"
-  },
-  "technicalInfo": {
-    "commissions": {
-      "incomingTransfer": {
-        "domestic": 0.0,
-        "international": 18.0,
-        "currency": "USD"
-      },
-      "outgoingTransfer": {
-        "domestic": 3.0,
-        "international": 30.0,
-        "currency": "USD"
-      }
+    "accentColor": "#ffab00",
+    "darkTheme": {
+      "primaryColor": "#ef5350",
+      "secondaryColor": "#e57373",
+      "accentColor": "#ffd54f",
+      "backgroundStart": "#1a0e0e",
+      "backgroundEnd": "#2d1a1a"
     },
-    "cardServices": {
-      "debitCardOpeningFee": 15.0,
-      "creditCardOpeningFee": 20.0,
-      "annualMaintenanceFee": 20.0,
-      "currency": "USD"
-    },
-    "availableCurrencies": ["USD", "EUR", "GBP"],
-    "premiumBanking": {
-      "available": false,
-      "minimumBalance": 0,
-      "monthlyFee": 0,
-      "benefits": []
-    },
-    "digitalServices": {
-      "mobileBanking": true,
-      "onlineTrading": false,
-      "cryptocurrency": false,
-      "roboAdvisor": false
-    },
-    "accountTypes": [
-      {
-        "name": "Regular Checking",
-        "minimumBalance": 250,
-        "monthlyFee": 8,
-        "features": ["Debit card", "Online banking", "Check writing", "Overdraft protection"]
-      },
-      {
-        "name": "Standard Savings",
-        "minimumBalance": 100,
-        "monthlyFee": 5,
-        "features": ["Interest-bearing", "Online banking", "Mobile app"]
-      }
-    ],
-    "atmNetwork": {
-      "ownAtms": 85,
-      "partnerAtms": 1500,
-      "internationalAccess": false
+    "lightTheme": {
+      "primaryColor": "#d32f2f",
+      "secondaryColor": "#f44336",
+      "accentColor": "#ffa000",
+      "backgroundStart": "#ffebee",
+      "backgroundEnd": "#ffcdd2"
     }
-  },
-  "contactInfo": {
-    "phone": "+1-866-DELTA-BANK",
-    "email": "contact@deltaregional.com",
-    "address": "321 Commerce Blvd, Atlanta, GA 30303, USA"
   },
   "animationConfig": {
     "gradientStops": [
@@ -75,9 +159,16 @@
       { "offset": "100%", "color": "#e53935" }
     ],
     "balls": [
-      { "centerX": 250, "centerY": 180, "radius": 120, "color": "#ffab00" },
-      { "centerX": 520, "centerY": 320, "radius": 150, "color": "#e53935" }
+      { "centerX": 250, "centerY": 200, "radius": 130, "color": "#ffab00" },
+      { "centerX": 400, "centerY": 350, "radius": 140, "color": "#e53935" }
     ],
     "animationType": "rotate"
+  },
+  "defaultLanguage": "fr-FR",
+  "websiteUrl": "https://www.deltaregional.com",
+  "contactInfo": {
+    "phone": "+33-1-DELTA-BANK",
+    "email": "contact@deltaregional.com",
+    "address": "45 Rue de la Banque, Paris 75002, France"
   }
 }

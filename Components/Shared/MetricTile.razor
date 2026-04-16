@@ -1,0 +1,92 @@
+@using BankProfiles.Web.Models
+
+<div class="@GetCssClasses()" role="region" aria-label="@Metric.Label metric" @onclick="HandleClick">
+    <div class="metric-tile-content">
+        <div class="metric-header">
+            <div class="metric-label">
+                @Metric.Label
+            </div>
+            @if (!string.IsNullOrEmpty(Metric.Icon))
+            {
+                <div class="metric-icon" aria-hidden="true">
+                    <i class="@Metric.Icon"></i>
+                </div>
+            }
+        </div>
+        
+        <div class="metric-value">
+            @if (Metric.Type == MetricType.List && Metric.Value is List<string> list)
+            {
+                <div class="metric-chips">
+                    @foreach (var item in list.Take(3))
+                    {
+                        <span class="chip">@item</span>
+                    }
+                    @if (list.Count > 3)
+                    {
+                        <span class="chip more">+@(list.Count - 3)</span>
+                    }
+                </div>
+            }
+            else if (Metric.Type == MetricType.Percentage)
+            {
+                <div class="percentage-container">
+                    <span class="percentage-value">@Metric.FormattedValue</span>
+                    @if (ShowProgressBar)
+                    {
+                        <div class="progress-bar-wrapper">
+                            <div class="progress-bar" style="width: @GetProgressWidth()%"></div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <span>@Metric.FormattedValue</span>
+            }
+        </div>
+        
+        @if (!string.IsNullOrEmpty(Metric.Unit) && Metric.Type != MetricType.Percentage)
+        {
+            <div class="metric-unit">@Metric.Unit</div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public required MetricDto Metric { get; set; }
+    
+    [Parameter]
+    public bool ShowProgressBar { get; set; } = false;
+    
+    [Parameter]
+    public EventCallback<MetricDto> OnClick { get; set; }
+    
+    private string GetCssClasses()
+    {
+        var classes = new List<string> { Metric.GetCssClass() };
+        
+        var alertLevel = Metric.GetAlertLevel();
+        if (alertLevel != "normal")
+        {
+            classes.Add($"alert-{alertLevel}");
+        }
+        
+        return string.Join(" ", classes);
+    }
+    
+    private double GetProgressWidth()
+    {
+        if (Metric.Value is double d)
+        {
+            return Math.Min(d, 100);
+        }
+        return 0;
+    }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync(Metric);
+    }
+}

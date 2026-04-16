@@ -1,0 +1,178 @@
+@using BankProfiles.Web.Models
+
+<div class="digital-channels-info">
+    @if (Digital != null)
+    {
+        <div class="digital-grid">
+            @* Mobile Banking *@
+            @if (Digital.MobileApp == true)
+            {
+                <div class="digital-section">
+                    <h6 class="section-title"><i class="fas fa-mobile-alt"></i> Mobile Banking</h6>
+                    <div class="platform-badges">
+                        @if (Digital.Ios == true)
+                        {
+                            <span class="badge bg-dark"><i class="fab fa-apple"></i> iOS</span>
+                        }
+                        @if (Digital.Android == true)
+                        {
+                            <span class="badge bg-success"><i class="fab fa-android"></i> Android</span>
+                        }
+                        @if (Digital.BiometricLogin == true)
+                        {
+                            <span class="badge bg-info"><i class="fas fa-fingerprint"></i> Biometric Login</span>
+                        }
+                        @if (Digital.DeviceTrust == true)
+                        {
+                            <span class="badge bg-info"><i class="fas fa-shield-alt"></i> Device Trust</span>
+                        }
+                        @if (Digital.PushNotifications == true)
+                        {
+                            <span class="badge bg-primary"><i class="fas fa-bell"></i> Push Notifications</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            @* Web Banking *@
+            @if (Digital.WebBanking == true)
+            {
+                <div class="digital-section">
+                    <h6 class="section-title"><i class="fas fa-laptop"></i> Web Banking</h6>
+                    <div class="feature-badge">
+                        <i class="fas fa-check-circle text-success"></i> Available
+                    </div>
+                </div>
+            }
+
+            @* API Access *@
+            @if (Digital.ApiAccess == true)
+            {
+                <div class="digital-section">
+                    <h6 class="section-title"><i class="fas fa-code"></i> Developer API</h6>
+                    <div class="feature-badge">
+                        <i class="fas fa-check-circle text-success"></i> API Access Available
+                    </div>
+                </div>
+            }
+
+            @* Performance Metrics *@
+            <div class="digital-section">
+                <h6 class="section-title"><i class="fas fa-chart-line"></i> Performance</h6>
+                <div class="metrics-grid">
+                    @if (Digital.UptimePercent.HasValue)
+                    {
+                        <div class="metric-item">
+                            <div class="metric-label">Uptime</div>
+                            <div class="metric-value">
+                                <span class="@GetUptimeClass((decimal)Digital.UptimePercent.Value)">
+                                    @Digital.UptimePercent.Value%
+                                </span>
+                            </div>
+                        </div>
+                    }
+                    @if (Digital.AverageAccountOpeningMinutes.HasValue)
+                    {
+                        <div class="metric-item">
+                            <div class="metric-label">Account Opening</div>
+                            <div class="metric-value">~@Digital.AverageAccountOpeningMinutes mins</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No digital channels information available</p>
+    }
+</div>
+
+<style>
+    .digital-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .digital-section {
+        padding: 0.5rem 0;
+    }
+
+    .section-title {
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .platform-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .platform-badges .badge {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.6rem;
+    }
+
+    .feature-badge {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .metric-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem;
+        background: var(--bg-secondary);
+        border-radius: 0.25rem;
+    }
+
+    .metric-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .metric-value {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .uptime-excellent {
+        color: var(--success);
+    }
+
+    .uptime-good {
+        color: var(--info);
+    }
+
+    .uptime-warning {
+        color: var(--warning);
+    }
+
+    .uptime-critical {
+        color: var(--danger);
+    }
+</style>
+
+@code {
+    [Parameter] public DigitalChannels? Digital { get; set; }
+
+    private string GetUptimeClass(decimal uptime)
+    {
+        if (uptime >= 99.9m) return "uptime-excellent";
+        if (uptime >= 99.5m) return "uptime-good";
+        if (uptime >= 99.0m) return "uptime-warning";
+        return "uptime-critical";
+    }
+}

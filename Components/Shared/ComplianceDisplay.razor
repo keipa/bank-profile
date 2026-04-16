@@ -1,0 +1,176 @@
+@using BankProfiles.Web.Models
+
+<div class="compliance-info">
+    @if (Compliance != null)
+    {
+        <div class="compliance-grid">
+            @* Risk Indicators *@
+            <div class="compliance-section">
+                <h6 class="section-title"><i class="fas fa-shield-alt"></i> Risk Assessment</h6>
+                <div class="risk-badges">
+                    <div class="risk-item">
+                        <span class="text-muted">Sanctions Risk:</span>
+                        <span class="badge @GetRiskBadgeClass(Compliance.SanctionsRisk)">@Compliance.SanctionsRisk</span>
+                    </div>
+                    <div class="risk-item">
+                        <span class="text-muted">AML Status:</span>
+                        <span class="badge @GetStatusBadgeClass(Compliance.AmlStatus)">@Compliance.AmlStatus</span>
+                    </div>
+                    <div class="risk-item">
+                        <span class="text-muted">KYC Status:</span>
+                        <span class="badge @GetStatusBadgeClass(Compliance.KycStatus)">@Compliance.KycStatus</span>
+                    </div>
+                    @if (Bank?.CryptoExposure != null && Bank.CryptoExposure.ToLower() != "none" && Bank.CryptoExposure.ToLower() != "unknown")
+                    {
+                        <div class="risk-item">
+                            <span class="text-muted">Crypto Exposure:</span>
+                            <span class="badge @GetRiskBadgeClass(Bank.CryptoExposure)">@Bank.CryptoExposure</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @* Compliance Flags *@
+            <div class="compliance-section">
+                <h6 class="section-title"><i class="fas fa-flag"></i> Regulatory Compliance</h6>
+                <div class="compliance-flags">
+                    @if (Compliance.GovernmentAffiliate == true)
+                    {
+                        <div class="flag-item text-warning">
+                            <i class="fas fa-landmark"></i> Government Affiliated
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Compliance.PepExposure) && Compliance.PepExposure.ToLower() != "none" && Compliance.PepExposure.ToLower() != "unknown")
+                    {
+                        <div class="flag-item text-warning">
+                            <i class="fas fa-user-tie"></i> PEP Exposure: @Compliance.PepExposure
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Compliance.OffshoreLinks) && Compliance.OffshoreLinks.ToLower() != "none" && Compliance.OffshoreLinks.ToLower() != "unknown")
+                    {
+                        <div class="flag-item text-info">
+                            <i class="fas fa-globe-americas"></i> Offshore Links: @Compliance.OffshoreLinks
+                        </div>
+                    }
+                    @if (Compliance.FATCA == true)
+                    {
+                        <div class="flag-item text-success">
+                            <i class="fas fa-check-circle"></i> FATCA Compliant
+                        </div>
+                    }
+                    @if (Compliance.CRS == true)
+                    {
+                        <div class="flag-item text-success">
+                            <i class="fas fa-check-circle"></i> CRS Compliant
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @* Deposit Insurance *@
+            @if (Compliance.DepositInsurance == true)
+            {
+                <div class="compliance-section">
+                    <h6 class="section-title"><i class="fas fa-umbrella"></i> Deposit Protection</h6>
+                    <div class="insurance-info">
+                        <div class="insurance-item text-success">
+                            <i class="fas fa-check-circle"></i> Deposit Insurance Available
+                        </div>
+                    </div>
+                </div>
+            }
+
+            @* Audit Status *@
+            @if (Compliance.AuditPublished == true)
+            {
+                <div class="compliance-section">
+                    <div class="audit-badge">
+                        <i class="fas fa-file-contract"></i> Public Audit Available
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No compliance information available</p>
+    }
+</div>
+
+<style>
+    .compliance-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .compliance-section {
+        padding: 0.5rem 0;
+    }
+
+    .section-title {
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .risk-badges, .compliance-flags {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .risk-item, .flag-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.25rem 0;
+        font-size: 0.9rem;
+    }
+
+    .insurance-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.9rem;
+    }
+
+    .audit-badge {
+        color: var(--success);
+        font-weight: 500;
+    }
+
+    .badge {
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+</style>
+
+@code {
+    [Parameter] public BankCompliance? Compliance { get; set; }
+    [Parameter] public BankSystems? Bank { get; set; }
+
+    private string GetRiskBadgeClass(string? risk)
+    {
+        return risk?.ToLower() switch
+        {
+            "low" or "none" => "bg-success",
+            "moderate" => "bg-warning text-dark",
+            "high" or "critical" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusBadgeClass(string? status)
+    {
+        return status?.ToLower() switch
+        {
+            "good" or "complete" => "bg-success",
+            "watch" or "partial" => "bg-warning text-dark",
+            "review" or "weak" or "critical" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

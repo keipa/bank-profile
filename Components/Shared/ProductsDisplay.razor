@@ -1,0 +1,132 @@
+@using BankProfiles.Web.Models
+
+<div class="products-info">
+    @if (Products != null)
+    {
+        <div class="products-grid">
+            @if (Products.Accounts == true)
+            {
+                <div class="product-item">
+                    <i class="fas fa-wallet text-primary"></i>
+                    <span>Accounts</span>
+                </div>
+            }
+
+            @if (Products.Cards == true)
+            {
+                <div class="product-item">
+                    <i class="fas fa-credit-card text-primary"></i>
+                    <span>Cards</span>
+                </div>
+            }
+
+            @if (Products.Savings == true)
+            {
+                <div class="product-item">
+                    <i class="fas fa-piggy-bank text-primary"></i>
+                    <span>Savings</span>
+                </div>
+            }
+
+            @if (Products.Loans == true)
+            {
+                <div class="product-item">
+                    <i class="fas fa-hand-holding-usd text-primary"></i>
+                    <span>Loans</span>
+                </div>
+            }
+
+            @if (Products.Mortgages == true)
+            {
+                <div class="product-item">
+                    <i class="fas fa-home text-primary"></i>
+                    <span>Mortgages</span>
+                </div>
+            }
+
+            @if (Products.InvestmentTools == true)
+            {
+                <div class="product-item">
+                    <i class="fas fa-chart-line text-primary"></i>
+                    <span>Investment Tools</span>
+                </div>
+            }
+
+            @if (Products.MerchantAcquiring == true)
+            {
+                <div class="product-item">
+                    <i class="fas fa-cash-register text-primary"></i>
+                    <span>Merchant Acquiring</span>
+                </div>
+            }
+
+            @if (Products.Payroll == true)
+            {
+                <div class="product-item">
+                    <i class="fas fa-money-check-alt text-primary"></i>
+                    <span>Payroll Services</span>
+                </div>
+            }
+
+            @if (Products.Escrow == true)
+            {
+                <div class="product-item">
+                    <i class="fas fa-shield-alt text-primary"></i>
+                    <span>Escrow Services</span>
+                </div>
+            }
+
+            @if (Products.TradeFinance == true)
+            {
+                <div class="product-item premium">
+                    <i class="fas fa-globe text-warning"></i>
+                    <span>Trade Finance</span>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">No product information available</p>
+    }
+</div>
+
+<style>
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .product-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-radius: 0.5rem;
+        border: 1px solid var(--border-color);
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .product-item i {
+        font-size: 1.5rem;
+    }
+
+    .product-item span {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    .product-item.premium {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, var(--bg-secondary) 100%);
+        border-color: var(--warning);
+    }
+</style>
+
+@code {
+    [Parameter] public BankProducts? Products { get; set; }
+}

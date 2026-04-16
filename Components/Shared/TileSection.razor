@@ -1,0 +1,43 @@
+@using BankProfiles.Web.Models
+@using BankProfiles.Web.Services
+@inject ModalService ModalService
+
+<section class="tile-section" aria-labelledby="section-@SectionId">
+    <h2 id="section-@SectionId" class="tile-section-header">
+        @if (!string.IsNullOrEmpty(Icon))
+        {
+            <i class="@Icon section-icon" aria-hidden="true"></i>
+        }
+        @Title
+    </h2>
+    
+    <div class="tile-grid" role="list">
+        @foreach (var metric in Metrics)
+        {
+            <div role="listitem">
+                <MetricTile Metric="metric" ShowProgressBar="@ShowProgressBars" OnClick="HandleTileClick" />
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public required string Title { get; set; }
+    
+    [Parameter]
+    public required List<MetricDto> Metrics { get; set; }
+    
+    [Parameter]
+    public string? Icon { get; set; }
+    
+    [Parameter]
+    public bool ShowProgressBars { get; set; } = false;
+    
+    private string SectionId => Title.Replace(" ", "-").ToLowerInvariant();
+
+    private void HandleTileClick(MetricDto metric)
+    {
+        ModalService.ShowModal(metric);
+    }
+}

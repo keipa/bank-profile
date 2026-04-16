@@ -14,6 +14,8 @@ public class BankDbContext : DbContext
     public DbSet<BankRating> BankRatings { get; set; }
     public DbSet<RatingHistory> RatingHistories { get; set; }
     public DbSet<ViewHistory> ViewHistory { get; set; } = null!;
+    public DbSet<MetricFeedback> MetricFeedbacks { get; set; } = null!;
+    public DbSet<FeedbackSubmission> FeedbackSubmissions { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -102,6 +104,59 @@ public class BankDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(e => new { e.BankId, e.RecordedDate });
+        });
+
+        // MetricFeedback entity configuration
+        modelBuilder.Entity<MetricFeedback>(entity =>
+        {
+            entity.HasKey(e => e.FeedbackId);
+            entity.Property(e => e.MetricCategory)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.MetricName)
+                .IsRequired()
+                .HasMaxLength(200);
+            entity.Property(e => e.CurrentValue)
+                .HasMaxLength(500);
+            entity.Property(e => e.SuggestedValue)
+                .HasMaxLength(500);
+            entity.Property(e => e.Explanation)
+                .IsRequired()
+                .HasMaxLength(2000);
+            entity.Property(e => e.SubmitterIP)
+                .HasMaxLength(45);
+            entity.Property(e => e.SubmittedDate)
+                .HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.ReviewNotes)
+                .HasMaxLength(1000);
+
+            entity.HasOne(e => e.Bank)
+                .WithMany()
+                .HasForeignKey(e => e.BankId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.BankId);
+            entity.HasIndex(e => e.SubmittedDate);
+            entity.HasIndex(e => e.Status);
+        });
+
+        // FeedbackSubmission entity configuration
+        modelBuilder.Entity<FeedbackSubmission>(entity =>
+        {
+            entity.HasKey(e => e.SubmissionId);
+            entity.Property(e => e.SubmitterIP)
+                .IsRequired()
+                .HasMaxLength(45);
+            entity.Property(e => e.SubmissionDate)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasIndex(e => e.SubmitterIP);
+            entity.HasIndex(e => e.SubmissionDate);
+            entity.HasIndex(e => new { e.SubmitterIP, e.SubmissionDate });
         });
 
         // Seed data

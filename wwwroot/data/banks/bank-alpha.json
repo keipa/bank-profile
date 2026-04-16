@@ -1,86 +1,157 @@
 {
-  "bankCode": "bank-alpha",
-  "countryCode": "uk",
-  "defaultLanguage": "en-GB",
-  "bankName": "Alpha Global Bank",
-  "description": "Leading financial institution with comprehensive banking solutions and award-winning customer service. Established in 1985, serving millions of customers worldwide.",
-  "websiteUrl": "https://www.alphaglobal.com",
-  "logoUrl": "/images/banks/alpha-logo.png",
+  "bankId": "bank-alpha",
+  "name": "Alpha Global Bank",
+  "legalName": "Alpha Global Bank Ltd.",
+  "status": "active",
+  "countryOfOwnerResidence": "United Kingdom",
+  "headquartersCountry": "United Kingdom",
+  "jurisdiction": "UK Financial Conduct Authority",
+  "overview": {
+    "type": "retail bank",
+    "segment": "Universal Banking",
+    "foundedYear": 1985,
+    "description": "Leading financial institution with comprehensive banking solutions and award-winning customer service. Established in 1985, serving millions of customers worldwide.",
+    "logoUrl": "/images/banks/alpha-logo.png"
+  },
+  "systems": {
+    "cardSystems": ["visa", "mastercard", "amex"],
+    "swiftAvailable": true,
+    "ibanSupported": true,
+    "sepaAvailable": true,
+    "localClearing": true,
+    "instantTransfers": true,
+    "cryptoExposure": "none"
+  },
+  "currencies": {
+    "available": ["USD", "EUR", "GBP", "CHF", "JPY", "AUD", "CAD"],
+    "baseCurrency": "GBP",
+    "multiCurrencyAccounts": true,
+    "fxMarkupPercent": 0.5
+  },
+  "fees": {
+    "commissions": {
+      "incomingDomesticPercent": 0.0,
+      "incomingInternationalPercent": 0.15,
+      "outgoingDomesticPercent": 0.15,
+      "outgoingInternationalPercent": 0.25,
+      "cashWithdrawalLocalAtmPercent": 0.0,
+      "cashWithdrawalInternationalAtmPercent": 2.5,
+      "fxMarkupPercent": 0.5
+    },
+    "accountFees": {
+      "accountOpening": 0.0,
+      "monthlyMaintenance": 5.0,
+      "accountClosure": 0.0,
+      "dormancyAfterMonths": 12,
+      "dormancyFee": 10.0
+    },
+    "cardFees": {
+      "cardIssuance": 10.0,
+      "premiumCardAnnualFee": 12.0,
+      "replacementCardFee": 15.0
+    },
+    "transferFees": {
+      "swiftPaymentProcessing": 25.0,
+      "urgentPaymentSurcharge": 15.0,
+      "chargebackHandling": 25.0
+    }
+  },
+  "branches": {
+    "count": 250,
+    "countries": ["United Kingdom", "Ireland", "Isle of Man"],
+    "atmCount": 500,
+    "partnerAtmNetwork": 5000
+  },
+  "clients": {
+    "total": 5000000,
+    "retail": 4200000,
+    "business": 650000,
+    "corporate": 120000,
+    "privateBanking": 30000
+  },
+  "ratings": {
+    "overall": 4.5,
+    "history": [],
+    "source": "internal",
+    "lastUpdated": "2026-04-10T00:00:00Z"
+  },
+  "compliance": {
+    "sanctionsRisk": "low",
+    "governmentAffiliate": false,
+    "pepExposure": "low",
+    "offshoreLinks": "limited",
+    "amlStatus": "good",
+    "kycStatus": "complete",
+    "fATCA": true,
+    "crs": true,
+    "auditPublished": true,
+    "depositInsurance": true
+  },
+  "digitalChannels": {
+    "mobileApp": true,
+    "webBanking": true,
+    "ios": true,
+    "android": true,
+    "apiAccess": true,
+    "biometricLogin": true,
+    "deviceTrust": true,
+    "pushNotifications": true,
+    "uptimePercent": 99.9,
+    "averageAccountOpeningMinutes": 15
+  },
+  "support": {
+    "available24x7": true,
+    "channels": ["phone", "email", "chat", "app", "web"],
+    "averageResponseTimeMinutes": 5,
+    "languages": ["English", "French", "Spanish", "German"]
+  },
+  "products": {
+    "accounts": true,
+    "cards": true,
+    "savings": true,
+    "loans": true,
+    "mortgages": true,
+    "investmentTools": true,
+    "merchantAcquiring": true,
+    "payroll": true,
+    "escrow": true,
+    "tradeFinance": false
+  },
+  "redFlags": [],
+  "metrics": {
+    "clientSatisfactionPercent": 87.5,
+    "corporateSatisfactionPercent": 92.0,
+    "complaintRatioPercent": 0.8,
+    "avgRemediationDays": 7,
+    "openIssues": 12,
+    "resolvedEvents": 145
+  },
+  "metadata": {
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-04-10T00:00:00Z",
+    "lastReviewed": "2026-04-08T14:30:00Z",
+    "source": "internal",
+    "confidence": 0.95
+  },
   "theme": {
     "primaryColor": "#1a237e",
     "secondaryColor": "#3949ab",
     "fontFamily": "Roboto, sans-serif",
-    "accentColor": "#ff6f00"
-  },
-  "technicalInfo": {
-    "commissions": {
-      "incomingTransfer": {
-        "domestic": 0.0,
-        "international": 15.0,
-        "currency": "USD"
-      },
-      "outgoingTransfer": {
-        "domestic": 1.5,
-        "international": 25.0,
-        "currency": "USD"
-      }
+    "accentColor": "#ff6f00",
+    "darkTheme": {
+      "primaryColor": "#5c6bc0",
+      "secondaryColor": "#7986cb",
+      "accentColor": "#ff8a65",
+      "backgroundStart": "#0a0e27",
+      "backgroundEnd": "#1a1f3a"
     },
-    "cardServices": {
-      "debitCardOpeningFee": 10.0,
-      "creditCardOpeningFee": 0.0,
-      "annualMaintenanceFee": 12.0,
-      "currency": "USD"
-    },
-    "availableCurrencies": ["USD", "EUR", "GBP", "CHF", "JPY", "AUD", "CAD"],
-    "premiumBanking": {
-      "available": true,
-      "minimumBalance": 50000,
-      "monthlyFee": 0,
-      "benefits": [
-        "Dedicated relationship manager",
-        "Priority customer service 24/7",
-        "Free international transfers",
-        "Premium credit card with lounge access",
-        "Higher interest rates on savings",
-        "Free safety deposit box"
-      ]
-    },
-    "digitalServices": {
-      "mobileBanking": true,
-      "onlineTrading": true,
-      "cryptocurrency": false,
-      "roboAdvisor": true
-    },
-    "accountTypes": [
-      {
-        "name": "Basic Checking",
-        "minimumBalance": 100,
-        "monthlyFee": 5,
-        "features": ["Debit card", "Online banking", "Mobile app", "ATM access"]
-      },
-      {
-        "name": "Premium Checking",
-        "minimumBalance": 5000,
-        "monthlyFee": 0,
-        "features": ["Debit card", "Online banking", "Mobile app", "Free checks", "Overdraft protection", "Priority support"]
-      },
-      {
-        "name": "Savings Plus",
-        "minimumBalance": 500,
-        "monthlyFee": 2,
-        "features": ["High-yield interest", "Online banking", "Mobile app", "Auto-save features"]
-      }
-    ],
-    "atmNetwork": {
-      "ownAtms": 500,
-      "partnerAtms": 5000,
-      "internationalAccess": true
+    "lightTheme": {
+      "primaryColor": "#3f51b5",
+      "secondaryColor": "#5c6bc0",
+      "accentColor": "#ff7043",
+      "backgroundStart": "#e8eaf6",
+      "backgroundEnd": "#c5cae9"
     }
-  },
-  "contactInfo": {
-    "phone": "+1-800-ALPHA-BANK",
-    "email": "info@alphaglobal.com",
-    "address": "123 Financial District, New York, NY 10004, USA"
   },
   "animationConfig": {
     "gradientStops": [
@@ -92,5 +163,12 @@
       { "centerX": 550, "centerY": 400, "radius": 180, "color": "#3949ab" }
     ],
     "animationType": "wave"
+  },
+  "defaultLanguage": "en-GB",
+  "websiteUrl": "https://www.alphaglobal.com",
+  "contactInfo": {
+    "phone": "+1-800-ALPHA-BANK",
+    "email": "info@alphaglobal.com",
+    "address": "123 Financial District, New York, NY 10004, USA"
   }
 }

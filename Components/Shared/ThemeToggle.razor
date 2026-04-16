@@ -30,7 +30,11 @@
         
         try
         {
-            await ThemeService.SetThemeAsync(newTheme);
+            // Set cookie via JavaScript to avoid "Headers are read-only" error
+            // In Blazor Server, event handlers execute after HTTP response is sent
+            await JS.InvokeVoidAsync("setCookie", "theme", newTheme, 365);
+            
+            // Apply theme immediately via JavaScript
             await JS.InvokeVoidAsync("themeHelper.applyTheme", newTheme);
             
             _isDark = !_isDark;

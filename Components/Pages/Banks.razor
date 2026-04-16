@@ -5,6 +5,11 @@
 
 <PageTitle>@Localization.GetString("page.banks.pageTitle")</PageTitle>
 
+@* Neutral Nebula Background *@
+<DynamicNebulaBackground />
+
+<div style="position: relative; z-index: 1;">
+
 @if (!string.IsNullOrWhiteSpace(Country) && _currentCountryInfo != null)
 {
     <nav aria-label="breadcrumb" class="mb-3">
@@ -118,6 +123,8 @@ else
         }
     }
 }
+
+</div>
 
 @code {
     private List<BankProfile> _banks = new();

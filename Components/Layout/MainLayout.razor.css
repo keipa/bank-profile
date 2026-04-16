@@ -2,6 +2,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    position: relative;
 }
 
 main {
@@ -12,23 +13,95 @@ main {
     margin-top: auto;
 }
 
+/* Transparent Navigation Bar with Glass Morphism */
+.navbar-transparent {
+    position: relative;
+    transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+/* Light theme navbar - semi-transparent white with blur */
+:root[data-theme="light"] .navbar-transparent,
+.navbar-transparent {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark theme navbar - semi-transparent black with blur */
+:root[data-theme="dark"] .navbar-transparent {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Navbar brand styling */
 .navbar-brand {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    transition: color 0.2s ease, opacity 0.2s ease;
 }
 
+/* Light theme brand text */
+:root[data-theme="light"] .navbar-brand,
+.navbar-brand {
+    color: #1a1a1a;
+}
+
+/* Dark theme brand text */
+:root[data-theme="dark"] .navbar-brand {
+    color: #ffffff;
+}
+
+.navbar-brand:hover {
+    opacity: 0.8;
+}
+
+/* Nav link styling */
 .nav-link {
-    color: rgba(255,255,255,.85);
-    padding: 0.5rem 1rem;
+    transition: color 0.2s ease, background-color 0.2s ease;
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.75rem;
 }
 
+/* Light theme nav links */
+:root[data-theme="light"] .nav-link,
+.nav-link {
+    color: #1a1a1a;
+}
+
+:root[data-theme="light"] .nav-link:hover,
 .nav-link:hover {
-    color: #fff;
+    color: #000000;
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
+:root[data-theme="light"] .nav-link.active,
 .nav-link.active {
-    color: #fff;
-    border-bottom: 2px solid #fff;
+    color: #000000;
+    background-color: rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+    border-bottom: none;
+}
+
+/* Dark theme nav links */
+:root[data-theme="dark"] .nav-link {
+    color: #ffffff;
+}
+
+:root[data-theme="dark"] .nav-link:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+:root[data-theme="dark"] .nav-link.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.15);
+    font-weight: 500;
 }
 
 #blazor-error-ui {
@@ -55,10 +128,14 @@ main {
 /* Responsive navigation adjustments */
 @media (max-width: 991px) {
     .navbar-collapse {
-        background-color: var(--bs-primary);
+        background-color: rgba(0, 0, 0, 0.1);
         padding: 1rem;
         margin-top: 0.5rem;
         border-radius: 0.5rem;
+    }
+    
+    :root[data-theme="dark"] .navbar-collapse {
+        background-color: rgba(255, 255, 255, 0.05);
     }
     
     .navbar-nav {
@@ -73,6 +150,10 @@ main {
     }
     
     .navbar-nav .nav-link:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    :root[data-theme="dark"] .navbar-nav .nav-link:hover {
         background-color: rgba(255, 255, 255, 0.1);
     }
     
@@ -92,3 +173,36 @@ main {
         gap: 0.5rem;
     }
 }
+
+/* Navbar toggler for mobile */
+.navbar-toggler {
+    border-color: rgba(0, 0, 0, 0.1);
+    transition: border-color 0.2s ease;
+}
+
+:root[data-theme="dark"] .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 0.2rem rgba(128, 128, 128, 0.25);
+}
+
+/* Navbar toggler icon color */
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(26, 26, 26, 0.75)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+:root[data-theme="dark"] .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.75)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .navbar-transparent,
+    .navbar-brand,
+    .nav-link {
+        transition: none !important;
+    }
+}
+

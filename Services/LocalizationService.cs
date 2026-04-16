@@ -9,7 +9,7 @@ public class LocalizationService : ILocalizationService
     private readonly Dictionary<string, Dictionary<string, string>> _resourceCache;
     private const string CookieName = "lang";
     private const string DefaultLanguage = "en-US";
-    private static readonly string[] SupportedLanguages = { "en-US", "en-GB", "de-DE", "fr-FR", "es-ES" };
+    private static readonly string[] SupportedLanguages = { "en-US", "en-GB", "de-DE", "fr-FR", "es-ES", "ru-RU", "ka-GE" };
 
     private static readonly Dictionary<string, string> CountryToLanguageMap = new()
     {
@@ -18,7 +18,9 @@ public class LocalizationService : ILocalizationService
         { "us", "en-US" },
         { "de", "de-DE" },
         { "fr", "fr-FR" },
-        { "es", "es-ES" }
+        { "es", "es-ES" },
+        { "ru", "ru-RU" },
+        { "ge", "ka-GE" }
     };
 
     public LocalizationService(IHttpContextAccessor httpContextAccessor, IWebHostEnvironment environment)

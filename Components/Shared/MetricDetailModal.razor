@@ -1,0 +1,159 @@
+@using BankProfiles.Web.Models
+@using BankProfiles.Web.Services
+@using Microsoft.JSInterop
+@inject ModalService ModalService
+@inject IJSRuntime JSRuntime
+@implements IDisposable
+
+@if (ModalService.IsVisible && ModalService.SelectedMetric != null)
+{
+    <div class="modal-overlay @(_isClosing ? "closing" : "")" @onclick="HandleBackdropClick">
+        <div class="modal-container @(_isClosing ? "closing" : "")" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <button class="modal-close-button" @onclick="CloseModal" aria-label="Close modal">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <h2 class="modal-title">@ModalService.SelectedMetric.Label</h2>
+            </div>
+            
+            <div class="modal-body">
+                <div class="metric-detail-section">
+                    <div class="metric-detail-label">Current Value</div>
+                    <div class="metric-detail-value @(GetValueSize())">
+                        @ModalService.SelectedMetric.FormattedValue
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(ModalService.SelectedMetric.Unit))
+                    {
+                        <div class="metric-detail-type">@ModalService.SelectedMetric.Unit</div>
+                    }
+                </div>
+
+                @if (ModalService.SelectedMetric.Type == MetricType.Boolean)
+                {
+                    <div class="metric-boolean-indicator @(ModalService.SelectedMetric.IsBooleanTrue ? "true" : "false")">
+                        @if (ModalService.SelectedMetric.IsBooleanTrue)
+                        {
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20 6L9 17l-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Active</span>
+                        }
+                        else
+                        {
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Inactive</span>
+                        }
+                    </div>
+                }
+
+                @if (ModalService.SelectedMetric.Type == MetricType.List && ModalService.SelectedMetric.Value is List<string> list)
+                {
+                    <div class="metric-detail-section">
+                        <div class="metric-detail-label">All Items (@list.Count)</div>
+                        <div class="metric-detail-list">
+                            @foreach (var item in list)
+                            {
+                                <span class="chip">@item</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="metric-detail-section">
+                    <div class="metric-detail-label">Metric Type</div>
+                    <div class="metric-detail-type">@ModalService.SelectedMetric.Type.ToString()</div>
+                </div>
+
+                <div class="metric-detail-section">
+                    <div class="metric-detail-description">
+                        This is a placeholder for detailed information about this metric. 
+                        In a future update, this section will contain contextual information, 
+                        historical trends, comparisons, and insights related to @ModalService.SelectedMetric.Label.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _isClosing = false;
+    private DotNetObjectReference<MetricDetailModal>? _dotNetRef;
+
+    protected override void OnInitialized()
+    {
+        ModalService.OnModalStateChanged += HandleModalStateChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+        }
+
+        if (ModalService.IsVisible && _dotNetRef != null)
+        {
+            await JSRuntime.InvokeVoidAsync("modalHelper.registerEscapeHandler", _dotNetRef);
+        }
+    }
+
+    private void HandleModalStateChanged()
+    {
+        StateHasChanged();
+        
+        if (!ModalService.IsVisible && _dotNetRef != null)
+        {
+            JSRuntime.InvokeVoidAsync("modalHelper.unregisterEscapeHandler");
+        }
+    }
+
+    [JSInvokable]
+    public async Task HandleEscapeKey()
+    {
+        await CloseModal();
+    }
+
+    private async Task HandleBackdropClick()
+    {
+        await CloseModal();
+    }
+
+    private async Task CloseModal()
+    {
+        if (_isClosing) return;
+        
+        _isClosing = true;
+        StateHasChanged();
+        
+        await Task.Delay(200);
+        
+        ModalService.HideModal();
+        _isClosing = false;
+    }
+
+    public void Dispose()
+    {
+        ModalService.OnModalStateChanged -= HandleModalStateChanged;
+        
+        if (_dotNetRef != null)
+        {
+            JSRuntime.InvokeVoidAsync("modalHelper.unregisterEscapeHandler");
+            _dotNetRef.Dispose();
+        }
+    }
+
+    private string GetValueSize()
+    {
+        if (ModalService.SelectedMetric?.FormattedValue?.Length > 10)
+        {
+            return "small";
+        }
+        return "";
+    }
+}

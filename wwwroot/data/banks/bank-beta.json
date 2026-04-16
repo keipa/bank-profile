@@ -1,79 +1,157 @@
 {
-  "bankCode": "bank-beta",
-  "countryCode": "us",
-  "defaultLanguage": "en-US",
-  "bankName": "Beta Trust Bank",
-  "description": "Customer-focused community bank offering personalized banking services with local expertise and competitive rates since 1992.",
-  "websiteUrl": "https://www.betatrust.com",
-  "logoUrl": "/images/banks/beta-logo.png",
+  "bankId": "bank-beta",
+  "name": "Beta Trust Bank",
+  "legalName": "Beta Trust Bank Corporation",
+  "status": "active",
+  "countryOfOwnerResidence": "United States",
+  "headquartersCountry": "United States",
+  "jurisdiction": "FDIC and Federal Reserve",
+  "overview": {
+    "type": "community bank",
+    "segment": "Community Banking",
+    "foundedYear": 1992,
+    "description": "Customer-focused community bank offering personalized banking services with local expertise and competitive rates since 1992.",
+    "logoUrl": "/images/banks/beta-logo.png"
+  },
+  "systems": {
+    "cardSystems": ["visa", "mastercard"],
+    "swiftAvailable": true,
+    "ibanSupported": false,
+    "sepaAvailable": false,
+    "localClearing": true,
+    "instantTransfers": true,
+    "cryptoExposure": "none"
+  },
+  "currencies": {
+    "available": ["USD", "EUR", "GBP", "MXN"],
+    "baseCurrency": "USD",
+    "multiCurrencyAccounts": false,
+    "fxMarkupPercent": 1.0
+  },
+  "fees": {
+    "commissions": {
+      "incomingDomesticPercent": 0.0,
+      "incomingInternationalPercent": 0.12,
+      "outgoingDomesticPercent": 0.2,
+      "outgoingInternationalPercent": 0.2,
+      "cashWithdrawalLocalAtmPercent": 0.0,
+      "cashWithdrawalInternationalAtmPercent": 3.0,
+      "fxMarkupPercent": 1.0
+    },
+    "accountFees": {
+      "accountOpening": 0.0,
+      "monthlyMaintenance": 3.0,
+      "accountClosure": 0.0,
+      "dormancyAfterMonths": 24,
+      "dormancyFee": 15.0
+    },
+    "cardFees": {
+      "cardIssuance": 5.0,
+      "premiumCardAnnualFee": 15.0,
+      "replacementCardFee": 10.0
+    },
+    "transferFees": {
+      "swiftPaymentProcessing": 20.0,
+      "urgentPaymentSurcharge": 10.0,
+      "chargebackHandling": 30.0
+    }
+  },
+  "branches": {
+    "count": 45,
+    "countries": ["United States"],
+    "atmCount": 150,
+    "partnerAtmNetwork": 3000
+  },
+  "clients": {
+    "total": 250000,
+    "retail": 180000,
+    "business": 65000,
+    "corporate": 5000,
+    "privateBanking": 0
+  },
+  "ratings": {
+    "overall": 4.2,
+    "history": [],
+    "source": "internal",
+    "lastUpdated": "2026-04-10T00:00:00Z"
+  },
+  "compliance": {
+    "sanctionsRisk": "low",
+    "governmentAffiliate": false,
+    "pepExposure": "low",
+    "offshoreLinks": "none",
+    "amlStatus": "good",
+    "kycStatus": "complete",
+    "fATCA": true,
+    "crs": false,
+    "auditPublished": true,
+    "depositInsurance": true
+  },
+  "digitalChannels": {
+    "mobileApp": true,
+    "webBanking": true,
+    "ios": true,
+    "android": true,
+    "apiAccess": false,
+    "biometricLogin": true,
+    "deviceTrust": false,
+    "pushNotifications": true,
+    "uptimePercent": 99.5,
+    "averageAccountOpeningMinutes": 20
+  },
+  "support": {
+    "available24x7": false,
+    "channels": ["phone", "email", "branch"],
+    "averageResponseTimeMinutes": 15,
+    "languages": ["English", "Spanish"]
+  },
+  "products": {
+    "accounts": true,
+    "cards": true,
+    "savings": true,
+    "loans": true,
+    "mortgages": true,
+    "investmentTools": false,
+    "merchantAcquiring": true,
+    "payroll": true,
+    "escrow": true,
+    "tradeFinance": false
+  },
+  "redFlags": [],
+  "metrics": {
+    "clientSatisfactionPercent": 91.0,
+    "corporateSatisfactionPercent": 88.0,
+    "complaintRatioPercent": 0.5,
+    "avgRemediationDays": 5,
+    "openIssues": 3,
+    "resolvedEvents": 87
+  },
+  "metadata": {
+    "createdAt": "2026-01-01T00:00:00Z",
+    "updatedAt": "2026-04-10T00:00:00Z",
+    "lastReviewed": "2026-04-05T10:15:00Z",
+    "source": "internal",
+    "confidence": 0.92
+  },
   "theme": {
     "primaryColor": "#0d47a1",
     "secondaryColor": "#1976d2",
     "fontFamily": "Open Sans, sans-serif",
-    "accentColor": "#ffa726"
-  },
-  "technicalInfo": {
-    "commissions": {
-      "incomingTransfer": {
-        "domestic": 0.0,
-        "international": 12.0,
-        "currency": "USD"
-      },
-      "outgoingTransfer": {
-        "domestic": 2.0,
-        "international": 20.0,
-        "currency": "USD"
-      }
+    "accentColor": "#ffa726",
+    "darkTheme": {
+      "primaryColor": "#42a5f5",
+      "secondaryColor": "#64b5f6",
+      "accentColor": "#ffb74d",
+      "backgroundStart": "#0f172a",
+      "backgroundEnd": "#1e293b"
     },
-    "cardServices": {
-      "debitCardOpeningFee": 5.0,
-      "creditCardOpeningFee": 25.0,
-      "annualMaintenanceFee": 15.0,
-      "currency": "USD"
-    },
-    "availableCurrencies": ["USD", "EUR", "GBP", "MXN"],
-    "premiumBanking": {
-      "available": true,
-      "minimumBalance": 25000,
-      "monthlyFee": 15,
-      "benefits": [
-        "Personal banker",
-        "Free wire transfers",
-        "Premium credit card",
-        "Investment advisory",
-        "Estate planning assistance"
-      ]
-    },
-    "digitalServices": {
-      "mobileBanking": true,
-      "onlineTrading": false,
-      "cryptocurrency": false,
-      "roboAdvisor": false
-    },
-    "accountTypes": [
-      {
-        "name": "Community Checking",
-        "minimumBalance": 50,
-        "monthlyFee": 3,
-        "features": ["Debit card", "Online banking", "Mobile deposit", "Bill pay"]
-      },
-      {
-        "name": "Business Checking",
-        "minimumBalance": 1000,
-        "monthlyFee": 10,
-        "features": ["Business debit card", "Online banking", "Unlimited transactions", "Cash management tools"]
-      }
-    ],
-    "atmNetwork": {
-      "ownAtms": 150,
-      "partnerAtms": 3000,
-      "internationalAccess": false
+    "lightTheme": {
+      "primaryColor": "#1976d2",
+      "secondaryColor": "#42a5f5",
+      "accentColor": "#ff9800",
+      "backgroundStart": "#e3f2fd",
+      "backgroundEnd": "#bbdefb"
     }
-  },
-  "contactInfo": {
-    "phone": "+1-888-BETA-TRUST",
-    "email": "support@betatrust.com",
-    "address": "456 Main Street, Chicago, IL 60601, USA"
   },
   "animationConfig": {
     "gradientStops": [
@@ -85,5 +163,12 @@
       { "centerX": 500, "centerY": 350, "radius": 130, "color": "#1976d2" }
     ],
     "animationType": "pulse"
+  },
+  "defaultLanguage": "en-US",
+  "websiteUrl": "https://www.betatrust.com",
+  "contactInfo": {
+    "phone": "+1-888-BETA-TRUST",
+    "email": "support@betatrust.com",
+    "address": "456 Main Street, Chicago, IL 60601, USA"
   }
 }
