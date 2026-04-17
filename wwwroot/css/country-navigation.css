@@ -4,41 +4,211 @@
     margin-bottom: 2rem;
 }
 
-.country-card {
-    transition: all 0.3s ease;
+/* ── COUNTRY GLASS CARDS (showcase-inspired) ─────────────── */
+.country-glass-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.25rem;
+    width: 100%;
+}
+
+.country-glass-card {
+    position: relative;
+    border-radius: 20px;
+    padding: 1.75rem 1rem;
+    background: var(--glass-card-bg, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--glass-card-border, rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                background 0.3s ease,
+                border-color 0.3s ease;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    will-change: transform;
+    transform: translateY(0) scale(1);
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+}
+
+/* Shimmer sweep on hover */
+.country-glass-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        105deg,
+        transparent 30%,
+        var(--shimmer-color, rgba(255, 255, 255, 0.12)) 45%,
+        var(--shimmer-highlight, rgba(255, 255, 255, 0.2)) 50%,
+        var(--shimmer-color, rgba(255, 255, 255, 0.12)) 55%,
+        transparent 70%
+    );
+    background-size: 200% 100%;
+    background-position: -100% 0;
+    transition: background-position 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+}
+
+.country-glass-card:hover::before {
+    background-position: 200% 0;
+    opacity: 1;
+}
+
+/* Subtle glow border on hover (no rainbow, no spin) */
+.country-glass-card::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: 21px;
+    background: linear-gradient(
+        135deg,
+        var(--accent-1, #b3ffc8),
+        var(--accent-3, #5eadff)
+    );
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.country-glass-card:hover::after {
+    opacity: 1;
+}
+
+/* Hover state */
+.country-glass-card:hover {
+    background: var(--glass-card-bg-hover, rgba(255, 255, 255, 0.08));
+    border-color: var(--glass-card-border-hover, rgba(255, 255, 255, 0.2));
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15),
+                0 4px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px) scale(1.02);
     text-decoration: none;
     color: inherit;
 }
 
-.country-card .card {
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
+.country-glass-card:active {
+    transform: translateY(-2px) scale(1.01);
+    transition: transform 0.1s ease;
 }
 
-.country-card:hover .card {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-    border-color: var(--bs-primary);
+.country-glass-card:focus-visible {
+    outline: 2px solid var(--accent-3, #007AFF);
+    outline-offset: 4px;
 }
 
-.country-card .card-body {
-    padding: 1.5rem;
+/* Card content */
+.country-glass-card .country-flag {
+    font-size: 2.5rem;
+    line-height: 1;
+    position: relative;
+    z-index: 2;
 }
 
-.country-card .card-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--bs-body-color);
+.country-glass-card .country-name {
+    font-family: var(--font-display, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-primary, var(--c-text, #e8e6f0));
+    position: relative;
+    z-index: 2;
+    margin: 0;
 }
 
-.country-card .badge {
-    font-size: 0.75rem;
-    font-weight: 500;
+.country-glass-card .country-bank-count {
+    font-family: var(--font-mono, 'DM Mono', monospace);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    color: var(--text-muted, var(--c-muted, rgba(232, 230, 240, 0.5)));
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2rem;
 }
 
-.hover-shadow {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+/* Light theme */
+:root[data-theme="light"] .country-glass-card,
+[data-theme="light"] .country-glass-card {
+    --glass-card-bg: rgba(255, 255, 255, 0.15);
+    --glass-card-border: rgba(255, 255, 255, 0.3);
+    --glass-card-bg-hover: rgba(255, 255, 255, 0.25);
+    --glass-card-border-hover: rgba(255, 255, 255, 0.5);
+    --shimmer-color: rgba(255, 255, 255, 0.2);
+    --shimmer-highlight: rgba(255, 255, 255, 0.35);
+    --accent-1: #34C759;
+    --accent-3: #007AFF;
+}
+
+:root[data-theme="light"] .country-glass-card .country-name,
+[data-theme="light"] .country-glass-card .country-name {
+    color: #1a1a1a;
+}
+
+:root[data-theme="light"] .country-glass-card .country-bank-count,
+[data-theme="light"] .country-glass-card .country-bank-count {
+    color: rgba(26, 26, 26, 0.6);
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme="light"] .country-glass-card:hover,
+[data-theme="light"] .country-glass-card:hover {
+    box-shadow: 0 16px 48px rgba(31, 38, 135, 0.2),
+                0 4px 16px rgba(31, 38, 135, 0.15);
+}
+
+/* Dark theme */
+:root[data-theme="dark"] .country-glass-card,
+[data-theme="dark"] .country-glass-card {
+    --glass-card-bg: rgba(0, 0, 0, 0.3);
+    --glass-card-border: rgba(255, 255, 255, 0.1);
+    --glass-card-bg-hover: rgba(0, 0, 0, 0.4);
+    --glass-card-border-hover: rgba(255, 255, 255, 0.2);
+    --shimmer-color: rgba(255, 255, 255, 0.08);
+    --shimmer-highlight: rgba(255, 255, 255, 0.15);
+    --accent-1: #b3ffc8;
+    --accent-3: #5eadff;
+}
+
+:root[data-theme="dark"] .country-glass-card:hover,
+[data-theme="dark"] .country-glass-card:hover {
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4),
+                0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .country-glass-card,
+    .country-glass-card::before,
+    .country-glass-card::after {
+        animation: none !important;
+        transition: none !important;
+    }
+    .country-glass-card:hover {
+        transform: none !important;
+    }
+    .country-glass-card:hover::before {
+        opacity: 0 !important;
+    }
+}
+
+/* Touch devices — disable 3D tilt */
+@media (hover: none) and (pointer: coarse) {
+    .country-glass-card[data-tilt] {
+        transform: none !important;
+    }
 }
 
 /* Breadcrumb styles */
@@ -99,47 +269,39 @@
     animation: fadeIn 0.4s ease-in-out;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .country-card .card-body {
-        padding: 1rem;
+/* Country glass grid responsive breakpoints */
+@media (max-width: 480px) {
+    .country-glass-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
     }
-    
-    .country-card .fs-1 {
-        font-size: 2rem !important;
+    .country-glass-card {
+        padding: 1.25rem 0.75rem;
+        border-radius: 14px;
     }
-}
-
-/* Country card grid responsive breakpoints */
-/* Mobile: 2 columns (default from row-cols-2) */
-/* Tablet portrait: 3 columns */
-@media (min-width: 577px) and (max-width: 991px) {
-    .row-cols-md-5 {
-        --bs-columns: 3;
+    .country-glass-card::after {
+        border-radius: 15px;
     }
-    
-    .row-cols-md-5 > * {
-        flex: 0 0 auto;
-        width: calc(100% / 3);
+    .country-glass-card .country-flag {
+        font-size: 2rem;
     }
 }
 
-/* Tablet landscape and small desktop: 4 columns */
-@media (min-width: 992px) and (max-width: 1199px) {
-    .row-cols-md-5 {
-        --bs-columns: 4;
-    }
-    
-    .row-cols-md-5 > * {
-        flex: 0 0 auto;
-        width: 25%;
+@media (min-width: 481px) and (max-width: 768px) {
+    .country-glass-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
-/* Large desktop: 5 columns (default from row-cols-md-5) */
+@media (min-width: 769px) and (max-width: 1199px) {
+    .country-glass-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
 @media (min-width: 1200px) {
-    .row-cols-md-5 > * {
-        width: 20%;
+    .country-glass-grid {
+        grid-template-columns: repeat(5, 1fr);
     }
 }
 

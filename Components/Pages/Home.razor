@@ -45,20 +45,17 @@
         else
         {
             <nav aria-label="Browse banks by country">
-                <div class="row row-cols-2 row-cols-md-5 g-3 fade-in-fast">
+                <div class="country-glass-grid fade-in-fast">
                     @foreach (var country in _countriesWithBanks)
                     {
-                        <div class="col">
-                            <a href="/banks?country=@country.Code" class="country-card text-decoration-none d-block" aria-label="View @country.BankCount @(country.BankCount == 1 ? "bank" : "banks") in @country.Name">
-                                <div class="card h-100 text-center hover-shadow">
-                                    <div class="card-body py-3">
-                                        <div class="fs-1 mb-2" aria-hidden="true">@country.Flag</div>
-                                        <h3 class="card-title mb-1 h6">@country.Name</h3>
-                                        <span class="badge bg-primary">@country.BankCount @(country.BankCount == 1 ? "bank" : "banks")</span>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
+                        <a href="/banks?country=@country.Code" 
+                           class="country-glass-card" 
+                           data-tilt
+                           aria-label="View @country.BankCount @(country.BankCount == 1 ? "bank" : "banks") in @country.Name">
+                            <span class="country-flag" aria-hidden="true">@country.Flag</span>
+                            <p class="country-name">@country.Name</p>
+                            <span class="country-bank-count">@country.BankCount @(country.BankCount == 1 ? "bank" : "banks")</span>
+                        </a>
                     }
                 </div>
             </nav>
