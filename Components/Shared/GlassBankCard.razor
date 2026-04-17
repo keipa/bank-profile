@@ -1,0 +1,146 @@
+@using BankProfiles.Web.Models
+@inject ICountryService CountryService
+
+<div class="glass-card" data-tilt role="article" aria-label="@Bank?.BankName bank card">
+    <div class="glass-card-content">
+        <div class="bank-card-header">
+            <h5 class="bank-card-title">
+                @if (Bank?.CountryCode != null)
+                {
+                    var countryInfo = CountryService.GetCountryInfo(Bank.CountryCode);
+                    if (countryInfo != null)
+                    {
+                        <span class="me-2" aria-hidden="true">@countryInfo.Flag</span>
+                    }
+                }
+                @Bank?.BankName
+            </h5>
+        </div>
+        
+        <p class="bank-card-description text-muted small">
+            @{
+                var desc = Bank?.Description ?? "";
+                var displayDesc = desc.Length > 100 ? desc.Substring(0, 100) + "..." : desc;
+            }
+            @displayDesc
+        </p>
+        
+        <div class="bank-card-footer mt-auto">
+            @if (OverallRating > 0)
+            {
+                <div class="bank-rating mb-2">
+                    <span class="badge bg-success">
+                        <i class="fas fa-star" aria-hidden="true"></i> 
+                        <span class="rating-value">@OverallRating.ToString("F1")</span>
+                    </span>
+                </div>
+            }
+
+            @if (ViewCount > 0)
+            {
+                <div class="bank-views text-muted small mb-3">
+                    <i class="fas fa-eye" aria-hidden="true"></i> 
+                    <span>@ViewCount.ToString("N0") views</span>
+                </div>
+            }
+            
+            <a href="/@Bank?.CountryCode/@Bank?.BankCode" 
+               class="btn btn-sm btn-primary w-100"
+               aria-label="View details for @Bank?.BankName">
+                View Details <i class="fas fa-arrow-right ms-1" aria-hidden="true"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Glass Bank Card Specific Styles */
+    .glass-card .bank-card-header {
+        margin-bottom: 0.75rem;
+    }
+    
+    .glass-card .bank-card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--text-primary);
+        line-height: 1.3;
+    }
+    
+    .glass-card .bank-card-description {
+        flex: 1;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+        min-height: 3rem;
+    }
+    
+    .glass-card .bank-card-footer {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .glass-card .bank-rating .badge {
+        font-size: 0.875rem;
+        padding: 0.35rem 0.65rem;
+        font-weight: 600;
+    }
+    
+    .glass-card .bank-rating .rating-value {
+        margin-left: 0.25rem;
+    }
+    
+    .glass-card .bank-views {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .glass-card .btn-primary {
+        position: relative;
+        z-index: 3;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    }
+    
+    /* Theme support */
+    [data-theme="light"] .glass-card .bank-card-title {
+        color: #1d1d1f;
+    }
+    
+    [data-theme="dark"] .glass-card .bank-card-title {
+        color: #f5f5f7;
+    }
+    
+    [data-theme="light"] .glass-card .bank-card-description {
+        color: #6e6e73;
+    }
+    
+    [data-theme="dark"] .glass-card .bank-card-description {
+        color: #a1a1a6;
+    }
+    
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .glass-card .bank-card-title {
+            font-size: 1.1rem;
+        }
+        
+        .glass-card .bank-card-description {
+            font-size: 0.875rem;
+            min-height: 2.5rem;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public BankProfile? Bank { get; set; }
+    [Parameter] public decimal OverallRating { get; set; }
+    [Parameter] public long ViewCount { get; set; }
+}

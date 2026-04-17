@@ -5,8 +5,8 @@
 
 <PageTitle>@Localization.GetString("page.banks.pageTitle")</PageTitle>
 
-@* Neutral Nebula Background *@
-<DynamicNebulaBackground />
+@* Aurora Mesh Background *@
+<AuroraBackground />
 
 <div style="position: relative; z-index: 1;">
 
@@ -115,7 +115,7 @@ else
                     @foreach (var bank in countryGroup.Banks)
                     {
                         <div class="col fade-in">
-                            <BankCard Bank="bank" OverallRating="0" ViewCount="0" />
+                            <GlassBankCard Bank="bank" OverallRating="0" ViewCount="0" />
                         </div>
                     }
                 </div>

@@ -36,6 +36,23 @@
   --glass-border: rgba(0, 0, 0, 0.08);
   --glass-border-strong: rgba(0, 0, 0, 0.12);
   
+  /* Glass card effects */
+  --glass-card-bg: rgba(255, 255, 255, 0.15);
+  --glass-card-border: rgba(255, 255, 255, 0.3);
+  --glass-card-bg-hover: rgba(255, 255, 255, 0.25);
+  --shimmer-color: rgba(255, 255, 255, 0.15);
+  
+  /* Aurora background colors - Apple-inspired */
+  --aurora-opacity: 0.12;
+  --aurora-color-1: #34C759;  /* Apple green */
+  --aurora-color-2: #FF2D55;  /* Apple pink */
+  --aurora-color-3: #007AFF;  /* Apple blue */
+  
+  /* Conic border accent colors */
+  --accent-1: #34C759;  /* Green */
+  --accent-2: #FF2D55;  /* Pink */
+  --accent-3: #007AFF;  /* Blue */
+  
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -111,6 +128,23 @@
   --glass-bg-strong: rgba(0, 0, 0, 0.7);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-border-strong: rgba(255, 255, 255, 0.12);
+  
+  /* Glass card effects */
+  --glass-card-bg: rgba(0, 0, 0, 0.3);
+  --glass-card-border: rgba(255, 255, 255, 0.1);
+  --glass-card-bg-hover: rgba(0, 0, 0, 0.4);
+  --shimmer-color: rgba(255, 255, 255, 0.05);
+  
+  /* Aurora background colors - Neon for dark theme */
+  --aurora-opacity: 0.2;
+  --aurora-color-1: #b3ffc8;  /* Neon mint */
+  --aurora-color-2: #ff6ef7;  /* Neon magenta */
+  --aurora-color-3: #5eadff;  /* Neon blue */
+  
+  /* Conic border accent colors */
+  --accent-1: #b3ffc8;  /* Neon mint */
+  --accent-2: #ff6ef7;  /* Neon magenta */
+  --accent-3: #5eadff;  /* Neon blue */
   
   /* Shadows - Deeper for true dark */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
@@ -189,7 +223,22 @@
   --glass-border: rgba(0, 0, 0, 0.08);
   --glass-border-strong: rgba(0, 0, 0, 0.12);
   
-  /* Shadows */
+  /* Glass card effects */
+  --glass-card-bg: rgba(255, 255, 255, 0.15);
+  --glass-card-border: rgba(255, 255, 255, 0.3);
+  --glass-card-bg-hover: rgba(255, 255, 255, 0.25);
+  --shimmer-color: rgba(255, 255, 255, 0.15);
+  
+  /* Aurora background colors */
+  --aurora-opacity: 0.12;
+  --aurora-color-1: #34C759;
+  --aurora-color-2: #FF2D55;
+  --aurora-color-3: #007AFF;
+  
+  /* Conic border accent colors */
+  --accent-1: #34C759;
+  --accent-2: #FF2D55;
+  --accent-3: #007AFF;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);

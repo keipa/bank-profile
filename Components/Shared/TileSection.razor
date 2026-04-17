@@ -15,7 +15,7 @@
         @foreach (var metric in Metrics)
         {
             <div role="listitem">
-                <MetricTile Metric="metric" ShowProgressBar="@ShowProgressBars" OnClick="HandleTileClick" />
+                <GlassMetricTile Metric="metric" ShowProgressBar="@ShowProgressBars" OnClick="HandleTileClick" />
             </div>
         }
     </div>

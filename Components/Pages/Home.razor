@@ -4,19 +4,33 @@
 
 <PageTitle>@Localization.GetString("page.home.pageTitle")</PageTitle>
 
-@* Global Brand Nebula with Fade-In *@
-<DynamicNebulaBackground />
+@* Aurora Mesh Background - Showcase Style *@
+<AuroraBackground />
 
-<div class="home-page fade-in-slow" style="position: relative; z-index: 1;">
-    <section class="jumbotron bg-primary text-white p-5 rounded mb-4" aria-labelledby="hero-title">
-        <h1 id="hero-title" class="display-4"><i class="fas fa-university" aria-hidden="true"></i> @Localization.GetString("page.home.title")</h1>
-        <p class="lead">@Localization.GetString("page.home.subtitle")</p>
-        <hr class="my-4 bg-white">
-        <p>@Localization.GetString("page.home.description")</p>
-        <a class="btn btn-light btn-lg" href="/banks" role="button" aria-label="Browse all banks">
-            <i class="fas fa-search" aria-hidden="true"></i> @Localization.GetString("page.home.browseBanks")
-        </a>
+<div class="home-page-showcase" style="position: relative; z-index: 1;">
+    @* Hero Section - Showcase Inspired *@
+    <section class="hero-showcase" aria-labelledby="hero-title">
+        <div class="hero-content">
+            <div class="hero-tag-wrapper">
+                <span class="hero-tag">Bank Profiles Directory</span>
+            </div>
+            <h1 id="hero-title" class="hero-title">
+                <i class="fas fa-university hero-icon" aria-hidden="true"></i>
+                @Localization.GetString("page.home.title")
+            </h1>
+            <p class="hero-subtitle">
+                @Localization.GetString("page.home.subtitle")
+            </p>
+            <div class="hero-actions">
+                <a class="hero-btn" href="/banks" role="button" aria-label="Browse all banks">
+                    <i class="fas fa-search" aria-hidden="true"></i> 
+                    @Localization.GetString("page.home.browseBanks")
+                </a>
+            </div>
+        </div>
     </section>
+
+    <div class="divider-showcase"></div>
 
     <section class="country-selector mb-5" aria-labelledby="country-selector-heading">
         <h2 id="country-selector-heading" class="mb-4"><i class="fas fa-globe" aria-hidden="true"></i> Browse by Country</h2>
@@ -81,7 +95,7 @@
                 @foreach (var bank in _banks.Take(6))
                 {
                     <div class="col">
-                        <BankCard Bank="bank" OverallRating="0" ViewCount="0" />
+                        <GlassBankCard Bank="bank" OverallRating="0" ViewCount="0" />
                     </div>
                 }
             </div>
@@ -96,19 +110,226 @@
 </div>
 
 <style>
-    .fade-in-slow {
-        animation: fadeInUp 1.2s ease-out;
+    /* ═══════════════════════════════════════════════════════════
+       HOME PAGE - SHOWCASE STYLE
+       Inspired by pure-css-effects-showcase
+       ═══════════════════════════════════════════════════════════ */
+    
+    .home-page-showcase {
+        min-height: 100vh;
+        color: var(--text-primary);
     }
-
+    
+    /* ── HERO SECTION ────────────────────────────────────────── */
+    .hero-showcase {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 6rem 2rem;
+        text-align: center;
+        animation: fadeInUp 1s ease-out;
+    }
+    
+    .hero-content {
+        max-width: 900px;
+        width: 100%;
+    }
+    
+    .hero-tag-wrapper {
+        margin-bottom: 2rem;
+        animation: fadeInUp 0.8s ease-out both;
+    }
+    
+    .hero-tag {
+        font-family: var(--font-mono, 'DM Mono', monospace);
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--text-muted, rgba(232, 230, 240, 0.5));
+        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        display: inline-block;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.03);
+    }
+    
+    .hero-title {
+        font-family: var(--font-display, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif);
+        font-size: clamp(2.5rem, 8vw, 6rem);
+        font-weight: 900;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        margin: 1rem 0;
+        background: linear-gradient(
+            135deg,
+            var(--accent-1, #b3ffc8) 0%,
+            var(--accent-3, #5eadff) 50%,
+            var(--accent-2, #ff6ef7) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: fadeInUp 0.8s ease-out 0.1s both;
+    }
+    
+    .hero-icon {
+        display: inline-block;
+        margin-right: 0.5rem;
+        animation: float 3s ease-in-out infinite;
+    }
+    
+    @@keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .hero-subtitle {
+        font-family: var(--font-mono, 'DM Mono', monospace);
+        font-size: clamp(1rem, 2.5vw, 1.4rem);
+        color: var(--text-secondary, rgba(232, 230, 240, 0.7));
+        letter-spacing: 0.02em;
+        margin: 2rem 0;
+        line-height: 1.6;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+    
+    .hero-actions {
+        margin-top: 3rem;
+        animation: fadeInUp 0.8s ease-out 0.3s both;
+    }
+    
+    .hero-btn {
+        display: inline-block;
+        padding: 1rem 2.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50px;
+        text-decoration: none;
+        backdrop-filter: blur(20px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            105deg,
+            transparent 40%,
+            rgba(255, 255, 255, 0.15) 50%,
+            transparent 60%
+        );
+        background-size: 200% 100%;
+        background-position: -100% 0;
+        transition: background-position 0.6s ease;
+    }
+    
+    .hero-btn:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .hero-btn:hover::before {
+        background-position: 200% 0;
+    }
+    
+    .hero-btn:active {
+        transform: translateY(-1px);
+    }
+    
+    /* ── DIVIDER ─────────────────────────────────────────────── */
+    .divider-showcase {
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(
+            90deg,
+            transparent,
+            var(--border-color, rgba(255, 255, 255, 0.1)) 30%,
+            var(--border-color, rgba(255, 255, 255, 0.1)) 70%,
+            transparent
+        );
+        margin: 4rem 0;
+    }
+    
+    /* ── SECTIONS ────────────────────────────────────────────── */
+    .country-selector,
+    section[aria-labelledby="featured-banks-heading"] {
+        padding: 4rem 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+    
+    .country-selector h2,
+    section[aria-labelledby="featured-banks-heading"] h2 {
+        font-family: var(--font-display, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif);
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 2rem;
+        color: var(--text-primary);
+    }
+    
+    /* ── ANIMATIONS ──────────────────────────────────────────── */
     @@keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(40px);
         }
         to {
             opacity: 1;
             transform: translateY(0);
         }
+    }
+    
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @@media (max-width: 768px) {
+        .hero-showcase {
+            padding: 4rem 1.5rem;
+            min-height: 80vh;
+        }
+        
+        .hero-title {
+            font-size: clamp(2rem, 10vw, 3rem);
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+        
+        .hero-btn {
+            padding: 0.875rem 2rem;
+            font-size: 1rem;
+        }
+    }
+    
+    /* ── THEME SUPPORT ───────────────────────────────────────── */
+    [data-theme="light"] .hero-tag {
+        color: rgba(26, 26, 26, 0.6);
+        border-color: rgba(0, 0, 0, 0.1);
+        background: rgba(0, 0, 0, 0.03);
+    }
+    
+    [data-theme="light"] .hero-btn {
+        background: rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 0, 0, 0.15);
+        color: #1a1a1a;
+    }
+    
+    [data-theme="light"] .hero-btn:hover {
+        background: rgba(0, 0, 0, 0.1);
+        border-color: rgba(0, 0, 0, 0.25);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
 </style>
 

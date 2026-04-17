@@ -1,0 +1,153 @@
+/* ═══════════════════════════════════════════════════════════
+   AURORA MESH BACKGROUND
+   Extracted from pure-css-effects-showcase
+   Animated gradient blobs that drift across the screen
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── AURORA CONTAINER ────────────────────────────────────── */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ── AURORA BLOB BASE ────────────────────────────────────── */
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: var(--aurora-opacity, 0.18);
+  animation: aurora-drift 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* ── AURORA BLOB 1 (GREEN/MINT) ──────────────────────────── */
+.aurora-blob:nth-child(1) {
+  width: 70vw;
+  height: 60vh;
+  background: radial-gradient(
+    circle,
+    var(--aurora-color-1, #b3ffc8) 0%,
+    transparent 70%
+  );
+  top: -20%;
+  left: -10%;
+  animation-duration: 14s;
+}
+
+/* ── AURORA BLOB 2 (PINK/MAGENTA) ────────────────────────── */
+.aurora-blob:nth-child(2) {
+  width: 50vw;
+  height: 70vh;
+  background: radial-gradient(
+    circle,
+    var(--aurora-color-2, #ff6ef7) 0%,
+    transparent 70%
+  );
+  top: 20%;
+  right: -15%;
+  animation-duration: 18s;
+  animation-delay: -6s;
+}
+
+/* ── AURORA BLOB 3 (BLUE/CYAN) ───────────────────────────── */
+.aurora-blob:nth-child(3) {
+  width: 55vw;
+  height: 55vh;
+  background: radial-gradient(
+    circle,
+    var(--aurora-color-3, #5eadff) 0%,
+    transparent 70%
+  );
+  bottom: -10%;
+  left: 30%;
+  animation-duration: 20s;
+  animation-delay: -3s;
+}
+
+/* ── AURORA DRIFT ANIMATION ──────────────────────────────── */
+@keyframes aurora-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(6vw, -4vh) scale(1.08);
+  }
+  66% {
+    transform: translate(-4vw, 5vh) scale(0.95);
+  }
+  100% {
+    transform: translate(3vw, 2vh) scale(1.05);
+  }
+}
+
+/* ── NOISE OVERLAY ───────────────────────────────────────── */
+.aurora-noise {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.045;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ── LIGHT THEME AURORA ──────────────────────────────────── */
+:root[data-theme="light"] .aurora,
+[data-theme="light"] .aurora {
+  --aurora-opacity: 0.12;
+  --aurora-color-1: #34C759;  /* Apple green */
+  --aurora-color-2: #FF2D55;  /* Apple pink */
+  --aurora-color-3: #007AFF;  /* Apple blue */
+}
+
+:root[data-theme="light"] .aurora-noise,
+[data-theme="light"] .aurora-noise {
+  opacity: 0.03;
+}
+
+/* ── DARK THEME AURORA ───────────────────────────────────── */
+:root[data-theme="dark"] .aurora,
+[data-theme="dark"] .aurora {
+  --aurora-opacity: 0.2;
+  --aurora-color-1: #b3ffc8;  /* Neon mint */
+  --aurora-color-2: #ff6ef7;  /* Neon magenta */
+  --aurora-color-3: #5eadff;  /* Neon blue */
+}
+
+:root[data-theme="dark"] .aurora-noise,
+[data-theme="dark"] .aurora-noise {
+  opacity: 0.05;
+}
+
+/* ── DEFAULT (DARK) ──────────────────────────────────────── */
+.aurora {
+  --aurora-opacity: 0.18;
+  --aurora-color-1: #b3ffc8;
+  --aurora-color-2: #ff6ef7;
+  --aurora-color-3: #5eadff;
+}
+
+/* ── ACCESSIBILITY: REDUCED MOTION ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-blob {
+    animation: none !important;
+  }
+}
+
+/* ── PERFORMANCE OPTIMIZATION ────────────────────────────── */
+/* Reduce blur on lower-end devices */
+@media (max-width: 768px) {
+  .aurora-blob {
+    filter: blur(60px);
+  }
+}
+
+/* Hide aurora on very small screens to improve performance */
+@media (max-width: 480px) {
+  .aurora {
+    display: none;
+  }
+}

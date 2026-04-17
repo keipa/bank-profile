@@ -1,0 +1,67 @@
+@* Aurora Mesh Background Component *@
+@* Animated gradient blobs that drift across the screen *@
+
+<div class="aurora" aria-hidden="true">
+    <div class="aurora-blob"></div>
+    <div class="aurora-blob"></div>
+    <div class="aurora-blob"></div>
+</div>
+<div class="aurora-noise" aria-hidden="true"></div>
+
+@code {
+    /// <summary>
+    /// Optional parameter to control aurora intensity (0.0 to 1.0)
+    /// Default: uses theme-specific values
+    /// </summary>
+    [Parameter]
+    public double? Intensity { get; set; }
+    
+    /// <summary>
+    /// Optional parameter to override aurora colors
+    /// </summary>
+    [Parameter]
+    public AuroraColors? Colors { get; set; }
+    
+    protected override void OnInitialized()
+    {
+        // Apply custom intensity or colors if provided
+        if (Intensity.HasValue || Colors != null)
+        {
+            // Custom styles will be applied via CSS variables in the component
+        }
+    }
+    
+    /// <summary>
+    /// Helper class for custom aurora colors
+    /// </summary>
+    public class AuroraColors
+    {
+        public string Color1 { get; set; } = "#b3ffc8";
+        public string Color2 { get; set; } = "#ff6ef7";
+        public string Color3 { get; set; } = "#5eadff";
+    }
+}
+
+<style>
+    /* Component-specific overrides can be added here if needed */
+    /* Custom intensity and colors are handled by CSS variables */
+    @if (Intensity.HasValue)
+    {
+        <text>
+        .aurora {
+            --aurora-opacity: @(Intensity.Value);
+        }
+        </text>
+    }
+    
+    @if (Colors != null)
+    {
+        <text>
+        .aurora {
+            --aurora-color-1: @Colors.Color1;
+            --aurora-color-2: @Colors.Color2;
+            --aurora-color-3: @Colors.Color3;
+        }
+        </text>
+    }
+</style>

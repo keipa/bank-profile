@@ -1,0 +1,244 @@
+/* ═══════════════════════════════════════════════════════════
+   GLASS CARDS WITH TRENDY CSS EFFECTS
+   Extracted from pure-css-effects-showcase
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── @PROPERTY FOR CONIC BORDER ANIMATION ────────────────── */
+@property --angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ── BASE GLASS CARD ─────────────────────────────────────── */
+.glass-card {
+  position: relative;
+  border-radius: 20px;
+  padding: 2rem;
+  background: var(--glass-card-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--glass-card-border, rgba(255, 255, 255, 0.1));
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), 
+              box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+              background 0.3s ease,
+              border-color 0.3s ease;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  will-change: transform;
+  transform: translateY(0) scale(1);
+}
+
+/* ── SHIMMER SWEEP ON HOVER ──────────────────────────────── */
+/* Enhanced gradient highlight that slides across card surface */
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    var(--shimmer-color, rgba(255, 255, 255, 0.12)) 45%,
+    var(--shimmer-highlight, rgba(255, 255, 255, 0.2)) 50%,
+    var(--shimmer-color, rgba(255, 255, 255, 0.12)) 55%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  background-position: -100% 0;
+  transition: background-position 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+}
+
+.glass-card:hover::before {
+  background-position: 200% 0;
+  opacity: 1;
+}
+
+/* Continuous shimmer animation (optional, activate with .shimmer-continuous class) */
+.glass-card.shimmer-continuous::before {
+  opacity: 1;
+  animation: shimmer-sweep 3s ease-in-out infinite;
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    background-position: -100% 0;
+  }
+  50% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* ── ANIMATED CONIC BORDER ───────────────────────────────── */
+/* Spinning rainbow border effect on hover */
+.glass-card::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 21px;
+  background: conic-gradient(
+    from var(--angle, 0deg),
+    var(--accent-1, #b3ffc8),
+    var(--accent-2, #ff6ef7),
+    var(--accent-3, #5eadff),
+    var(--accent-1, #b3ffc8)
+  );
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s;
+  animation: border-spin 4s linear infinite;
+}
+
+.glass-card:hover::after {
+  opacity: 1;
+}
+
+@keyframes border-spin {
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* ── HOVER STATE ─────────────────────────────────────────── */
+.glass-card:hover {
+  background: var(--glass-card-bg-hover, rgba(255, 255, 255, 0.08));
+  border-color: var(--glass-card-border-hover, rgba(255, 255, 255, 0.2));
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15),
+              0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px) scale(1.02);
+}
+
+/* ── ACTIVE/PRESSED STATE ────────────────────────────────── */
+.glass-card:active {
+  transform: translateY(-2px) scale(1.01);
+  transition: transform 0.1s ease;
+}
+
+/* ── FOCUS STATE (KEYBOARD NAVIGATION) ───────────────────── */
+.glass-card:focus-visible {
+  outline: 2px solid var(--accent-3, #007AFF);
+  outline-offset: 4px;
+}
+
+/* ── SUBTLE PULSING SHIMMER EFFECT ───────────────────────── */
+/* Optional: Adds a subtle continuous shimmer for highlighted cards */
+.glass-card.shimmer-pulse {
+  animation: pulse-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes pulse-shimmer {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* ── GLASS CARD CONTENT ──────────────────────────────────── */
+.glass-card-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── GLASS CARD VARIANTS ─────────────────────────────────── */
+/* Compact variant for smaller cards */
+.glass-card-compact {
+  padding: 1.5rem;
+  min-height: 140px;
+}
+
+/* Tall variant for metric tiles */
+.glass-card-tall {
+  min-height: 180px;
+}
+
+/* ── LIGHT THEME GLASS CARDS ─────────────────────────────── */
+:root[data-theme="light"] .glass-card,
+[data-theme="light"] .glass-card {
+  --glass-card-bg: rgba(255, 255, 255, 0.15);
+  --glass-card-border: rgba(255, 255, 255, 0.3);
+  --glass-card-bg-hover: rgba(255, 255, 255, 0.25);
+  --glass-card-border-hover: rgba(255, 255, 255, 0.5);
+  --shimmer-color: rgba(255, 255, 255, 0.2);
+  --shimmer-highlight: rgba(255, 255, 255, 0.35);
+  --accent-1: #34C759;
+  --accent-2: #FF2D55;
+  --accent-3: #007AFF;
+}
+
+:root[data-theme="light"] .glass-card:hover,
+[data-theme="light"] .glass-card:hover {
+  box-shadow: 0 16px 48px rgba(31, 38, 135, 0.2),
+              0 4px 16px rgba(31, 38, 135, 0.15);
+}
+
+/* ── DARK THEME GLASS CARDS ──────────────────────────────── */
+:root[data-theme="dark"] .glass-card,
+[data-theme="dark"] .glass-card {
+  --glass-card-bg: rgba(0, 0, 0, 0.3);
+  --glass-card-border: rgba(255, 255, 255, 0.1);
+  --glass-card-bg-hover: rgba(0, 0, 0, 0.4);
+  --glass-card-border-hover: rgba(255, 255, 255, 0.2);
+  --shimmer-color: rgba(255, 255, 255, 0.08);
+  --shimmer-highlight: rgba(255, 255, 255, 0.15);
+  --accent-1: #b3ffc8;
+  --accent-2: #ff6ef7;
+  --accent-3: #5eadff;
+}
+
+:root[data-theme="dark"] .glass-card:hover,
+[data-theme="dark"] .glass-card:hover {
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4),
+              0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* ── ACCESSIBILITY: REDUCED MOTION ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card,
+  .glass-card::before,
+  .glass-card::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .glass-card:hover {
+    transform: none !important;
+  }
+  
+  .glass-card:hover::before {
+    opacity: 0 !important;
+  }
+}
+
+/* ── RESPONSIVE ADJUSTMENTS ──────────────────────────────── */
+@media (max-width: 768px) {
+  .glass-card {
+    padding: 1.5rem;
+  }
+  
+  .glass-card-compact {
+    padding: 1rem;
+    min-height: 120px;
+  }
+}
+
+/* ── TOUCH DEVICE SUPPORT ────────────────────────────────── */
+/* Disable 3D tilt on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .glass-card[data-tilt] {
+    transform: none !important;
+  }
+}
