@@ -13,6 +13,8 @@ public interface IBankDataService
 public class BankDataService : IBankDataService
 {
     private readonly ICacheManager _cacheManager;
+    private readonly IEventProjectionService _projectionService;
+    private readonly IEventStoreService _eventStoreService;
     private readonly IConfiguration _configuration;
     private readonly ILogger<BankDataService> _logger;
     private readonly string _dataDirectory;
@@ -20,10 +22,14 @@ public class BankDataService : IBankDataService
 
     public BankDataService(
         ICacheManager cacheManager,
+        IEventProjectionService projectionService,
+        IEventStoreService eventStoreService,
         IConfiguration configuration,
         ILogger<BankDataService> logger)
     {
         _cacheManager = cacheManager;
+        _projectionService = projectionService;
+        _eventStoreService = eventStoreService;
         _configuration = configuration;
         _logger = logger;
         _dataDirectory = _configuration.GetValue<string>("BankDataSettings:DataDirectory") 
@@ -47,7 +53,78 @@ public class BankDataService : IBankDataService
             return cachedBank;
         }
 
-        // Load from file
+        // Try to project from event store
+        try
+        {
+            if (await _eventStoreService.HasEventsAsync(bankCode))
+            {
+                var bank = await _projectionService.ProjectBankProfileAsync(bankCode);
+                if (bank != null)
+                {
+                    _cacheManager.Set(cacheKey, bank);
+                    _logger.LogInformation("Projected and cached bank from events: {BankCode}", bankCode);
+                    return bank;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error projecting bank from events for {BankCode}", bankCode);
+        }
+
+        // Fallback: load from JSON file (migration period)
+        return await LoadFromJsonFileAsync(bankCode, cacheKey);
+    }
+
+    public async Task<List<BankProfile>> GetAllBanksAsync()
+    {
+        var cachedBanks = _cacheManager.Get<List<BankProfile>>(AllBanksCacheKey);
+        if (cachedBanks != null)
+        {
+            return cachedBanks;
+        }
+
+        var banks = new List<BankProfile>();
+
+        try
+        {
+            // Try event store first
+            var bankCodes = await _eventStoreService.GetAllBankCodesAsync();
+            if (bankCodes.Count > 0)
+            {
+                foreach (var bankCode in bankCodes)
+                {
+                    var bank = await GetBankByCodeAsync(bankCode);
+                    if (bank != null)
+                        banks.Add(bank);
+                }
+
+                _cacheManager.Set(AllBanksCacheKey, banks);
+                _logger.LogInformation("Projected and cached {Count} banks from events", banks.Count);
+                return banks;
+            }
+
+            // Fallback: load from JSON files
+            banks = await LoadAllFromJsonFilesAsync();
+            _cacheManager.Set(AllBanksCacheKey, banks);
+            return banks;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading all banks");
+            return banks;
+        }
+    }
+
+    public async Task RefreshCacheAsync()
+    {
+        _logger.LogInformation("Refreshing bank data cache");
+        _cacheManager.Remove(AllBanksCacheKey);
+        await GetAllBanksAsync();
+    }
+
+    private async Task<BankProfile?> LoadFromJsonFileAsync(string bankCode, string cacheKey)
+    {
         try
         {
             var filePath = Path.Combine(_dataDirectory, $"{bankCode}.json");
@@ -65,9 +142,8 @@ public class BankDataService : IBankDataService
 
             if (bank != null)
             {
-                // Cache the bank profile
                 _cacheManager.Set(cacheKey, bank);
-                _logger.LogInformation("Loaded and cached bank: {BankCode}", bankCode);
+                _logger.LogInformation("Loaded and cached bank from JSON: {BankCode}", bankCode);
             }
 
             return bank;
@@ -79,74 +155,40 @@ public class BankDataService : IBankDataService
         }
     }
 
-    public async Task<List<BankProfile>> GetAllBanksAsync()
+    private async Task<List<BankProfile>> LoadAllFromJsonFilesAsync()
     {
-        // Try to get from cache first
-        var cachedBanks = _cacheManager.Get<List<BankProfile>>(AllBanksCacheKey);
-        if (cachedBanks != null)
-        {
-            return cachedBanks;
-        }
-
-        // Load all banks from files
         var banks = new List<BankProfile>();
 
-        try
+        if (!Directory.Exists(_dataDirectory))
         {
-            if (!Directory.Exists(_dataDirectory))
-            {
-                _logger.LogWarning("Bank data directory not found: {Directory}", _dataDirectory);
-                return banks;
-            }
-
-            var jsonFiles = Directory.GetFiles(_dataDirectory, "*.json");
-            
-            foreach (var filePath in jsonFiles)
-            {
-                try
-                {
-                    var json = await File.ReadAllTextAsync(filePath);
-                    var bank = JsonSerializer.Deserialize<BankProfile>(json, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-
-                    if (bank != null)
-                    {
-                        banks.Add(bank);
-                        
-                        // Also cache individual bank
-                        var cacheKey = $"bank_{bank.BankCode}";
-                        _cacheManager.Set(cacheKey, bank);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error loading bank file: {FilePath}", filePath);
-                }
-            }
-
-            // Cache the complete list
-            _cacheManager.Set(AllBanksCacheKey, banks);
-            _logger.LogInformation("Loaded and cached {Count} banks", banks.Count);
-
+            _logger.LogWarning("Bank data directory not found: {Directory}", _dataDirectory);
             return banks;
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error loading all banks");
-            return banks;
-        }
-    }
 
-    public async Task RefreshCacheAsync()
-    {
-        _logger.LogInformation("Refreshing bank data cache");
-        
-        // Clear existing cache
-        _cacheManager.Remove(AllBanksCacheKey);
-        
-        // Reload all banks (which will repopulate the cache)
-        await GetAllBanksAsync();
+        var jsonFiles = Directory.GetFiles(_dataDirectory, "*.json");
+        foreach (var filePath in jsonFiles)
+        {
+            try
+            {
+                var json = await File.ReadAllTextAsync(filePath);
+                var bank = JsonSerializer.Deserialize<BankProfile>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (bank != null)
+                {
+                    banks.Add(bank);
+                    _cacheManager.Set($"bank_{bank.BankCode}", bank);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading bank file: {FilePath}", filePath);
+            }
+        }
+
+        _logger.LogInformation("Loaded and cached {Count} banks from JSON files", banks.Count);
+        return banks;
     }
 }

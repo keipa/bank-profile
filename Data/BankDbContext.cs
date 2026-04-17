@@ -14,6 +14,8 @@ public class BankDbContext : DbContext
     public DbSet<BankRating> BankRatings { get; set; }
     public DbSet<RatingHistory> RatingHistories { get; set; }
     public DbSet<ViewHistory> ViewHistory { get; set; } = null!;
+    public DbSet<MetricEvent> MetricEvents { get; set; }
+    public DbSet<BankSnapshot> BankSnapshots { get; set; }
     public DbSet<MetricFeedback> MetricFeedbacks { get; set; } = null!;
     public DbSet<FeedbackSubmission> FeedbackSubmissions { get; set; } = null!;
 
@@ -104,6 +106,65 @@ public class BankDbContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(e => new { e.BankId, e.RecordedDate });
+        });
+
+        // MetricEvent entity configuration (Event Store)
+        modelBuilder.Entity<MetricEvent>(entity =>
+        {
+            entity.HasKey(e => e.EventId);
+
+            entity.Property(e => e.BankCode)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.Country)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.MetricName)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(e => e.MetricValue)
+                .IsRequired();
+
+            entity.Property(e => e.MetricType)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            entity.Property(e => e.Comment)
+                .HasMaxLength(1000);
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.Property(e => e.EventVersion)
+                .HasDefaultValue(1);
+
+            entity.HasIndex(e => new { e.BankCode, e.EventSequence })
+                .IsUnique();
+
+            entity.HasIndex(e => new { e.BankCode, e.MetricName, e.CreatedDate });
+
+            entity.HasIndex(e => e.BankCode);
+        });
+
+        // BankSnapshot entity configuration
+        modelBuilder.Entity<BankSnapshot>(entity =>
+        {
+            entity.HasKey(e => e.SnapshotId);
+
+            entity.Property(e => e.BankCode)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.ProfileJson)
+                .IsRequired();
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasIndex(e => new { e.BankCode, e.EventSequenceUpTo });
         });
 
         // MetricFeedback entity configuration

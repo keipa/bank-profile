@@ -48,6 +48,9 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 
 // Register application services
 builder.Services.AddScoped<ICacheManager, CacheManager>();
+builder.Services.AddScoped<IEventStoreService, EventStoreService>();
+builder.Services.AddScoped<IEventProjectionService, EventProjectionService>();
+builder.Services.AddScoped<IEventMigrationService, EventMigrationService>();
 builder.Services.AddScoped<IBankDataService, BankDataService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IViewCountService, ViewCountService>();
