@@ -1,17 +1,7 @@
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 
 namespace BankProfiles.Web.Services;
-
-public interface ICacheManager
-{
-    T? Get<T>(string key);
-    void Set<T>(string key, T value, TimeSpan? absoluteExpiration = null);
-    void Remove(string key);
-    void Clear();
-    CacheStatistics GetStatistics();
-}
 
 public class CacheManager : ICacheManager
 {
@@ -28,7 +18,7 @@ public class CacheManager : ICacheManager
         _cache = cache;
         _configuration = configuration;
         _metadata = new ConcurrentDictionary<string, CacheItemMetadata>();
-        
+
         var sizeLimitMB = _configuration.GetValue<int>("CacheSettings:SizeLimitMB");
         _sizeLimitBytes = (long)sizeLimitMB * 1024 * 1024;
     }
@@ -43,11 +33,11 @@ public class CacheManager : ICacheManager
                 metadata.LastAccessTime = DateTime.UtcNow;
                 metadata.AccessCount++;
             }
-            
+
             Interlocked.Increment(ref _hits);
             return value;
         }
-        
+
         Interlocked.Increment(ref _misses);
         return default;
     }
@@ -57,14 +47,14 @@ public class CacheManager : ICacheManager
         if (value == null) return;
 
         var estimatedSize = EstimateSize(value);
-        
+
         // Check if we need to evict items
         while (_currentSizeBytes + estimatedSize > _sizeLimitBytes && _metadata.Any())
         {
             EvictLeastRecentlyUsed();
         }
 
-        var expiration = absoluteExpiration ?? 
+        var expiration = absoluteExpiration ??
             TimeSpan.FromMinutes(_configuration.GetValue<int>("CacheSettings:AbsoluteExpirationMinutes"));
 
         var cacheOptions = new MemoryCacheEntryOptions
@@ -82,7 +72,7 @@ public class CacheManager : ICacheManager
         });
 
         _cache.Set(key, value, cacheOptions);
-        
+
         _metadata[key] = new CacheItemMetadata
         {
             Key = key,
@@ -146,26 +136,4 @@ public class CacheManager : ICacheManager
             _ => 1024 // Default 1KB for objects
         };
     }
-}
-
-public class CacheItemMetadata
-{
-    public required string Key { get; set; }
-    public long Size { get; set; }
-    public DateTime CreatedTime { get; set; }
-    public DateTime LastAccessTime { get; set; }
-    public int AccessCount { get; set; }
-}
-
-public class CacheStatistics
-{
-    public long CurrentSizeBytes { get; set; }
-    public long SizeLimitBytes { get; set; }
-    public int ItemCount { get; set; }
-    public long Hits { get; set; }
-    public long Misses { get; set; }
-    public double HitRatio { get; set; }
-    
-    public double CurrentSizeMB => CurrentSizeBytes / (1024.0 * 1024.0);
-    public double SizeLimitMB => SizeLimitBytes / (1024.0 * 1024.0);
 }

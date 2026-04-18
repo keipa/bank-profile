@@ -2,25 +2,44 @@ using BankProfiles.Web.Models;
 
 namespace BankProfiles.Web.Services;
 
-public interface IBankMetricsExtractorService
-{
-    Dictionary<string, List<MetricDto>> ExtractMetrics(BankProfile bank);
-}
-
 public class BankMetricsExtractorService : IBankMetricsExtractorService
 {
+    public const string OverviewRatingsSectionKey = "overviewRatings";
+    public const string SystemsCurrenciesSectionKey = "systemsCurrencies";
+    public const string FeesCommissionsSectionKey = "feesCommissions";
+    public const string ComplianceRiskSectionKey = "complianceRisk";
+    public const string DigitalSupportSectionKey = "digitalSupport";
+
+    private readonly ILocalizationService _localization;
+
+    public BankMetricsExtractorService(ILocalizationService localization)
+    {
+        _localization = localization;
+    }
+
     public Dictionary<string, List<MetricDto>> ExtractMetrics(BankProfile bank)
     {
-        var metrics = new Dictionary<string, List<MetricDto>>
+        return new Dictionary<string, List<MetricDto>>
         {
-            ["Overview & Ratings"] = ExtractOverviewMetrics(bank),
-            ["Systems & Currencies"] = ExtractSystemsMetrics(bank),
-            ["Fees & Commissions"] = ExtractFeesMetrics(bank),
-            ["Compliance & Risk"] = ExtractComplianceMetrics(bank),
-            ["Digital & Support"] = ExtractDigitalMetrics(bank)
+            [OverviewRatingsSectionKey] = ExtractOverviewMetrics(bank),
+            [SystemsCurrenciesSectionKey] = ExtractSystemsMetrics(bank),
+            [FeesCommissionsSectionKey] = ExtractFeesMetrics(bank),
+            [ComplianceRiskSectionKey] = ExtractComplianceMetrics(bank),
+            [DigitalSupportSectionKey] = ExtractDigitalMetrics(bank)
         };
-        
-        return metrics;
+    }
+
+    private MetricDto CreateMetric(string key, object value, MetricType type, string icon, string? unit = null)
+    {
+        return new MetricDto
+        {
+            Key = key,
+            Label = _localization.GetString($"metric.label.{key}"),
+            Value = value,
+            Type = type,
+            Icon = icon,
+            Unit = unit
+        };
     }
     
     private List<MetricDto> ExtractOverviewMetrics(BankProfile bank)
@@ -28,92 +47,76 @@ public class BankMetricsExtractorService : IBankMetricsExtractorService
         var metrics = new List<MetricDto>();
         
         // Status
-        metrics.Add(new MetricDto
-        {
-            Label = "Bank Status",
-            Value = bank.Status.Equals("active", StringComparison.OrdinalIgnoreCase),
-            Type = MetricType.Boolean,
-            Icon = "fas fa-check-circle"
-        });
+        metrics.Add(CreateMetric(
+            key: "bankStatus",
+            value: bank.Status.Equals("active", StringComparison.OrdinalIgnoreCase),
+            type: MetricType.Boolean,
+            icon: "fas fa-check-circle"));
         
         // Founded Year
         if (bank.Overview?.FoundedYear != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Founded",
-                Value = bank.Overview.FoundedYear.Value,
-                Type = MetricType.Numeric,
-                Icon = "fas fa-calendar"
-            });
+            metrics.Add(CreateMetric(
+                key: "founded",
+                value: bank.Overview.FoundedYear.Value,
+                type: MetricType.Numeric,
+                icon: "fas fa-calendar"));
         }
         
         // Bank Type
         if (!string.IsNullOrEmpty(bank.Overview?.Type))
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Bank Type",
-                Value = bank.Overview.Type,
-                Type = MetricType.Text,
-                Icon = "fas fa-building"
-            });
+            metrics.Add(CreateMetric(
+                key: "bankType",
+                value: bank.Overview.Type,
+                type: MetricType.Text,
+                icon: "fas fa-building"));
         }
         
         // Overall Rating
-        metrics.Add(new MetricDto
-        {
-            Label = "Overall Rating",
-            Value = bank.Ratings.Overall,
-            Type = MetricType.Numeric,
-            Unit = "/5",
-            Icon = "fas fa-star"
-        });
+        metrics.Add(CreateMetric(
+            key: "overallRating",
+            value: bank.Ratings.Overall,
+            type: MetricType.Numeric,
+            icon: "fas fa-star",
+            unit: "/5"));
         
         // Client Satisfaction
         if (bank.Metrics?.ClientSatisfactionPercent != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Client Satisfaction",
-                Value = bank.Metrics.ClientSatisfactionPercent,
-                Type = MetricType.Percentage,
-                Icon = "fas fa-smile"
-            });
+            metrics.Add(CreateMetric(
+                key: "clientSatisfaction",
+                value: bank.Metrics.ClientSatisfactionPercent,
+                type: MetricType.Percentage,
+                icon: "fas fa-smile"));
         }
         
         // Corporate Satisfaction
         if (bank.Metrics?.CorporateSatisfactionPercent != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Corporate Satisfaction",
-                Value = bank.Metrics.CorporateSatisfactionPercent,
-                Type = MetricType.Percentage,
-                Icon = "fas fa-briefcase"
-            });
+            metrics.Add(CreateMetric(
+                key: "corporateSatisfaction",
+                value: bank.Metrics.CorporateSatisfactionPercent,
+                type: MetricType.Percentage,
+                icon: "fas fa-briefcase"));
         }
         
         // Open Issues
         if (bank.Metrics?.OpenIssues != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Open Issues",
-                Value = bank.Metrics.OpenIssues,
-                Type = MetricType.Numeric,
-                Icon = "fas fa-exclamation-triangle"
-            });
+            metrics.Add(CreateMetric(
+                key: "openIssues",
+                value: bank.Metrics.OpenIssues,
+                type: MetricType.Numeric,
+                icon: "fas fa-exclamation-triangle"));
         }
         
         // Total Clients
-        metrics.Add(new MetricDto
-        {
-            Label = "Total Clients",
-            Value = bank.Clients.Total,
-            Type = MetricType.Numeric,
-            Icon = "fas fa-users"
-        });
+        metrics.Add(CreateMetric(
+            key: "totalClients",
+            value: bank.Clients.Total,
+            type: MetricType.Numeric,
+            icon: "fas fa-users"));
         
         return metrics;
     }
@@ -123,129 +126,105 @@ public class BankMetricsExtractorService : IBankMetricsExtractorService
         var metrics = new List<MetricDto>();
         
         // SWIFT
-        metrics.Add(new MetricDto
-        {
-            Label = "SWIFT Available",
-            Value = bank.Systems.SwiftAvailable,
-            Type = MetricType.Boolean,
-            Icon = "fas fa-exchange-alt"
-        });
+        metrics.Add(CreateMetric(
+            key: "swiftAvailable",
+            value: bank.Systems.SwiftAvailable,
+            type: MetricType.Boolean,
+            icon: "fas fa-exchange-alt"));
         
         // IBAN
-        metrics.Add(new MetricDto
-        {
-            Label = "IBAN Supported",
-            Value = bank.Systems.IbanSupported,
-            Type = MetricType.Boolean,
-            Icon = "fas fa-barcode"
-        });
+        metrics.Add(CreateMetric(
+            key: "ibanSupported",
+            value: bank.Systems.IbanSupported,
+            type: MetricType.Boolean,
+            icon: "fas fa-barcode"));
         
         // SEPA
-        metrics.Add(new MetricDto
-        {
-            Label = "SEPA Available",
-            Value = bank.Systems.SepaAvailable,
-            Type = MetricType.Boolean,
-            Icon = "fas fa-euro-sign"
-        });
+        metrics.Add(CreateMetric(
+            key: "sepaAvailable",
+            value: bank.Systems.SepaAvailable,
+            type: MetricType.Boolean,
+            icon: "fas fa-euro-sign"));
         
         // Local Clearing
         if (bank.Systems.LocalClearing != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Local Clearing",
-                Value = bank.Systems.LocalClearing.Value,
-                Type = MetricType.Boolean,
-                Icon = "fas fa-building"
-            });
+            metrics.Add(CreateMetric(
+                key: "localClearing",
+                value: bank.Systems.LocalClearing.Value,
+                type: MetricType.Boolean,
+                icon: "fas fa-building"));
         }
         
         // Instant Transfers
         if (bank.Systems.InstantTransfers != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Instant Transfers",
-                Value = bank.Systems.InstantTransfers.Value,
-                Type = MetricType.Boolean,
-                Icon = "fas fa-bolt"
-            });
+            metrics.Add(CreateMetric(
+                key: "instantTransfers",
+                value: bank.Systems.InstantTransfers.Value,
+                type: MetricType.Boolean,
+                icon: "fas fa-bolt"));
         }
         
         // Card Systems
-        metrics.Add(new MetricDto
-        {
-            Label = "Card Systems",
-            Value = bank.Systems.CardSystems,
-            Type = MetricType.List,
-            Icon = "fas fa-credit-card"
-        });
+        metrics.Add(CreateMetric(
+            key: "cardSystems",
+            value: bank.Systems.CardSystems,
+            type: MetricType.List,
+            icon: "fas fa-credit-card"));
         
         // Available Currencies
-        metrics.Add(new MetricDto
-        {
-            Label = "Available Currencies",
-            Value = bank.Currencies.Available,
-            Type = MetricType.List,
-            Icon = "fas fa-coins"
-        });
+        metrics.Add(CreateMetric(
+            key: "availableCurrencies",
+            value: bank.Currencies.Available,
+            type: MetricType.List,
+            icon: "fas fa-coins"));
         
         // Multi-Currency Accounts
         if (bank.Currencies.MultiCurrencyAccounts != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Multi-Currency Accounts",
-                Value = bank.Currencies.MultiCurrencyAccounts.Value,
-                Type = MetricType.Boolean,
-                Icon = "fas fa-globe"
-            });
+            metrics.Add(CreateMetric(
+                key: "multiCurrencyAccounts",
+                value: bank.Currencies.MultiCurrencyAccounts.Value,
+                type: MetricType.Boolean,
+                icon: "fas fa-globe"));
         }
         
         // FX Markup
         if (bank.Currencies.FxMarkupPercent != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "FX Markup",
-                Value = bank.Currencies.FxMarkupPercent.Value,
-                Type = MetricType.Percentage,
-                Icon = "fas fa-percent"
-            });
+            metrics.Add(CreateMetric(
+                key: "fxMarkup",
+                value: bank.Currencies.FxMarkupPercent.Value,
+                type: MetricType.Percentage,
+                icon: "fas fa-percent"));
         }
         
         // Crypto Exposure
         if (!string.IsNullOrEmpty(bank.Systems.CryptoExposure))
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Crypto Exposure",
-                Value = bank.Systems.CryptoExposure,
-                Type = MetricType.Text,
-                Icon = "fab fa-bitcoin"
-            });
+            metrics.Add(CreateMetric(
+                key: "cryptoExposure",
+                value: bank.Systems.CryptoExposure,
+                type: MetricType.Text,
+                icon: "fab fa-bitcoin"));
         }
         
         // Branches
-        metrics.Add(new MetricDto
-        {
-            Label = "Physical Branches",
-            Value = bank.Branches.Count,
-            Type = MetricType.Numeric,
-            Icon = "fas fa-map-marker-alt"
-        });
+        metrics.Add(CreateMetric(
+            key: "physicalBranches",
+            value: bank.Branches.Count,
+            type: MetricType.Numeric,
+            icon: "fas fa-map-marker-alt"));
         
         // ATMs
         if (bank.Branches.AtmCount != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "ATM Count",
-                Value = bank.Branches.AtmCount.Value,
-                Type = MetricType.Numeric,
-                Icon = "fas fa-credit-card"
-            });
+            metrics.Add(CreateMetric(
+                key: "atmCount",
+                value: bank.Branches.AtmCount.Value,
+                type: MetricType.Numeric,
+                icon: "fas fa-credit-card"));
         }
         
         return metrics;
@@ -258,91 +237,75 @@ public class BankMetricsExtractorService : IBankMetricsExtractorService
         // Commissions
         if (bank.Fees.Commissions.IncomingDomesticPercent != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Incoming Domestic Fee",
-                Value = bank.Fees.Commissions.IncomingDomesticPercent.Value,
-                Type = MetricType.Percentage,
-                Icon = "fas fa-arrow-down"
-            });
+            metrics.Add(CreateMetric(
+                key: "incomingDomesticFee",
+                value: bank.Fees.Commissions.IncomingDomesticPercent.Value,
+                type: MetricType.Percentage,
+                icon: "fas fa-arrow-down"));
         }
         
         if (bank.Fees.Commissions.IncomingInternationalPercent != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Incoming International Fee",
-                Value = bank.Fees.Commissions.IncomingInternationalPercent.Value,
-                Type = MetricType.Percentage,
-                Icon = "fas fa-globe-americas"
-            });
+            metrics.Add(CreateMetric(
+                key: "incomingInternationalFee",
+                value: bank.Fees.Commissions.IncomingInternationalPercent.Value,
+                type: MetricType.Percentage,
+                icon: "fas fa-globe-americas"));
         }
         
         if (bank.Fees.Commissions.OutgoingDomesticPercent != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Outgoing Domestic Fee",
-                Value = bank.Fees.Commissions.OutgoingDomesticPercent.Value,
-                Type = MetricType.Percentage,
-                Icon = "fas fa-arrow-up"
-            });
+            metrics.Add(CreateMetric(
+                key: "outgoingDomesticFee",
+                value: bank.Fees.Commissions.OutgoingDomesticPercent.Value,
+                type: MetricType.Percentage,
+                icon: "fas fa-arrow-up"));
         }
         
         if (bank.Fees.Commissions.OutgoingInternationalPercent != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Outgoing International Fee",
-                Value = bank.Fees.Commissions.OutgoingInternationalPercent.Value,
-                Type = MetricType.Percentage,
-                Icon = "fas fa-plane"
-            });
+            metrics.Add(CreateMetric(
+                key: "outgoingInternationalFee",
+                value: bank.Fees.Commissions.OutgoingInternationalPercent.Value,
+                type: MetricType.Percentage,
+                icon: "fas fa-plane"));
         }
         
         if (bank.Fees.Commissions.CashWithdrawalLocalAtmPercent != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "ATM Local Withdrawal",
-                Value = bank.Fees.Commissions.CashWithdrawalLocalAtmPercent.Value,
-                Type = MetricType.Percentage,
-                Icon = "fas fa-credit-card"
-            });
+            metrics.Add(CreateMetric(
+                key: "atmLocalWithdrawal",
+                value: bank.Fees.Commissions.CashWithdrawalLocalAtmPercent.Value,
+                type: MetricType.Percentage,
+                icon: "fas fa-credit-card"));
         }
         
         if (bank.Fees.Commissions.CashWithdrawalInternationalAtmPercent != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "ATM International Withdrawal",
-                Value = bank.Fees.Commissions.CashWithdrawalInternationalAtmPercent.Value,
-                Type = MetricType.Percentage,
-                Icon = "fas fa-credit-card"
-            });
+            metrics.Add(CreateMetric(
+                key: "atmInternationalWithdrawal",
+                value: bank.Fees.Commissions.CashWithdrawalInternationalAtmPercent.Value,
+                type: MetricType.Percentage,
+                icon: "fas fa-credit-card"));
         }
         
         // Account Fees
         if (bank.Fees.AccountFees.MonthlyMaintenance != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Monthly Maintenance Fee",
-                Value = bank.Fees.AccountFees.MonthlyMaintenance.Value,
-                Type = MetricType.Currency,
-                Icon = "fas fa-calendar-alt"
-            });
+            metrics.Add(CreateMetric(
+                key: "monthlyMaintenanceFee",
+                value: bank.Fees.AccountFees.MonthlyMaintenance.Value,
+                type: MetricType.Currency,
+                icon: "fas fa-calendar-alt"));
         }
         
         if (bank.Fees.CardFees.PremiumCardAnnualFee != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Premium Card Annual Fee",
-                Value = bank.Fees.CardFees.PremiumCardAnnualFee.Value,
-                Type = MetricType.Currency,
-                Icon = "fas fa-credit-card"
-            });
+            metrics.Add(CreateMetric(
+                key: "premiumCardAnnualFee",
+                value: bank.Fees.CardFees.PremiumCardAnnualFee.Value,
+                type: MetricType.Currency,
+                icon: "fas fa-credit-card"));
         }
         
         return metrics;
@@ -353,59 +316,49 @@ public class BankMetricsExtractorService : IBankMetricsExtractorService
         var metrics = new List<MetricDto>();
         
         // Sanctions Risk
-        metrics.Add(new MetricDto
-        {
-            Label = "Sanctions Risk",
-            Value = bank.Compliance.SanctionsRisk,
-            Type = MetricType.Text,
-            Icon = "fas fa-shield-alt"
-        });
+        metrics.Add(CreateMetric(
+            key: "sanctionsRisk",
+            value: bank.Compliance.SanctionsRisk,
+            type: MetricType.Text,
+            icon: "fas fa-shield-alt"));
         
         // Government Affiliate
         if (bank.Compliance.GovernmentAffiliate != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Government Affiliate",
-                Value = bank.Compliance.GovernmentAffiliate.Value,
-                Type = MetricType.Boolean,
-                Icon = "fas fa-landmark"
-            });
+            metrics.Add(CreateMetric(
+                key: "governmentAffiliate",
+                value: bank.Compliance.GovernmentAffiliate.Value,
+                type: MetricType.Boolean,
+                icon: "fas fa-landmark"));
         }
         
         // Complaint Ratio
         if (bank.Metrics?.ComplaintRatioPercent != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Complaint Ratio",
-                Value = bank.Metrics.ComplaintRatioPercent,
-                Type = MetricType.Percentage,
-                Icon = "fas fa-comment-slash"
-            });
+            metrics.Add(CreateMetric(
+                key: "complaintRatio",
+                value: bank.Metrics.ComplaintRatioPercent,
+                type: MetricType.Percentage,
+                icon: "fas fa-comment-slash"));
         }
         
         // Avg Remediation Days
         if (bank.Metrics?.AvgRemediationDays != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Avg Remediation Days",
-                Value = bank.Metrics.AvgRemediationDays,
-                Type = MetricType.Numeric,
-                Icon = "fas fa-clock"
-            });
+            metrics.Add(CreateMetric(
+                key: "avgRemediationDays",
+                value: bank.Metrics.AvgRemediationDays,
+                type: MetricType.Numeric,
+                icon: "fas fa-clock"));
         }
         
         // Red Flags
         var redFlagCount = bank.RedFlags?.Count ?? 0;
-        metrics.Add(new MetricDto
-        {
-            Label = "Red Flags",
-            Value = redFlagCount,
-            Type = MetricType.Numeric,
-            Icon = "fas fa-flag"
-        });
+        metrics.Add(CreateMetric(
+            key: "redFlags",
+            value: redFlagCount,
+            type: MetricType.Numeric,
+            icon: "fas fa-flag"));
         
         return metrics;
     }
@@ -417,73 +370,61 @@ public class BankMetricsExtractorService : IBankMetricsExtractorService
         // Mobile App
         if (bank.DigitalChannels.MobileApp != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Mobile App",
-                Value = bank.DigitalChannels.MobileApp.Value,
-                Type = MetricType.Boolean,
-                Icon = "fas fa-mobile-alt"
-            });
+            metrics.Add(CreateMetric(
+                key: "mobileApp",
+                value: bank.DigitalChannels.MobileApp.Value,
+                type: MetricType.Boolean,
+                icon: "fas fa-mobile-alt"));
         }
         
         // Web Banking
         if (bank.DigitalChannels.WebBanking != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Web Banking",
-                Value = bank.DigitalChannels.WebBanking.Value,
-                Type = MetricType.Boolean,
-                Icon = "fas fa-desktop"
-            });
+            metrics.Add(CreateMetric(
+                key: "webBanking",
+                value: bank.DigitalChannels.WebBanking.Value,
+                type: MetricType.Boolean,
+                icon: "fas fa-desktop"));
         }
         
         // iOS
         if (bank.DigitalChannels.Ios != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "iOS App",
-                Value = bank.DigitalChannels.Ios.Value,
-                Type = MetricType.Boolean,
-                Icon = "fab fa-apple"
-            });
+            metrics.Add(CreateMetric(
+                key: "iosApp",
+                value: bank.DigitalChannels.Ios.Value,
+                type: MetricType.Boolean,
+                icon: "fab fa-apple"));
         }
         
         // Android
         if (bank.DigitalChannels.Android != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Android App",
-                Value = bank.DigitalChannels.Android.Value,
-                Type = MetricType.Boolean,
-                Icon = "fab fa-android"
-            });
+            metrics.Add(CreateMetric(
+                key: "androidApp",
+                value: bank.DigitalChannels.Android.Value,
+                type: MetricType.Boolean,
+                icon: "fab fa-android"));
         }
         
         // Biometric Login
         if (bank.DigitalChannels.BiometricLogin != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "Biometric Authentication",
-                Value = bank.DigitalChannels.BiometricLogin.Value,
-                Type = MetricType.Boolean,
-                Icon = "fas fa-fingerprint"
-            });
+            metrics.Add(CreateMetric(
+                key: "biometricAuthentication",
+                value: bank.DigitalChannels.BiometricLogin.Value,
+                type: MetricType.Boolean,
+                icon: "fas fa-fingerprint"));
         }
         
         // API Access
         if (bank.DigitalChannels.ApiAccess != null)
         {
-            metrics.Add(new MetricDto
-            {
-                Label = "API Access Available",
-                Value = bank.DigitalChannels.ApiAccess.Value,
-                Type = MetricType.Boolean,
-                Icon = "fas fa-code"
-            });
+            metrics.Add(CreateMetric(
+                key: "apiAccessAvailable",
+                value: bank.DigitalChannels.ApiAccess.Value,
+                type: MetricType.Boolean,
+                icon: "fas fa-code"));
         }
         
         // Support Channels
@@ -491,35 +432,29 @@ public class BankMetricsExtractorService : IBankMetricsExtractorService
         {
             if (bank.Support.Available24x7 != null)
             {
-                metrics.Add(new MetricDto
-                {
-                    Label = "24/7 Support",
-                    Value = bank.Support.Available24x7.Value,
-                    Type = MetricType.Boolean,
-                    Icon = "fas fa-clock"
-                });
+                metrics.Add(CreateMetric(
+                    key: "support24x7",
+                    value: bank.Support.Available24x7.Value,
+                    type: MetricType.Boolean,
+                    icon: "fas fa-clock"));
             }
             
             if (bank.Support.Channels != null && bank.Support.Channels.Count > 0)
             {
-                metrics.Add(new MetricDto
-                {
-                    Label = "Support Channels",
-                    Value = bank.Support.Channels,
-                    Type = MetricType.List,
-                    Icon = "fas fa-headset"
-                });
+                metrics.Add(CreateMetric(
+                    key: "supportChannels",
+                    value: bank.Support.Channels,
+                    type: MetricType.List,
+                    icon: "fas fa-headset"));
             }
             
             if (bank.Support.AverageResponseTimeMinutes != null)
             {
-                metrics.Add(new MetricDto
-                {
-                    Label = "Avg Response Time (min)",
-                    Value = (int)bank.Support.AverageResponseTimeMinutes.Value,
-                    Type = MetricType.Numeric,
-                    Icon = "fas fa-stopwatch"
-                });
+                metrics.Add(CreateMetric(
+                    key: "avgResponseTimeMinutes",
+                    value: (int)bank.Support.AverageResponseTimeMinutes.Value,
+                    type: MetricType.Numeric,
+                    icon: "fas fa-stopwatch"));
             }
         }
         

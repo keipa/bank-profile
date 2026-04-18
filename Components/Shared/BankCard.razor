@@ -3,7 +3,6 @@
    Using pure CSS glass effects with conic border, shimmer, and 3D tilt
    Kept for rollback safety only - DO NOT USE IN NEW CODE
    ═══════════════════════════════════════════════════════════ *@
-@using BankProfiles.Web.Models
 @inject ICountryService CountryService
 
 <div class="bank-card card h-100 shadow-sm">
@@ -26,7 +25,7 @@
             }
             @displayDesc
         </p>
-        
+
         @if (OverallRating > 0)
         {
             <div class="rating mb-2">

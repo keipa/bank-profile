@@ -8,12 +8,6 @@ using System.Text.Json.Serialization;
 
 namespace BankProfiles.Web.Services;
 
-public interface IEventProjectionService
-{
-    Task<BankProfile?> ProjectBankProfileAsync(string bankCode);
-    BankProfile? ProjectFromEvents(List<MetricEvent> events);
-}
-
 public class EventProjectionService : IEventProjectionService
 {
     private readonly IDbContextFactory<BankDbContext> _contextFactory;
@@ -79,6 +73,24 @@ public class EventProjectionService : IEventProjectionService
         }
 
         return profile;
+    }
+
+    public static bool TryGetMetricPropertyType(string metricName, out Type? propertyType)
+    {
+        if (string.IsNullOrWhiteSpace(metricName))
+        {
+            propertyType = null;
+            return false;
+        }
+
+        if (PropertyPathCache.TryGetValue(metricName.Trim(), out var pathInfo))
+        {
+            propertyType = pathInfo.PropertyType;
+            return true;
+        }
+
+        propertyType = null;
+        return false;
     }
 
     private static void ApplyMetric(BankProfile profile, string metricName, MetricEvent evt)

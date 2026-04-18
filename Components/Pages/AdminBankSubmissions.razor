@@ -1,0 +1,382 @@
+@page "/admin/bank-submissions"
+@using System.ComponentModel.DataAnnotations
+@using System.Text.RegularExpressions
+@using BankProfiles.Web.Data.Entities
+@inject IBankOnboardingService OnboardingService
+@inject ICountryService CountryService
+@inject ILocalizationService Localization
+@rendermode InteractiveServer
+
+<PageTitle>@Localization.GetString("page.adminSubmissions.pageTitle")</PageTitle>
+
+<div class="container-fluid my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">@Localization.GetString("page.adminSubmissions.title")</h1>
+        <button class="btn btn-outline-secondary btn-sm" @onclick="LoadPendingAsync" disabled="@_isProcessing">
+            Refresh
+        </button>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(_successMessage))
+    {
+        <div class="alert alert-success" role="status">@_successMessage</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(_errorMessage))
+    {
+        <div class="alert alert-danger" role="alert">@_errorMessage</div>
+    }
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    Pending submissions (@_pendingSubmissions.Count)
+                </div>
+                <div class="list-group list-group-flush">
+                    @if (_pendingSubmissions.Count == 0)
+                    {
+                        <div class="p-3 text-muted">No pending submissions.</div>
+                    }
+                    else
+                    {
+                        @foreach (var submission in _pendingSubmissions)
+                        {
+                            <button type="button"
+                                    class="list-group-item list-group-item-action @(submission.SubmissionId == _selectedSubmission?.SubmissionId ? "active" : "")"
+                                    @onclick="() => SelectSubmission(submission)">
+                                <div class="fw-bold">@submission.ProposedBankName</div>
+                                <small>@submission.ProposedCountryCode.ToUpperInvariant() • @submission.SubmittedDate.ToLocalTime().ToString("g")</small>
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    @if (_selectedSubmission == null)
+                    {
+                        <span>Select a submission to review</span>
+                    }
+                    else
+                    {
+                        <span>Review: @_selectedSubmission.ProposedBankName</span>
+                    }
+                </div>
+                <div class="card-body">
+                    @if (_selectedSubmission == null)
+                    {
+                        <p class="text-muted mb-0">Choose a pending submission from the left panel to approve or reject.</p>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <div><strong>Proposed website:</strong> @(_selectedSubmission.ProposedWebsiteUrl ?? "Not provided")</div>
+                            <div><strong>Contact email:</strong> @(_selectedSubmission.ContactEmail ?? "Not provided")</div>
+                            <div><strong>Submission notes:</strong> @(_selectedSubmission.SubmissionNotes ?? "Not provided")</div>
+                        </div>
+
+                        <EditForm Model="_approval" OnValidSubmit="ApproveAsync" FormName="ApproveBankSubmissionForm">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Bank code *</label>
+                                    <InputText class="form-control" @bind-Value="_approval.BankCode" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Status *</label>
+                                    <InputSelect class="form-select" @bind-Value="_approval.Status">
+                                        @foreach (var status in _statusOptions)
+                                        {
+                                            <option value="@status">@status</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Bank name *</label>
+                                    <InputText class="form-control" @bind-Value="_approval.BankName" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Legal name *</label>
+                                    <InputText class="form-control" @bind-Value="_approval.LegalName" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Country *</label>
+                                    <InputSelect class="form-select" @bind-Value="_approval.CountryCode">
+                                        @foreach (var country in _countries)
+                                        {
+                                            <option value="@country.Code">@country.Flag @country.Name</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Default criteria rating *</label>
+                                    <InputNumber class="form-control" step="0.1" @bind-Value="_approval.DefaultCriteriaRating" />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Jurisdiction</label>
+                                    <InputText class="form-control" @bind-Value="_approval.Jurisdiction" />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Description</label>
+                                    <InputTextArea class="form-control" rows="3" @bind-Value="_approval.Description" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Website URL</label>
+                                    <InputText class="form-control" @bind-Value="_approval.WebsiteUrl" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Contact email</label>
+                                    <InputText class="form-control" @bind-Value="_approval.ContactEmail" />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Review notes</label>
+                                    <InputTextArea class="form-control" rows="3" maxlength="2000" @bind-Value="_approval.ReviewNotes" />
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 mt-4">
+                                <button class="btn btn-success" type="submit" disabled="@_isProcessing">
+                                    @if (_isProcessing)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    }
+                                    Approve and publish
+                                </button>
+                            </div>
+                        </EditForm>
+
+                        <hr />
+
+                        <div class="mt-3">
+                            <label class="form-label">Rejection reason</label>
+                            <InputTextArea class="form-control" rows="3" maxlength="1000" @bind-Value="_rejectionReason" />
+                            <button class="btn btn-outline-danger mt-2" type="button" @onclick="RejectAsync" disabled="@_isProcessing">
+                                Reject submission
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private static readonly string[] _statusOptions =
+    {
+        "active",
+        "inactive",
+        "restricted",
+        "under_review",
+        "sanctioned",
+        "closed"
+    };
+
+    private static readonly Regex SlugRegex = new("[^a-z0-9]+", RegexOptions.Compiled);
+
+    private List<BankOnboardingSubmission> _pendingSubmissions = new();
+    private List<CountryInfo> _countries = new();
+    private BankOnboardingSubmission? _selectedSubmission;
+    private ApprovalForm _approval = new();
+    private string _rejectionReason = string.Empty;
+    private bool _isProcessing;
+    private string? _successMessage;
+    private string? _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _countries = CountryService.GetAllCountries().OrderBy(c => c.Name).ToList();
+        await LoadPendingAsync();
+    }
+
+    private async Task LoadPendingAsync()
+    {
+        _pendingSubmissions = await OnboardingService.GetPendingSubmissionsAsync();
+
+        if (_selectedSubmission != null)
+        {
+            _selectedSubmission = _pendingSubmissions.FirstOrDefault(s => s.SubmissionId == _selectedSubmission.SubmissionId);
+            if (_selectedSubmission == null)
+            {
+                _approval = new ApprovalForm();
+                _rejectionReason = string.Empty;
+            }
+        }
+    }
+
+    private void SelectSubmission(BankOnboardingSubmission submission)
+    {
+        _selectedSubmission = submission;
+        _successMessage = null;
+        _errorMessage = null;
+        _rejectionReason = string.Empty;
+
+        _approval = new ApprovalForm
+        {
+            BankCode = GenerateBankCode(submission.ProposedBankName),
+            BankName = submission.ProposedBankName,
+            LegalName = submission.ProposedBankName,
+            Status = "active",
+            CountryCode = submission.ProposedCountryCode,
+            Jurisdiction = string.Empty,
+            Description = submission.SubmissionNotes,
+            WebsiteUrl = submission.ProposedWebsiteUrl,
+            ContactEmail = submission.ContactEmail,
+            DefaultCriteriaRating = 7.5m
+        };
+    }
+
+    private async Task ApproveAsync()
+    {
+        if (_selectedSubmission == null)
+        {
+            return;
+        }
+
+        _isProcessing = true;
+        _successMessage = null;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await OnboardingService.ApproveSubmissionAsync(new BankOnboardingApprovalRequest
+            {
+                SubmissionId = _selectedSubmission.SubmissionId,
+                BankCode = _approval.BankCode,
+                BankName = _approval.BankName,
+                LegalName = _approval.LegalName,
+                Status = _approval.Status,
+                CountryCode = _approval.CountryCode,
+                Jurisdiction = _approval.Jurisdiction,
+                Description = _approval.Description,
+                WebsiteUrl = _approval.WebsiteUrl,
+                ContactEmail = _approval.ContactEmail,
+                DefaultCriteriaRating = _approval.DefaultCriteriaRating,
+                ReviewNotes = _approval.ReviewNotes
+            });
+
+            if (!result.Success)
+            {
+                _errorMessage = result.ErrorMessage ?? "Approval failed.";
+                return;
+            }
+
+            _successMessage = $"Submission approved. New bank published as {result.BankCode}.";
+            _selectedSubmission = null;
+            _approval = new ApprovalForm();
+            _rejectionReason = string.Empty;
+            await LoadPendingAsync();
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    private async Task RejectAsync()
+    {
+        if (_selectedSubmission == null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(_rejectionReason))
+        {
+            _errorMessage = "Rejection reason is required.";
+            return;
+        }
+
+        _isProcessing = true;
+        _successMessage = null;
+        _errorMessage = null;
+
+        try
+        {
+            var success = await OnboardingService.RejectSubmissionAsync(
+                _selectedSubmission.SubmissionId,
+                _rejectionReason,
+                _approval.ReviewNotes);
+
+            if (!success)
+            {
+                _errorMessage = "Unable to reject the selected submission.";
+                return;
+            }
+
+            _successMessage = "Submission rejected.";
+            _selectedSubmission = null;
+            _approval = new ApprovalForm();
+            _rejectionReason = string.Empty;
+            await LoadPendingAsync();
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    private static string GenerateBankCode(string bankName)
+    {
+        var normalized = SlugRegex.Replace(bankName.Trim().ToLowerInvariant(), "-").Trim('-');
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            normalized = "bank-new";
+        }
+
+        if (!normalized.StartsWith("bank-", StringComparison.Ordinal))
+        {
+            normalized = $"bank-{normalized}";
+        }
+
+        return normalized.Length <= 50 ? normalized : normalized[..50].TrimEnd('-');
+    }
+
+    private sealed class ApprovalForm
+    {
+        [Required]
+        [StringLength(50)]
+        public string BankCode { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(200)]
+        public string BankName { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(200)]
+        public string LegalName { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(20)]
+        public string Status { get; set; } = "active";
+
+        [Required]
+        [StringLength(10)]
+        public string CountryCode { get; set; } = "us";
+
+        [StringLength(200)]
+        public string? Jurisdiction { get; set; }
+
+        [StringLength(1000)]
+        public string? Description { get; set; }
+
+        [StringLength(300)]
+        [Url]
+        public string? WebsiteUrl { get; set; }
+
+        [StringLength(320)]
+        [EmailAddress]
+        public string? ContactEmail { get; set; }
+
+        [Range(0, 10)]
+        public decimal DefaultCriteriaRating { get; set; } = 7.5m;
+
+        [StringLength(2000)]
+        public string? ReviewNotes { get; set; }
+    }
+}

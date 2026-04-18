@@ -55,6 +55,8 @@ public class MigrationParityTests
         Assert.Equal(original.Status, projected.Status);
         Assert.Equal(original.HeadquartersCountry, projected.HeadquartersCountry);
         Assert.Equal(original.CountryOfOwnerResidence, projected.CountryOfOwnerResidence);
+        Assert.Equal(original.Overview?.LogoUrl, projected.Overview?.LogoUrl);
+        Assert.Equal(original.Overview?.IconUrl, projected.Overview?.IconUrl);
 
         // Verify ratings
         Assert.Equal(original.Ratings.Overall, projected.Ratings.Overall);
@@ -71,6 +73,16 @@ public class MigrationParityTests
         // Verify branches & clients
         Assert.Equal(original.Branches.Count, projected.Branches.Count);
         Assert.Equal(original.Clients.Total, projected.Clients.Total);
+
+        // Verify transaction destinations when present
+        if (original.Transactions?.OutgoingDestinations != null)
+        {
+            Assert.NotNull(projected.Transactions);
+            Assert.NotNull(projected.Transactions!.OutgoingDestinations);
+            Assert.Equal(
+                original.Transactions.OutgoingDestinations.Select(destination => destination.Country),
+                projected.Transactions.OutgoingDestinations!.Select(destination => destination.Country));
+        }
 
         // Verify compliance
         Assert.Equal(original.Compliance.SanctionsRisk, projected.Compliance.SanctionsRisk);

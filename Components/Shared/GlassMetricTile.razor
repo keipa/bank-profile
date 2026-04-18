@@ -1,4 +1,5 @@
-@using BankProfiles.Web.Models
+@using System.Globalization
+@inject IJSRuntime JSRuntime
 
 <div class="@GetCssClasses()" data-tilt role="region" aria-label="@Metric.Label metric" @onclick="HandleClick">
     <div class="glass-card-content metric-tile-inner">
@@ -13,6 +14,27 @@
                 </div>
             }
         </div>
+
+        @if (IsTotalClientsMetric)
+        {
+            <div class="total-clients-illustration" aria-hidden="true">
+                <svg class="total-clients-svg" viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                    <defs>
+                        <linearGradient id="clientsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="rgba(0,122,255,0.65)" />
+                            <stop offset="100%" stop-color="rgba(52,199,89,0.55)" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="196" cy="78" r="48" fill="none" stroke="url(#clientsGradient)" stroke-width="8" />
+                    <path d="M154 78h84M196 30a84 84 0 0 0 0 96M196 30a84 84 0 0 1 0 96" stroke="url(#clientsGradient)" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.9" />
+                    <rect x="40" y="104" width="98" height="58" rx="10" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.55)" stroke-width="2" />
+                    <rect x="55" y="94" width="110" height="62" rx="10" fill="rgba(255,255,255,0.5)" stroke="rgba(255,255,255,0.7)" stroke-width="2" />
+                    <rect x="70" y="84" width="120" height="66" rx="12" fill="rgba(255,255,255,0.85)" stroke="rgba(0,122,255,0.35)" stroke-width="2" />
+                    <rect x="84" y="102" width="92" height="8" rx="4" fill="rgba(0,122,255,0.35)" />
+                    <circle cx="164" cy="128" r="9" fill="rgba(255,149,0,0.65)" />
+                </svg>
+            </div>
+        }
         
         <div class="metric-value">
             @if (Metric.Type == MetricType.List && Metric.Value is List<string> list)
@@ -31,7 +53,7 @@
             else if (Metric.Type == MetricType.Percentage)
             {
                 <div class="percentage-container">
-                    <span class="percentage-value">@Metric.FormattedValue</span>
+                    <span class="percentage-value" @ref="_metricValueElement" data-counter-enabled="@CounterEnabledAttribute">@GetDisplayValueForRender()</span>
                     @if (ShowProgressBar)
                     {
                         <div class="progress-bar-wrapper">
@@ -42,7 +64,7 @@
             }
             else
             {
-                <span>@Metric.FormattedValue</span>
+                <span @ref="_metricValueElement" data-counter-enabled="@CounterEnabledAttribute">@GetDisplayValueForRender()</span>
             }
         </div>
         
@@ -71,6 +93,8 @@
         gap: 0.5rem;
         height: 100%;
         justify-content: space-between;
+        position: relative;
+        z-index: 2;
     }
     
     /* Metric Header */
@@ -182,7 +206,27 @@
     .glass-card.alert-success .metric-value {
         color: var(--accent-1, #34C759);
     }
-    
+
+    .glass-card.metric-tile.metric-tile-featured.total-clients-featured {
+        min-height: 260px;
+    }
+
+    .total-clients-illustration {
+        position: absolute;
+        right: -16px;
+        bottom: -20px;
+        width: min(52%, 260px);
+        opacity: 0.42;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .total-clients-svg {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
     /* Boolean Tiles */
     .glass-card.boolean-true {
         background: linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(48, 209, 88, 0.15) 100%);
@@ -219,10 +263,24 @@
         .metric-label {
             font-size: 0.65rem;
         }
+
+        .glass-card.metric-tile.metric-tile-featured.total-clients-featured {
+            min-height: 180px;
+        }
+
+        .total-clients-illustration {
+            width: min(46%, 180px);
+            opacity: 0.34;
+            right: -8px;
+            bottom: -10px;
+        }
     }
 </style>
 
 @code {
+    private const int CounterAnimationDurationMs = 900;
+    private const string TotalClientsMetricKey = "totalClients";
+
     [Parameter]
     public required MetricDto Metric { get; set; }
     
@@ -231,10 +289,55 @@
     
     [Parameter]
     public EventCallback<MetricDto> OnClick { get; set; }
+
+    private ElementReference _metricValueElement;
+    private IReadOnlyDictionary<string, object>? _counterAnimationOptions;
+    private string _lastAnimatedMetricKey = string.Empty;
+
+    private string CounterEnabledAttribute => _counterAnimationOptions is null ? "false" : "true";
+
+    protected override void OnParametersSet()
+    {
+        _counterAnimationOptions = BuildCounterAnimationOptions();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_counterAnimationOptions is null)
+        {
+            return;
+        }
+
+        var currentMetricKey = BuildMetricKey();
+        if (!firstRender && currentMetricKey == _lastAnimatedMetricKey)
+        {
+            return;
+        }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("counterHelper.animateValue", _metricValueElement, _counterAnimationOptions);
+            _lastAnimatedMetricKey = currentMetricKey;
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit disconnected while animating; no further action needed.
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected", StringComparison.OrdinalIgnoreCase))
+        {
+            // Alternative circuit-disconnect path in Blazor Server.
+        }
+    }
     
     private string GetCssClasses()
     {
         var classes = new List<string> { "glass-card", "metric-tile", Metric.GetCssClass() };
+
+        if (IsTotalClientsMetric)
+        {
+            classes.Add("metric-tile-featured");
+            classes.Add("total-clients-featured");
+        }
         
         var alertLevel = Metric.GetAlertLevel();
         if (alertLevel != "normal")
@@ -247,12 +350,154 @@
     
     private double GetProgressWidth()
     {
-        if (Metric.Value is double d)
-        {
-            return Math.Min(d, 100);
-        }
-        return 0;
+        return TryConvertToDouble(Metric.Value, out var value) ? Math.Min(value, 100) : 0;
     }
+
+    private string GetDisplayValueForRender()
+    {
+        if (_counterAnimationOptions is null)
+        {
+            return Metric.FormattedValue;
+        }
+
+        var decimals = (int)_counterAnimationOptions["decimals"];
+        var prefix = (string)_counterAnimationOptions["prefix"];
+        var suffix = (string)_counterAnimationOptions["suffix"];
+        var useGrouping = (bool)_counterAnimationOptions["useGrouping"];
+        var zeroValue = useGrouping
+            ? 0d.ToString($"N{decimals}", CultureInfo.CurrentCulture)
+            : 0d.ToString($"F{decimals}", CultureInfo.CurrentCulture);
+
+        return $"{prefix}{zeroValue}{suffix}";
+    }
+
+    private IReadOnlyDictionary<string, object>? BuildCounterAnimationOptions()
+    {
+        if (!TryGetMetricNumericValue(out var endValue))
+        {
+            return null;
+        }
+
+        var decimals = GetDecimalPlacesForMetric();
+        var prefix = Metric.Type == MetricType.Currency ? Metric.Unit ?? "$" : string.Empty;
+        var suffix = Metric.Type == MetricType.Percentage ? "%" : string.Empty;
+
+        return new Dictionary<string, object>
+        {
+            ["start"] = 0d,
+            ["end"] = endValue,
+            ["duration"] = CounterAnimationDurationMs,
+            ["decimals"] = decimals,
+            ["prefix"] = prefix,
+            ["suffix"] = suffix,
+            ["useGrouping"] = false
+        };
+    }
+
+    private bool TryGetMetricNumericValue(out double numericValue)
+    {
+        numericValue = 0;
+
+        if (Metric.Type is not (MetricType.Numeric or MetricType.Percentage or MetricType.Currency))
+        {
+            return false;
+        }
+
+        return TryConvertToDouble(Metric.Value, out numericValue);
+    }
+
+    private static bool TryConvertToDouble(object? value, out double result)
+    {
+        switch (value)
+        {
+            case byte byteValue:
+                result = byteValue;
+                return true;
+            case sbyte sbyteValue:
+                result = sbyteValue;
+                return true;
+            case short shortValue:
+                result = shortValue;
+                return true;
+            case ushort ushortValue:
+                result = ushortValue;
+                return true;
+            case int intValue:
+                result = intValue;
+                return true;
+            case uint uintValue:
+                result = uintValue;
+                return true;
+            case long longValue:
+                result = longValue;
+                return true;
+            case ulong ulongValue:
+                result = ulongValue;
+                return true;
+            case float floatValue:
+                result = floatValue;
+                return true;
+            case double doubleValue:
+                result = doubleValue;
+                return true;
+            case decimal decimalValue:
+                result = (double)decimalValue;
+                return true;
+            case string textValue when double.TryParse(textValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var invariantValue):
+                result = invariantValue;
+                return true;
+            case string textValue when double.TryParse(textValue, NumberStyles.Float, CultureInfo.CurrentCulture, out var cultureValue):
+                result = cultureValue;
+                return true;
+            default:
+                result = 0;
+                return false;
+        }
+    }
+
+    private int GetDecimalPlacesForMetric()
+    {
+        return Metric.Type switch
+        {
+            MetricType.Percentage => 1,
+            MetricType.Currency => 2,
+            MetricType.Numeric => GetDecimalPlacesFromValue(Metric.Value),
+            _ => 0
+        };
+    }
+
+    private static int GetDecimalPlacesFromValue(object value)
+    {
+        return value switch
+        {
+            decimal decimalValue => Math.Min((decimal.GetBits(decimalValue)[3] >> 16) & 0x7F, 2),
+            double doubleValue => GetDoubleDecimalPlaces(doubleValue),
+            float floatValue => GetDoubleDecimalPlaces(floatValue),
+            string textValue when decimal.TryParse(textValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedDecimal)
+                => Math.Min((decimal.GetBits(parsedDecimal)[3] >> 16) & 0x7F, 2),
+            _ => 0
+        };
+    }
+
+    private static int GetDoubleDecimalPlaces(double value)
+    {
+        var text = value.ToString("0.################", CultureInfo.InvariantCulture);
+        var decimalSeparatorIndex = text.IndexOf('.');
+        if (decimalSeparatorIndex < 0)
+        {
+            return 0;
+        }
+
+        return Math.Min(text.Length - decimalSeparatorIndex - 1, 2);
+    }
+
+    private string BuildMetricKey()
+    {
+        var rawValue = Convert.ToString(Metric.Value, CultureInfo.InvariantCulture) ?? string.Empty;
+        return $"{Metric.Key}|{Metric.Type}|{rawValue}|{Metric.Unit}";
+    }
+
+    private bool IsTotalClientsMetric => Metric.Key.Equals(TotalClientsMetricKey, StringComparison.Ordinal);
 
     private async Task HandleClick()
     {

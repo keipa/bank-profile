@@ -1,0 +1,177 @@
+@inject IJSRuntime JSRuntime
+@inject ILocalizationService Localization
+@implements IAsyncDisposable
+
+<button type="button"
+        class="glass-card transaction-roadmap-card"
+        data-tilt
+        data-testid="transaction-roadmap-card"
+        @onclick="HandleClick"
+        aria-label="@Localization.GetString("page.bankDetail.transactionRoutes.cardTitle")">
+    <div class="transaction-roadmap-card-content">
+        <div class="transaction-roadmap-card-header">
+            <div>
+                <h3 class="transaction-roadmap-card-title">@Localization.GetString("page.bankDetail.transactionRoutes.cardTitle")</h3>
+                <p class="transaction-roadmap-card-subtitle">@Localization.GetString("page.bankDetail.transactionRoutes.openHint")</p>
+            </div>
+            <div class="transaction-roadmap-card-icon" aria-hidden="true">
+                <i class="fas fa-globe-americas"></i>
+            </div>
+        </div>
+
+        <div class="transaction-roadmap-summary">
+            <span>
+                <strong>@Localization.GetString("page.bankDetail.transactionRoutes.fromLabel"):</strong>
+                @OriginCountry
+            </span>
+            <span>
+                <strong>@Localization.GetString("page.bankDetail.transactionRoutes.toCountriesLabel"):</strong>
+                @DestinationCountries.Count
+            </span>
+        </div>
+
+        <div class="transaction-roadmap-preview" id="@_previewContainerId" aria-hidden="true"></div>
+
+        @if (DestinationCountries.Count > 0)
+        {
+            <div class="transaction-roadmap-destination-chips">
+                @foreach (var country in DestinationCountries.Take(4))
+                {
+                    <span class="chip">@country</span>
+                }
+                @if (DestinationCountries.Count > 4)
+                {
+                    <span class="chip more">+@(DestinationCountries.Count - 4)</span>
+                }
+            </div>
+        }
+    </div>
+</button>
+
+<style>
+    .transaction-roadmap-card {
+        width: 100%;
+        border: none;
+        text-align: left;
+        min-height: 320px;
+        padding: 1.25rem;
+        cursor: pointer;
+    }
+
+    .transaction-roadmap-card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        height: 100%;
+    }
+
+    .transaction-roadmap-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .transaction-roadmap-card-title {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+
+    .transaction-roadmap-card-subtitle {
+        margin: 0.25rem 0 0;
+        opacity: 0.72;
+        font-size: 0.9rem;
+    }
+
+    .transaction-roadmap-card-icon {
+        font-size: 1.35rem;
+        opacity: 0.75;
+    }
+
+    .transaction-roadmap-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem 1.6rem;
+        font-size: 0.9rem;
+    }
+
+    .transaction-roadmap-preview {
+        border-radius: 14px;
+        min-height: 180px;
+        background: radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.7), rgba(205, 220, 255, 0.36) 45%, rgba(40, 60, 96, 0.22));
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        overflow: hidden;
+    }
+
+    .transaction-roadmap-destination-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    @@media (max-width: 768px) {
+        .transaction-roadmap-card {
+            min-height: 290px;
+        }
+
+        .transaction-roadmap-preview {
+            min-height: 150px;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public string OriginCountry { get; set; } = string.Empty;
+    [Parameter] public IReadOnlyList<string> DestinationCountries { get; set; } = Array.Empty<string>();
+    [Parameter] public EventCallback OnOpen { get; set; }
+
+    private readonly string _previewContainerId = $"transactionRoadmapPreview_{Guid.NewGuid():N}";
+    private bool _previewInitialized;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !_previewInitialized)
+        {
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("transactionRoadmap.renderPreview", _previewContainerId);
+                _previewInitialized = true;
+            }
+            catch (JSDisconnectedException)
+            {
+                // User navigated away while JS interop was running.
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected", StringComparison.OrdinalIgnoreCase))
+            {
+                // Blazor Server disconnected before preview render completed.
+            }
+        }
+    }
+
+    private async Task HandleClick()
+    {
+        await OnOpen.InvokeAsync();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (!_previewInitialized)
+        {
+            return;
+        }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("transactionRoadmap.destroyPreview", _previewContainerId);
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit already disconnected.
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected", StringComparison.OrdinalIgnoreCase))
+        {
+            // Circuit already disconnected.
+        }
+    }
+}

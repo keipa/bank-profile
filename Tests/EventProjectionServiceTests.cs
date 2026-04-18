@@ -117,6 +117,25 @@ public class EventProjectionServiceTests
     }
 
     [Fact]
+    public void ProjectFromEvents_SetsTransactionDestinations()
+    {
+        var events = new List<MetricEvent>
+        {
+            Evt(1, "bankId", "\"bank-alpha\""),
+            Evt(2, "transactions.outgoingDestinations", "[{\"country\":\"France\"},{\"country\":\"Germany\"}]", "List")
+        };
+
+        var profile = _sut.ProjectFromEvents(events)!;
+
+        Assert.NotNull(profile.Transactions);
+        Assert.NotNull(profile.Transactions!.OutgoingDestinations);
+        Assert.Collection(
+            profile.Transactions.OutgoingDestinations!,
+            first => Assert.Equal("France", first.Country),
+            second => Assert.Equal("Germany", second.Country));
+    }
+
+    [Fact]
     public void ProjectFromEvents_LastEventWins()
     {
         var events = new List<MetricEvent>
@@ -160,8 +179,10 @@ public class EventProjectionServiceTests
             Evt(1, "bankId", "\"bank-alpha\""),
             Evt(2, "overview.type", "\"retail bank\""),
             Evt(3, "overview.foundedYear", "1995"),
-            Evt(4, "metrics.clientSatisfactionPercent", "85.5", "Percentage"),
-            Evt(5, "metrics.openIssues", "3"),
+            Evt(4, "overview.logoUrl", "\"/images/banks/alpha-logo.png\""),
+            Evt(5, "overview.iconUrl", "\"/images/banks/alpha-icon.svg\""),
+            Evt(6, "metrics.clientSatisfactionPercent", "85.5", "Percentage"),
+            Evt(7, "metrics.openIssues", "3"),
         };
 
         var profile = _sut.ProjectFromEvents(events)!;
@@ -169,6 +190,8 @@ public class EventProjectionServiceTests
         Assert.NotNull(profile.Overview);
         Assert.Equal("retail bank", profile.Overview!.Type);
         Assert.Equal(1995, profile.Overview.FoundedYear);
+        Assert.Equal("/images/banks/alpha-logo.png", profile.Overview.LogoUrl);
+        Assert.Equal("/images/banks/alpha-icon.svg", profile.Overview.IconUrl);
         Assert.NotNull(profile.Metrics);
         Assert.Equal(85.5, profile.Metrics!.ClientSatisfactionPercent);
         Assert.Equal(3, profile.Metrics.OpenIssues);

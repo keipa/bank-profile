@@ -3,13 +3,6 @@
    Extracted from pure-css-effects-showcase
    ═══════════════════════════════════════════════════════════ */
 
-/* ── @PROPERTY FOR CONIC BORDER ANIMATION ────────────────── */
-@property --angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
-
 /* ── BASE GLASS CARD ─────────────────────────────────────── */
 .glass-card {
   position: relative;
@@ -76,34 +69,24 @@
   }
 }
 
-/* ── ANIMATED CONIC BORDER ───────────────────────────────── */
-/* Spinning rainbow border effect on hover */
+/* ── HOVER BORDER GLOW (NON-RAINBOW, NON-SPINNING) ───────── */
 .glass-card::after {
   content: "";
   position: absolute;
   inset: -1px;
   border-radius: 21px;
-  background: conic-gradient(
-    from var(--angle, 0deg),
+  background: linear-gradient(
+    135deg,
     var(--accent-1, #b3ffc8),
-    var(--accent-2, #ff6ef7),
-    var(--accent-3, #5eadff),
-    var(--accent-1, #b3ffc8)
+    var(--accent-3, #5eadff)
   );
   z-index: -1;
   opacity: 0;
-  transition: opacity 0.4s;
-  animation: border-spin 4s linear infinite;
+  transition: opacity 0.4s ease;
 }
 
 .glass-card:hover::after {
   opacity: 1;
-}
-
-@keyframes border-spin {
-  to {
-    --angle: 360deg;
-  }
 }
 
 /* ── HOVER STATE ─────────────────────────────────────────── */

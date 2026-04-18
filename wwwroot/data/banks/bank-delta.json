@@ -11,7 +11,8 @@
     "segment": "Regional Banking",
     "foundedYear": 1978,
     "description": "Trusted regional bank providing excellent service with a personal touch. Supporting local communities since 1978.",
-    "logoUrl": "/images/banks/delta-logo.png"
+    "logoUrl": "/images/banks/delta-logo.png",
+    "iconUrl": "/images/banks/delta-icon.svg"
   },
   "systems": {
     "cardSystems": ["visa", "mastercard"],
@@ -61,6 +62,14 @@
     "countries": ["France"],
     "atmCount": 300,
     "partnerAtmNetwork": 8000
+  },
+  "transactions": {
+    "outgoingDestinations": [
+      { "country": "Germany" },
+      { "country": "Spain" },
+      { "country": "Italy" },
+      { "country": "Belgium" }
+    ]
   },
   "clients": {
     "total": 450000,

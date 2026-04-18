@@ -2,45 +2,94 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
-<div class="language-selector">
-    <select @onchange="ChangeLanguage" class="form-select" aria-label="Select language">
-        <option value="en-US" selected="@(_currentLang == "en-US")">🇺🇸 English (US)</option>
-        <option value="en-GB" selected="@(_currentLang == "en-GB")">🇬🇧 English (UK)</option>
-        <option value="de-DE" selected="@(_currentLang == "de-DE")">🇩🇪 Deutsch</option>
-        <option value="fr-FR" selected="@(_currentLang == "fr-FR")">🇫🇷 Français</option>
-        <option value="es-ES" selected="@(_currentLang == "es-ES")">🇪🇸 Español</option>
-        <option value="ru-RU" selected="@(_currentLang == "ru-RU")">🇷🇺 Русский</option>
-        <option value="ka-GE" selected="@(_currentLang == "ka-GE")">🇬🇪 ქართული</option>
-    </select>
-</div>
+@if (CompactMode)
+{
+    <div class="language-selector language-selector-compact dropdown">
+        <button class="btn btn-link language-toggle dropdown-toggle"
+                type="button"
+                id="@_dropdownId"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                aria-label="Select language"
+                title="@GetCurrentLanguageLabel()">
+            <i class="fas fa-globe" aria-hidden="true"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="@_dropdownId">
+            @foreach (var language in SupportedLanguages)
+            {
+                <li>
+                    <button type="button"
+                            class="dropdown-item @(language.Code == _currentLang ? "active" : string.Empty)"
+                            @onclick="@(() => ChangeLanguage(language.Code))">
+                        @language.Label
+                    </button>
+                </li>
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <div class="language-selector">
+        <select @onchange="ChangeLanguage" class="form-select" aria-label="Select language">
+            @foreach (var language in SupportedLanguages)
+            {
+                <option value="@language.Code" selected="@(language.Code == _currentLang)">
+                    @language.Label
+                </option>
+            }
+        </select>
+    </div>
+}
 
 @code {
+    [Parameter]
+    public bool CompactMode { get; set; }
+
     private string _currentLang = "en-US";
+    private readonly string _dropdownId = $"language-dropdown-{Guid.NewGuid():N}";
+
+    private static readonly IReadOnlyList<LanguageOption> SupportedLanguages = new[]
+    {
+        new LanguageOption("en-US", "🇺🇸 English (US)"),
+        new LanguageOption("en-GB", "🇬🇧 English (UK)"),
+        new LanguageOption("de-DE", "🇩🇪 Deutsch"),
+        new LanguageOption("fr-FR", "🇫🇷 Français"),
+        new LanguageOption("es-ES", "🇪🇸 Español"),
+        new LanguageOption("ru-RU", "🇷🇺 Русский"),
+        new LanguageOption("ka-GE", "🇬🇪 ქართული")
+    };
 
     protected override void OnInitialized()
     {
         _currentLang = LocalizationService.GetCurrentLanguage();
     }
 
+    private string GetCurrentLanguageLabel()
+    {
+        return SupportedLanguages.FirstOrDefault(x => x.Code == _currentLang)?.Label ?? "Select language";
+    }
+
     private async Task ChangeLanguage(ChangeEventArgs e)
     {
         var selectedLanguage = e.Value?.ToString();
-        
-        if (string.IsNullOrEmpty(selectedLanguage))
-            return;
-
-        try
-        {
-            // Set cookie via JavaScript to avoid "Headers are read-only" error
-            // In Blazor Server, event handlers execute after HTTP response is sent
-            await JSRuntime.InvokeVoidAsync("setCookie", "lang", selectedLanguage, 365);
-            
-            // Reload the page to apply the new language
-            NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error changing language: {ex.Message}");
-        }
+        await ChangeLanguage(selectedLanguage);
     }
+
+    private async Task ChangeLanguage(string? selectedLanguage)
+    {
+        if (string.IsNullOrWhiteSpace(selectedLanguage))
+        {
+            return;
+        }
+
+        // Set cookie via JavaScript to avoid "Headers are read-only" error
+        // In Blazor Server, event handlers execute after HTTP response is sent
+        await JSRuntime.InvokeVoidAsync("setCookie", "lang", selectedLanguage, 365);
+
+        // Reload the page to apply the new language
+        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+    }
+
+    private sealed record LanguageOption(string Code, string Label);
 }

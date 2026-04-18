@@ -1,10 +1,11 @@
 ﻿@inherits LayoutComponentBase
+@implements IAsyncDisposable
 @inject IJSRuntime JS
 
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
 <div class="page">
-    <header class="navbar navbar-expand-lg navbar-transparent" role="banner">
+    <header class="navbar navbar-expand-lg navbar-transparent @(_isNavbarScrolled ? "navbar-scrolled" : "navbar-at-top")" role="banner">
         <div class="container-fluid">
             <a class="navbar-brand" href="/" aria-label="Bank Profiles - Home">
                 Bank Profiles
@@ -36,19 +37,63 @@
 </div>
 
 @code {
+    private bool _isNavbarScrolled;
+    private DotNetObjectReference<MainLayout>? _layoutReference;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            _layoutReference = DotNetObjectReference.Create(this);
+
             try
             {
                 await JS.InvokeVoidAsync("themeHelper.applyThemeFromCookie");
             }
-            catch (Exception)
+            catch (JSException ex)
             {
-                // Silently handle if theme helper not loaded yet
-                // Theme will be applied by the inline script in theme-helper.js
+                Console.WriteLine($"Theme initialization failed: {ex.Message}");
+            }
+
+            try
+            {
+                await JS.InvokeVoidAsync("navbarHelper.initializeScrollTracking", _layoutReference);
+            }
+            catch (JSException ex)
+            {
+                Console.WriteLine($"Navbar scroll tracking failed: {ex.Message}");
             }
         }
+    }
+
+    [JSInvokable]
+    public Task OnNavbarScrollChanged(bool isScrolled)
+    {
+        if (_isNavbarScrolled == isScrolled)
+        {
+            return Task.CompletedTask;
+        }
+
+        _isNavbarScrolled = isScrolled;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_layoutReference is null)
+        {
+            return;
+        }
+
+        try
+        {
+            await JS.InvokeVoidAsync("navbarHelper.disposeScrollTracking");
+        }
+        catch (JSDisconnectedException)
+        {
+        }
+
+        _layoutReference.Dispose();
     }
 }

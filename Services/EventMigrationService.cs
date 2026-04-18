@@ -6,21 +6,6 @@ using System.Text.Json.Serialization;
 
 namespace BankProfiles.Web.Services;
 
-public interface IEventMigrationService
-{
-    Task<MigrationResult> MigrateFromJsonAsync(bool dryRun = false);
-    Task<MigrationResult> MigrateSingleBankAsync(string bankCode, bool dryRun = false);
-}
-
-public class MigrationResult
-{
-    public int BanksProcessed { get; set; }
-    public int BanksSkipped { get; set; }
-    public int EventsCreated { get; set; }
-    public List<string> Errors { get; set; } = new();
-    public bool DryRun { get; set; }
-}
-
 public class EventMigrationService : IEventMigrationService
 {
     private readonly IEventStoreService _eventStoreService;
@@ -128,13 +113,15 @@ public class EventMigrationService : IEventMigrationService
         return result;
     }
 
-    private static List<MetricEvent> FlattenProfileToEvents(BankProfile profile)
+    public static List<MetricEvent> FlattenProfileToEvents(
+        BankProfile profile,
+        string comment = "Initial migration from JSON")
     {
         var events = new List<MetricEvent>();
         var country = profile.HeadquartersCountry ?? "unknown";
         var now = DateTime.UtcNow;
 
-        FlattenObject(profile, Array.Empty<string>(), events, profile.BankId, country, now);
+        FlattenObject(profile, Array.Empty<string>(), events, profile.BankId, country, now, comment);
         return events;
     }
 
@@ -144,7 +131,8 @@ public class EventMigrationService : IEventMigrationService
         List<MetricEvent> events,
         string bankCode,
         string country,
-        DateTime createdDate)
+        DateTime createdDate,
+        string comment)
     {
         foreach (var prop in obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
@@ -174,14 +162,14 @@ public class EventMigrationService : IEventMigrationService
                     MetricName = metricName,
                     MetricValue = serializedValue,
                     MetricType = metricType,
-                    Comment = "Initial migration from JSON",
+                    Comment = comment,
                     CreatedDate = createdDate,
                     EventVersion = 1
                 });
             }
             else if (IsNavigableType(underlying))
             {
-                FlattenObject(value, currentPath, events, bankCode, country, createdDate);
+                FlattenObject(value, currentPath, events, bankCode, country, createdDate, comment);
             }
             else if (IsListOfComplexType(propType))
             {
@@ -196,7 +184,7 @@ public class EventMigrationService : IEventMigrationService
                     MetricName = metricName,
                     MetricValue = serializedValue,
                     MetricType = "List",
-                    Comment = "Initial migration from JSON",
+                    Comment = comment,
                     CreatedDate = createdDate,
                     EventVersion = 1
                 });

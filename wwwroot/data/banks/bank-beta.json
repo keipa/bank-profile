@@ -11,7 +11,8 @@
     "segment": "Community Banking",
     "foundedYear": 1992,
     "description": "Customer-focused community bank offering personalized banking services with local expertise and competitive rates since 1992.",
-    "logoUrl": "/images/banks/beta-logo.png"
+    "logoUrl": "/images/banks/beta-logo.png",
+    "iconUrl": "/images/banks/beta-icon.svg"
   },
   "systems": {
     "cardSystems": ["visa", "mastercard"],
@@ -61,6 +62,13 @@
     "countries": ["United States"],
     "atmCount": 150,
     "partnerAtmNetwork": 3000
+  },
+  "transactions": {
+    "outgoingDestinations": [
+      { "country": "Canada" },
+      { "country": "Mexico" },
+      { "country": "United Kingdom" }
+    ]
   },
   "clients": {
     "total": 250000,

@@ -1,8 +1,6 @@
-@using BankProfiles.Web.Models
-@using BankProfiles.Web.Services
-@using Microsoft.JSInterop
 @inject ModalService ModalService
 @inject IJSRuntime JSRuntime
+@inject ILocalizationService Localization
 @implements IDisposable
 
 @if (ModalService.IsVisible && ModalService.SelectedMetric != null)
@@ -71,9 +69,7 @@
 
                 <div class="metric-detail-section">
                     <div class="metric-detail-description">
-                        This is a placeholder for detailed information about this metric. 
-                        In a future update, this section will contain contextual information, 
-                        historical trends, comparisons, and insights related to @ModalService.SelectedMetric.Label.
+                        @GetMetricDescription()
                     </div>
                 </div>
             </div>
@@ -155,5 +151,23 @@
             return "small";
         }
         return "";
+    }
+
+    private string GetMetricDescription()
+    {
+        var metricKey = ModalService.SelectedMetric?.Key;
+        if (string.IsNullOrWhiteSpace(metricKey))
+        {
+            return Localization.GetString("metric.description.default");
+        }
+
+        var descriptionKey = $"metric.description.{metricKey}";
+        var localizedDescription = Localization.GetString(descriptionKey);
+        if (!string.Equals(localizedDescription, descriptionKey, StringComparison.Ordinal))
+        {
+            return localizedDescription;
+        }
+
+        return Localization.GetString("metric.description.default");
     }
 }

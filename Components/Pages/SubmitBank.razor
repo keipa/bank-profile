@@ -1,0 +1,190 @@
+@page "/submit-bank"
+@using System.ComponentModel.DataAnnotations
+@inject IBankOnboardingService OnboardingService
+@inject ICountryService CountryService
+@inject IHttpContextAccessor HttpContextAccessor
+@inject ILocalizationService Localization
+@rendermode InteractiveServer
+
+<PageTitle>@Localization.GetString("page.submitBank.pageTitle")</PageTitle>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="h3 mb-0">@Localization.GetString("page.submitBank.title")</h1>
+                </div>
+                <div class="card-body p-4">
+                    @if (_submitted)
+                    {
+                        <div class="alert alert-success" role="status">
+                            <h2 class="h5">@Localization.GetString("page.submitBank.successTitle")</h2>
+                            <p class="mb-2">@Localization.GetString("page.submitBank.successMessage")</p>
+                            <p class="mb-0">@string.Format(Localization.GetString("page.submitBank.remaining"), _remainingSubmissions)</p>
+                        </div>
+
+                        <button type="button" class="btn btn-outline-primary" @onclick="ResetForm">
+                            @Localization.GetString("page.submitBank.submitAnother")
+                        </button>
+                    }
+                    else
+                    {
+                        <p class="text-muted">@Localization.GetString("page.submitBank.description")</p>
+
+                        <div class="alert alert-info" role="status">
+                            @string.Format(Localization.GetString("page.submitBank.remaining"), _remainingSubmissions)
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(_errorMessage))
+                        {
+                            <div class="alert alert-danger" role="alert">@_errorMessage</div>
+                        }
+
+                        <EditForm Model="_form" OnValidSubmit="SubmitAsync" FormName="SubmitBankForm">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label">Bank name *</label>
+                                <InputText class="form-control" @bind-Value="_form.ProposedBankName" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Country *</label>
+                                <InputSelect class="form-select" @bind-Value="_form.ProposedCountryCode">
+                                    @foreach (var country in _countries)
+                                    {
+                                        <option value="@country.Code">@country.Flag @country.Name</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Website URL (optional)</label>
+                                <InputText class="form-control" @bind-Value="_form.ProposedWebsiteUrl" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Contact email (optional)</label>
+                                <InputText class="form-control" @bind-Value="_form.ContactEmail" />
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">What should admins know? (optional)</label>
+                                <InputTextArea class="form-control" rows="5" @bind-Value="_form.SubmissionNotes" />
+                            </div>
+
+                            <button class="btn btn-primary" type="submit" disabled="@_isSubmitting">
+                                @if (_isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    @Localization.GetString("page.submitBank.submitting")
+                                }
+                                else
+                                {
+                                    @Localization.GetString("page.submitBank.submitButton")
+                                }
+                            </button>
+                        </EditForm>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private SubmitBankForm _form = new();
+    private List<CountryInfo> _countries = new();
+    private bool _isSubmitting;
+    private bool _submitted;
+    private string? _errorMessage;
+    private int _remainingSubmissions = 5;
+    private string _clientIdentifier = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _countries = CountryService.GetAllCountries().OrderBy(c => c.Name).ToList();
+        _form.ProposedCountryCode = _countries.FirstOrDefault()?.Code ?? "us";
+        _clientIdentifier = GetClientIpAddress() ?? $"anon-{Guid.NewGuid():N}";
+        _remainingSubmissions = await OnboardingService.GetRemainingSubmissionsAsync(_clientIdentifier);
+    }
+
+    private async Task SubmitAsync()
+    {
+        _isSubmitting = true;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await OnboardingService.SubmitAsync(new BankOnboardingSubmissionRequest
+            {
+                ProposedBankName = _form.ProposedBankName,
+                ProposedCountryCode = _form.ProposedCountryCode,
+                ProposedWebsiteUrl = _form.ProposedWebsiteUrl,
+                SubmissionNotes = _form.SubmissionNotes,
+                ContactEmail = _form.ContactEmail,
+                SubmitterIP = _clientIdentifier
+            });
+
+            if (!result.Success)
+            {
+                _errorMessage = result.ErrorMessage ?? Localization.GetString("page.submitBank.errorGeneric");
+                _remainingSubmissions = result.RemainingSubmissions > 0
+                    ? result.RemainingSubmissions
+                    : _remainingSubmissions;
+                return;
+            }
+
+            _remainingSubmissions = result.RemainingSubmissions;
+            _submitted = true;
+        }
+        catch (Exception)
+        {
+            _errorMessage = Localization.GetString("page.submitBank.errorGeneric");
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private void ResetForm()
+    {
+        _submitted = false;
+        _errorMessage = null;
+        _form = new SubmitBankForm
+        {
+            ProposedCountryCode = _countries.FirstOrDefault()?.Code ?? "us"
+        };
+    }
+
+    private string? GetClientIpAddress()
+    {
+        var httpContext = HttpContextAccessor.HttpContext;
+        return httpContext?.Connection.RemoteIpAddress?.ToString();
+    }
+
+    private sealed class SubmitBankForm
+    {
+        [Required]
+        [StringLength(200, MinimumLength = 3)]
+        public string ProposedBankName { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(10)]
+        public string ProposedCountryCode { get; set; } = "us";
+
+        [StringLength(300)]
+        [Url]
+        public string? ProposedWebsiteUrl { get; set; }
+
+        [StringLength(320)]
+        [EmailAddress]
+        public string? ContactEmail { get; set; }
+
+        [StringLength(2000)]
+        public string? SubmissionNotes { get; set; }
+    }
+}

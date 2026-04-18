@@ -3,13 +3,6 @@ using System.Text.Json;
 
 namespace BankProfiles.Web.Services;
 
-public interface IBankDataService
-{
-    Task<BankProfile?> GetBankByCodeAsync(string bankCode);
-    Task<List<BankProfile>> GetAllBanksAsync();
-    Task RefreshCacheAsync();
-}
-
 public class BankDataService : IBankDataService
 {
     private readonly ICacheManager _cacheManager;
@@ -32,7 +25,7 @@ public class BankDataService : IBankDataService
         _eventStoreService = eventStoreService;
         _configuration = configuration;
         _logger = logger;
-        _dataDirectory = _configuration.GetValue<string>("BankDataSettings:DataDirectory") 
+        _dataDirectory = _configuration.GetValue<string>("BankDataSettings:DataDirectory")
             ?? "wwwroot/data/banks";
     }
 
@@ -45,11 +38,12 @@ public class BankDataService : IBankDataService
         }
 
         var cacheKey = $"bank_{bankCode}";
-        
+
         // Try to get from cache first
         var cachedBank = _cacheManager.Get<BankProfile>(cacheKey);
         if (cachedBank != null)
         {
+            SanitizeBrandingAssets(cachedBank, bankCode);
             return cachedBank;
         }
 
@@ -61,6 +55,7 @@ public class BankDataService : IBankDataService
                 var bank = await _projectionService.ProjectBankProfileAsync(bankCode);
                 if (bank != null)
                 {
+                    SanitizeBrandingAssets(bank, bankCode);
                     _cacheManager.Set(cacheKey, bank);
                     _logger.LogInformation("Projected and cached bank from events: {BankCode}", bankCode);
                     return bank;
@@ -81,38 +76,60 @@ public class BankDataService : IBankDataService
         var cachedBanks = _cacheManager.Get<List<BankProfile>>(AllBanksCacheKey);
         if (cachedBanks != null)
         {
+            foreach (var cachedBank in cachedBanks)
+            {
+                SanitizeBrandingAssets(cachedBank, cachedBank.BankCode);
+            }
+
             return cachedBanks;
         }
 
-        var banks = new List<BankProfile>();
+        var banksByCode = new Dictionary<string, BankProfile>(StringComparer.OrdinalIgnoreCase);
 
         try
         {
-            // Try event store first
+            var eventBackedCount = 0;
+
+            // Event-backed banks first
             var bankCodes = await _eventStoreService.GetAllBankCodesAsync();
-            if (bankCodes.Count > 0)
+            foreach (var bankCode in bankCodes)
             {
-                foreach (var bankCode in bankCodes)
+                var bank = await GetBankByCodeAsync(bankCode);
+                if (bank == null)
                 {
-                    var bank = await GetBankByCodeAsync(bankCode);
-                    if (bank != null)
-                        banks.Add(bank);
+                    continue;
                 }
 
-                _cacheManager.Set(AllBanksCacheKey, banks);
-                _logger.LogInformation("Projected and cached {Count} banks from events", banks.Count);
-                return banks;
+                banksByCode[bank.BankCode] = bank;
+                eventBackedCount++;
             }
 
-            // Fallback: load from JSON files
-            banks = await LoadAllFromJsonFilesAsync();
-            _cacheManager.Set(AllBanksCacheKey, banks);
-            return banks;
+            // Merge in legacy JSON-backed banks for mixed migration periods.
+            var jsonBanks = await LoadAllFromJsonFilesAsync();
+            foreach (var jsonBank in jsonBanks)
+            {
+                if (!banksByCode.ContainsKey(jsonBank.BankCode))
+                {
+                    banksByCode[jsonBank.BankCode] = jsonBank;
+                }
+            }
+
+            var mergedBanks = banksByCode.Values.ToList();
+            _cacheManager.Set(AllBanksCacheKey, mergedBanks);
+
+            var jsonFallbackCount = Math.Max(0, mergedBanks.Count - eventBackedCount);
+            _logger.LogInformation(
+                "Loaded and cached {TotalCount} banks ({EventCount} from events, {JsonCount} from JSON fallback)",
+                mergedBanks.Count,
+                eventBackedCount,
+                jsonFallbackCount);
+
+            return mergedBanks;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading all banks");
-            return banks;
+            return banksByCode.Values.ToList();
         }
     }
 
@@ -142,6 +159,7 @@ public class BankDataService : IBankDataService
 
             if (bank != null)
             {
+                SanitizeBrandingAssets(bank, bankCode);
                 _cacheManager.Set(cacheKey, bank);
                 _logger.LogInformation("Loaded and cached bank from JSON: {BankCode}", bankCode);
             }
@@ -178,6 +196,7 @@ public class BankDataService : IBankDataService
 
                 if (bank != null)
                 {
+                    SanitizeBrandingAssets(bank, bank.BankCode);
                     banks.Add(bank);
                     _cacheManager.Set($"bank_{bank.BankCode}", bank);
                 }
@@ -190,5 +209,25 @@ public class BankDataService : IBankDataService
 
         _logger.LogInformation("Loaded and cached {Count} banks from JSON files", banks.Count);
         return banks;
+    }
+
+    private void SanitizeBrandingAssets(BankProfile bank, string bankCode)
+    {
+        if (bank.Overview == null)
+            return;
+
+        var originalLogoUrl = bank.Overview.LogoUrl;
+        bank.Overview.LogoUrl = ValidationHelper.NormalizeBankAssetPath(originalLogoUrl);
+        if (bank.Overview.LogoUrl == null && !string.IsNullOrWhiteSpace(originalLogoUrl))
+        {
+            _logger.LogWarning("Invalid overview.logoUrl ignored for bank {BankCode}: {LogoUrl}", bankCode, originalLogoUrl);
+        }
+
+        var originalIconUrl = bank.Overview.IconUrl;
+        bank.Overview.IconUrl = ValidationHelper.NormalizeBankAssetPath(originalIconUrl);
+        if (bank.Overview.IconUrl == null && !string.IsNullOrWhiteSpace(originalIconUrl))
+        {
+            _logger.LogWarning("Invalid overview.iconUrl ignored for bank {BankCode}: {IconUrl}", bankCode, originalIconUrl);
+        }
     }
 }

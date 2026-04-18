@@ -56,6 +56,80 @@ namespace BankProfiles.Web.Data.Migrations
                     b.ToTable("Banks");
                 });
 
+            modelBuilder.Entity("BankProfiles.Web.Data.Entities.BankOnboardingSubmission", b =>
+                {
+                    b.Property<int>("SubmissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubmissionId"));
+
+                    b.Property<string>("ApprovedBankCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ContactEmail")
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
+                    b.Property<string>("ProposedBankName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ProposedCountryCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("ProposedWebsiteUrl")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ReviewNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("ReviewedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValue("Pending");
+
+                    b.Property<string>("SubmissionNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("SubmittedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("SubmitterIP")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.HasKey("SubmissionId");
+
+                    b.HasIndex("ApprovedBankCode");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("SubmittedDate");
+
+                    b.HasIndex("SubmitterIP", "SubmittedDate");
+
+                    b.ToTable("BankOnboardingSubmissions");
+                });
+
             modelBuilder.Entity("BankProfiles.Web.Data.Entities.BankRating", b =>
                 {
                     b.Property<int>("RatingId")
@@ -83,9 +157,14 @@ namespace BankProfiles.Web.Data.Migrations
                         .HasPrecision(4, 2)
                         .HasColumnType("decimal(4,2)");
 
+                    b.Property<int?>("UserRatingSubmissionId")
+                        .HasColumnType("int");
+
                     b.HasKey("RatingId");
 
                     b.HasIndex("CriteriaId");
+
+                    b.HasIndex("UserRatingSubmissionId");
 
                     b.HasIndex("BankId", "CriteriaId");
 
@@ -225,6 +304,13 @@ namespace BankProfiles.Web.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FeedbackId"));
 
+                    b.Property<long?>("AppliedEventId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("BankCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int?>("BankId")
                         .HasColumnType("int");
 
@@ -247,9 +333,26 @@ namespace BankProfiles.Web.Data.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("MetricPath")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("ReviewNotes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("ReviewedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("ReviewedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -273,7 +376,13 @@ namespace BankProfiles.Web.Data.Migrations
 
                     b.HasKey("FeedbackId");
 
+                    b.HasIndex("BankCode");
+
                     b.HasIndex("BankId");
+
+                    b.HasIndex("MetricPath");
+
+                    b.HasIndex("ReviewedDate");
 
                     b.HasIndex("Status");
 
@@ -369,6 +478,61 @@ namespace BankProfiles.Web.Data.Migrations
                     b.ToTable("RatingHistories");
                 });
 
+            modelBuilder.Entity("BankProfiles.Web.Data.Entities.UserRatingSubmission", b =>
+                {
+                    b.Property<int>("SubmissionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SubmissionId"));
+
+                    b.Property<int>("BankId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal>("ConvenienceRating")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("decimal(4,2)");
+
+                    b.Property<decimal>("CustomerSupportRating")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("decimal(4,2)");
+
+                    b.Property<decimal>("DigitalServicesRating")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("decimal(4,2)");
+
+                    b.Property<decimal>("FeesRating")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("decimal(4,2)");
+
+                    b.Property<decimal>("ServiceRating")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("decimal(4,2)");
+
+                    b.Property<DateTime>("SubmittedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("SubmitterIP")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.HasKey("SubmissionId");
+
+                    b.HasIndex("BankId");
+
+                    b.HasIndex("SubmittedDate");
+
+                    b.HasIndex("SubmitterIP", "SubmittedDate");
+
+                    b.ToTable("UserRatingSubmissions");
+                });
+
             modelBuilder.Entity("BankProfiles.Web.Data.Entities.ViewHistory", b =>
                 {
                     b.Property<int>("HistoryId")
@@ -409,9 +573,16 @@ namespace BankProfiles.Web.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("BankProfiles.Web.Data.Entities.UserRatingSubmission", "UserRatingSubmission")
+                        .WithMany("AppliedRatings")
+                        .HasForeignKey("UserRatingSubmissionId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.Navigation("Bank");
 
                     b.Navigation("Criteria");
+
+                    b.Navigation("UserRatingSubmission");
                 });
 
             modelBuilder.Entity("BankProfiles.Web.Data.Entities.MetricFeedback", b =>
@@ -443,6 +614,17 @@ namespace BankProfiles.Web.Data.Migrations
                     b.Navigation("Criteria");
                 });
 
+            modelBuilder.Entity("BankProfiles.Web.Data.Entities.UserRatingSubmission", b =>
+                {
+                    b.HasOne("BankProfiles.Web.Data.Entities.Bank", "Bank")
+                        .WithMany("UserRatingSubmissions")
+                        .HasForeignKey("BankId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bank");
+                });
+
             modelBuilder.Entity("BankProfiles.Web.Data.Entities.ViewHistory", b =>
                 {
                     b.HasOne("BankProfiles.Web.Data.Entities.Bank", "Bank")
@@ -460,6 +642,8 @@ namespace BankProfiles.Web.Data.Migrations
 
                     b.Navigation("RatingHistories");
 
+                    b.Navigation("UserRatingSubmissions");
+
                     b.Navigation("ViewHistories");
                 });
 
@@ -468,6 +652,11 @@ namespace BankProfiles.Web.Data.Migrations
                     b.Navigation("BankRatings");
 
                     b.Navigation("RatingHistories");
+                });
+
+            modelBuilder.Entity("BankProfiles.Web.Data.Entities.UserRatingSubmission", b =>
+                {
+                    b.Navigation("AppliedRatings");
                 });
 #pragma warning restore 612, 618
         }

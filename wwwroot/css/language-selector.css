@@ -113,3 +113,49 @@
     opacity: 0.6;
     pointer-events: none;
 }
+
+/* Compact language selector variant for navbar controls */
+.language-selector-compact .language-toggle {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.5rem;
+    border: none;
+    background: transparent;
+    color: var(--text-primary, #333);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.language-selector-compact .language-toggle:hover {
+    color: var(--primary-color, #007bff);
+    transform: scale(1.05);
+}
+
+.language-selector-compact .language-toggle:focus {
+    outline: 2px solid var(--focus-color, #007bff);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.language-selector-compact .language-toggle::after {
+    margin-left: 0.35rem;
+    vertical-align: middle;
+}
+
+.language-selector-compact .language-toggle i {
+    font-size: 1.1rem;
+}
+
+.language-selector-compact .dropdown-menu {
+    min-width: 14rem;
+}
+
+[data-theme="dark"] .language-selector-compact .language-toggle {
+    color: var(--text-primary, #f8f9fa);
+}
+
+[data-theme="dark"] .language-selector-compact .language-toggle:hover {
+    color: var(--primary-color, #4dabf7);
+}

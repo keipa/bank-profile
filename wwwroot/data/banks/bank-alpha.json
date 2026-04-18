@@ -11,7 +11,8 @@
     "segment": "Universal Banking",
     "foundedYear": 1985,
     "description": "Leading financial institution with comprehensive banking solutions and award-winning customer service. Established in 1985, serving millions of customers worldwide.",
-    "logoUrl": "/images/banks/alpha-logo.png"
+    "logoUrl": "/images/banks/alpha-logo.png",
+    "iconUrl": "/images/banks/alpha-icon.svg"
   },
   "systems": {
     "cardSystems": ["visa", "mastercard", "amex"],
@@ -61,6 +62,14 @@
     "countries": ["United Kingdom", "Ireland", "Isle of Man"],
     "atmCount": 500,
     "partnerAtmNetwork": 5000
+  },
+  "transactions": {
+    "outgoingDestinations": [
+      { "country": "Ireland" },
+      { "country": "Germany" },
+      { "country": "France" },
+      { "country": "United States" }
+    ]
   },
   "clients": {
     "total": 5000000,

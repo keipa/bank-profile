@@ -1,6 +1,4 @@
 @page "/{CountryCode}/{BankCode}"
-@using BankProfiles.Web.Models
-@using BankProfiles.Web.Services
 @inject ILocalizationService Localization
 @inject IBankDataService BankDataService
 @inject IRatingService RatingService
@@ -66,11 +64,25 @@ else
             <div class="tiles-container">
                 @foreach (var group in _groupedMetrics)
                 {
-                    <TileSection Title="@group.Key"
+                    <TileSection SectionKey="@group.Key"
+                                 Title="@GetLocalizedSectionTitle(group.Key)"
                                  Metrics="@group.Value"
                                  Icon="@GetSectionIcon(group.Key)"
-                                 ShowProgressBars="@group.Key.Contains("Ratings")" />
+                                 ShowProgressBars="@ShouldShowProgressBars(group.Key)" />
                 }
+            </div>
+        }
+
+        @if (_bank.Transactions?.OutgoingDestinations?.Count > 0)
+        {
+            <div class="transaction-roadmap-section mt-4">
+                <h2 class="tile-section-header">
+                    <i class="fas fa-route section-icon"></i>
+                    @Localization.GetString("page.bankDetail.transactionRoutes.sectionTitle")
+                </h2>
+                <TransactionRoadmapCard OriginCountry="@_bank.HeadquartersCountry"
+                                        DestinationCountries="@_transactionDestinations"
+                                        OnOpen="OpenTransactionRoadmap" />
             </div>
         }
 
@@ -105,28 +117,33 @@ else
         </div>
 
         @* Quick Actions *@
-        @if (!string.IsNullOrEmpty(_bank.WebsiteUrl) || _viewCount > 0)
-        {
-            <div class="quick-actions mt-4">
-                @if (!string.IsNullOrEmpty(_bank.WebsiteUrl))
-                {
-                    <a href="@_bank.WebsiteUrl" target="_blank" rel="noopener noreferrer"
-                       class="btn btn-primary btn-lg">
-                        <i class="fas fa-globe"></i> Visit Website
-                    </a>
-                }
-                @if (_viewCount > 0)
-                {
-                    <div class="view-count-display">
-                        <i class="fas fa-eye"></i> @_viewCount views
-                    </div>
-                }
-            </div>
-        }
+        <div class="quick-actions mt-4">
+            <a href="/@(_bank.CountryCode ?? CountryCode)/@BankCode/rate" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-star me-1"></i> @Localization.GetString("bank.rateThisBank")
+            </a>
+            @if (!string.IsNullOrEmpty(_bank.WebsiteUrl))
+            {
+                <a href="@_bank.WebsiteUrl" target="_blank" rel="noopener noreferrer"
+                   class="btn btn-primary btn-lg">
+                    <i class="fas fa-globe"></i> Visit Website
+                </a>
+            }
+            @if (_viewCount > 0)
+            {
+                <div class="view-count-display">
+                    <i class="fas fa-eye"></i> @_viewCount views
+                </div>
+            }
+        </div>
     </div>
 
     @* Metric Detail Modal *@
     <MetricDetailModal />
+
+    <TransactionRoadmapModal IsVisible="@_isRoadmapModalVisible"
+                             OriginCountry="@(_bank.HeadquartersCountry)"
+                             DestinationCountries="@_transactionDestinations"
+                             OnClose="CloseTransactionRoadmapAsync" />
 }
 
 <style>
@@ -211,6 +228,11 @@ else
         z-index: 10;
     }
 
+    .transaction-roadmap-section {
+        position: relative;
+        z-index: 10;
+    }
+
     .charts-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -290,6 +312,8 @@ else
     private int _totalRatings;
     private bool _loading = true;
     private Dictionary<string, List<MetricDto>>? _groupedMetrics;
+    private List<string> _transactionDestinations = new();
+    private bool _isRoadmapModalVisible;
 
     protected override async Task OnInitializedAsync()
     {
@@ -304,6 +328,7 @@ else
 
             // Extract metrics for tiles
             _groupedMetrics = MetricsExtractor.ExtractMetrics(_bank);
+            BuildTransactionDestinations(_bank);
 
             // Set default language based on country if no preference exists
             await SetDefaultLanguageIfNeededAsync();
@@ -391,16 +416,50 @@ else
         return _bank?.Status.ToLowerInvariant() == "active" ? "fa-check-circle" : "fa-circle";
     }
 
-    private string GetSectionIcon(string sectionTitle)
+    private string GetSectionIcon(string sectionKey)
     {
-        return sectionTitle switch
+        return sectionKey switch
         {
-            "Overview & Ratings" => "fas fa-star",
-            "Systems & Currencies" => "fas fa-cog",
-            "Fees & Commissions" => "fas fa-dollar-sign",
-            "Compliance & Risk" => "fas fa-shield-alt",
-            "Digital & Support" => "fas fa-mobile-alt",
+            BankMetricsExtractorService.OverviewRatingsSectionKey => "fas fa-star",
+            BankMetricsExtractorService.SystemsCurrenciesSectionKey => "fas fa-cog",
+            BankMetricsExtractorService.FeesCommissionsSectionKey => "fas fa-dollar-sign",
+            BankMetricsExtractorService.ComplianceRiskSectionKey => "fas fa-shield-alt",
+            BankMetricsExtractorService.DigitalSupportSectionKey => "fas fa-mobile-alt",
             _ => "fas fa-info-circle"
         };
+    }
+
+    private bool ShouldShowProgressBars(string sectionKey)
+    {
+        return sectionKey.Equals(BankMetricsExtractorService.OverviewRatingsSectionKey, StringComparison.Ordinal);
+    }
+
+    private string GetLocalizedSectionTitle(string sectionKey)
+    {
+        return Localization.GetString($"metric.section.{sectionKey}");
+    }
+
+    private void BuildTransactionDestinations(BankProfile bank)
+    {
+        _transactionDestinations = bank.Transactions?.OutgoingDestinations?
+            .Select(destination => destination.Country?.Trim())
+            .Where(country => !string.IsNullOrWhiteSpace(country))
+            .Select(country => country!)
+            .Where(country => !string.Equals(country, bank.HeadquartersCountry, StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList()
+            ?? new List<string>();
+    }
+
+    private Task OpenTransactionRoadmap()
+    {
+        _isRoadmapModalVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private Task CloseTransactionRoadmapAsync()
+    {
+        _isRoadmapModalVisible = false;
+        return Task.CompletedTask;
     }
 }

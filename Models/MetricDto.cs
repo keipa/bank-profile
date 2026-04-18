@@ -1,17 +1,10 @@
-namespace BankProfiles.Web.Models;
+using System.Globalization;
 
-public enum MetricType
-{
-    Boolean,
-    Numeric,
-    Percentage,
-    Currency,
-    List,
-    Text
-}
+namespace BankProfiles.Web.Models;
 
 public class MetricDto
 {
+    public required string Key { get; set; }
     public required string Label { get; set; }
     public required object Value { get; set; }
     public required MetricType Type { get; set; }
@@ -54,16 +47,64 @@ public class MetricDto
     
     public string GetAlertLevel()
     {
-        // Determine if metric should show alert/warning styling
-        if (Label.Contains("Open Issues") && Value is int issues && issues > 10)
-            return "alert";
-        if (Label.Contains("Complaint Ratio") && Value is double ratio && ratio > 1.0)
-            return "warning";
-        if (Label.Contains("Red Flags") && Value is int flags && flags > 0)
-            return "alert";
-        if (Label.Contains("Remediation Days") && Value is int days && days > 7)
-            return "warning";
-        
-        return "normal";
+        if (!TryGetNumericValue(out var numericValue))
+        {
+            return "normal";
+        }
+
+        return Key switch
+        {
+            "openIssues" when numericValue > 10 => "alert",
+            "complaintRatio" when numericValue > 1.0 => "warning",
+            "redFlags" when numericValue > 0 => "alert",
+            "avgRemediationDays" when numericValue > 7 => "warning",
+            _ => "normal"
+        };
+    }
+
+    private bool TryGetNumericValue(out double numericValue)
+    {
+        switch (Value)
+        {
+            case byte byteValue:
+                numericValue = byteValue;
+                return true;
+            case sbyte sbyteValue:
+                numericValue = sbyteValue;
+                return true;
+            case short shortValue:
+                numericValue = shortValue;
+                return true;
+            case ushort ushortValue:
+                numericValue = ushortValue;
+                return true;
+            case int intValue:
+                numericValue = intValue;
+                return true;
+            case uint uintValue:
+                numericValue = uintValue;
+                return true;
+            case long longValue:
+                numericValue = longValue;
+                return true;
+            case ulong ulongValue:
+                numericValue = ulongValue;
+                return true;
+            case float floatValue:
+                numericValue = floatValue;
+                return true;
+            case double doubleValue:
+                numericValue = doubleValue;
+                return true;
+            case decimal decimalValue:
+                numericValue = (double)decimalValue;
+                return true;
+            case string textValue when double.TryParse(textValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var parsedValue):
+                numericValue = parsedValue;
+                return true;
+            default:
+                numericValue = 0;
+                return false;
+        }
     }
 }

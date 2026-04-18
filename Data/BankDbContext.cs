@@ -16,6 +16,8 @@ public class BankDbContext : DbContext
     public DbSet<ViewHistory> ViewHistory { get; set; } = null!;
     public DbSet<MetricEvent> MetricEvents { get; set; }
     public DbSet<BankSnapshot> BankSnapshots { get; set; }
+    public DbSet<UserRatingSubmission> UserRatingSubmissions { get; set; } = null!;
+    public DbSet<BankOnboardingSubmission> BankOnboardingSubmissions { get; set; } = null!;
     public DbSet<MetricFeedback> MetricFeedbacks { get; set; } = null!;
     public DbSet<FeedbackSubmission> FeedbackSubmissions { get; set; } = null!;
 
@@ -69,6 +71,11 @@ public class BankDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(e => new { e.BankId, e.CriteriaId });
+            entity.HasOne(e => e.UserRatingSubmission)
+                .WithMany(s => s.AppliedRatings)
+                .HasForeignKey(e => e.UserRatingSubmissionId)
+                .OnDelete(DeleteBehavior.NoAction);
+            entity.HasIndex(e => e.UserRatingSubmissionId);
         });
 
         // RatingHistory entity configuration
@@ -167,15 +174,87 @@ public class BankDbContext : DbContext
             entity.HasIndex(e => new { e.BankCode, e.EventSequenceUpTo });
         });
 
+        // UserRatingSubmission entity configuration
+        modelBuilder.Entity<UserRatingSubmission>(entity =>
+        {
+            entity.HasKey(e => e.SubmissionId);
+            entity.Property(e => e.SubmitterIP)
+                .HasMaxLength(45);
+            entity.Property(e => e.Comment)
+                .HasMaxLength(1000);
+            entity.Property(e => e.ServiceRating)
+                .HasPrecision(4, 2);
+            entity.Property(e => e.FeesRating)
+                .HasPrecision(4, 2);
+            entity.Property(e => e.ConvenienceRating)
+                .HasPrecision(4, 2);
+            entity.Property(e => e.DigitalServicesRating)
+                .HasPrecision(4, 2);
+            entity.Property(e => e.CustomerSupportRating)
+                .HasPrecision(4, 2);
+            entity.Property(e => e.SubmittedDate)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(e => e.Bank)
+                .WithMany(b => b.UserRatingSubmissions)
+                .HasForeignKey(e => e.BankId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.BankId);
+            entity.HasIndex(e => e.SubmittedDate);
+            entity.HasIndex(e => new { e.SubmitterIP, e.SubmittedDate });
+        });
+
+        // BankOnboardingSubmission entity configuration
+        modelBuilder.Entity<BankOnboardingSubmission>(entity =>
+        {
+            entity.HasKey(e => e.SubmissionId);
+            entity.Property(e => e.ProposedBankName)
+                .IsRequired()
+                .HasMaxLength(200);
+            entity.Property(e => e.ProposedCountryCode)
+                .IsRequired()
+                .HasMaxLength(10);
+            entity.Property(e => e.ProposedWebsiteUrl)
+                .HasMaxLength(300);
+            entity.Property(e => e.SubmissionNotes)
+                .HasMaxLength(2000);
+            entity.Property(e => e.ContactEmail)
+                .HasMaxLength(320);
+            entity.Property(e => e.SubmitterIP)
+                .HasMaxLength(45);
+            entity.Property(e => e.Status)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.ApprovedBankCode)
+                .HasMaxLength(50);
+            entity.Property(e => e.ReviewNotes)
+                .HasMaxLength(2000);
+            entity.Property(e => e.RejectionReason)
+                .HasMaxLength(1000);
+            entity.Property(e => e.SubmittedDate)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.SubmittedDate);
+            entity.HasIndex(e => e.ApprovedBankCode);
+            entity.HasIndex(e => new { e.SubmitterIP, e.SubmittedDate });
+        });
+
         // MetricFeedback entity configuration
         modelBuilder.Entity<MetricFeedback>(entity =>
         {
             entity.HasKey(e => e.FeedbackId);
+            entity.Property(e => e.BankCode)
+                .HasMaxLength(50);
             entity.Property(e => e.MetricCategory)
                 .IsRequired()
                 .HasMaxLength(100);
             entity.Property(e => e.MetricName)
                 .IsRequired()
+                .HasMaxLength(200);
+            entity.Property(e => e.MetricPath)
                 .HasMaxLength(200);
             entity.Property(e => e.CurrentValue)
                 .HasMaxLength(500);
@@ -191,9 +270,13 @@ public class BankDbContext : DbContext
             entity.Property(e => e.Status)
                 .IsRequired()
                 .HasMaxLength(20)
-                .HasDefaultValue("Pending");
+                .HasDefaultValue(MetricFeedbackStatuses.Pending);
             entity.Property(e => e.ReviewNotes)
-                .HasMaxLength(1000);
+                .HasMaxLength(2000);
+            entity.Property(e => e.ReviewedBy)
+                .HasMaxLength(100);
+            entity.Property(e => e.RowVersion)
+                .IsRowVersion();
 
             entity.HasOne(e => e.Bank)
                 .WithMany()
@@ -201,8 +284,11 @@ public class BankDbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasIndex(e => e.BankId);
+            entity.HasIndex(e => e.BankCode);
+            entity.HasIndex(e => e.MetricPath);
             entity.HasIndex(e => e.SubmittedDate);
             entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.ReviewedDate);
         });
 
         // FeedbackSubmission entity configuration

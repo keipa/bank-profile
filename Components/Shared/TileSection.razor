@@ -1,8 +1,6 @@
-@using BankProfiles.Web.Models
-@using BankProfiles.Web.Services
 @inject ModalService ModalService
 
-<section class="tile-section" aria-labelledby="section-@SectionId">
+<section class="@GetSectionCssClass()" aria-labelledby="section-@SectionId">
     <h2 id="section-@SectionId" class="tile-section-header">
         @if (!string.IsNullOrEmpty(Icon))
         {
@@ -11,10 +9,10 @@
         @Title
     </h2>
     
-    <div class="tile-grid" role="list">
+    <div class="@GetGridCssClass()" role="list">
         @foreach (var metric in Metrics)
         {
-            <div role="listitem">
+            <div role="listitem" class="@GetMetricItemCssClass(metric)">
                 <GlassMetricTile Metric="metric" ShowProgressBar="@ShowProgressBars" OnClick="HandleTileClick" />
             </div>
         }
@@ -22,8 +20,13 @@
 </section>
 
 @code {
+    private const string TotalClientsMetricKey = "totalClients";
+
     [Parameter]
     public required string Title { get; set; }
+
+    [Parameter]
+    public required string SectionKey { get; set; }
     
     [Parameter]
     public required List<MetricDto> Metrics { get; set; }
@@ -34,7 +37,29 @@
     [Parameter]
     public bool ShowProgressBars { get; set; } = false;
     
-    private string SectionId => Title.Replace(" ", "-").ToLowerInvariant();
+    private string SectionId => SectionKey;
+    private bool IsOverviewRatingsSection => SectionKey.Equals(BankMetricsExtractorService.OverviewRatingsSectionKey, StringComparison.Ordinal);
+
+    private string GetSectionCssClass()
+    {
+        return IsOverviewRatingsSection ? "tile-section overview-ratings-section" : "tile-section";
+    }
+
+    private string GetGridCssClass()
+    {
+        return IsOverviewRatingsSection ? "tile-grid overview-ratings-grid" : "tile-grid";
+    }
+
+    private string GetMetricItemCssClass(MetricDto metric)
+    {
+        var classes = new List<string> { "tile-grid-item" };
+        if (IsOverviewRatingsSection && metric.Key.Equals(TotalClientsMetricKey, StringComparison.Ordinal))
+        {
+            classes.Add("total-clients-item");
+        }
+
+        return string.Join(" ", classes);
+    }
 
     private void HandleTileClick(MetricDto metric)
     {

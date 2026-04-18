@@ -80,8 +80,13 @@
         },
         "logoUrl": {
           "type": "string",
-          "format": "uri",
-          "description": "Optional logo/image reference."
+          "pattern": "^\\/images\\/banks\\/(?!.*(?:\\/\\/|\\.\\.))[A-Za-z0-9._/-]+\\.(png|jpg|jpeg|svg|webp|ico)$",
+          "description": "Optional app-relative logo path under /images/banks/."
+        },
+        "iconUrl": {
+          "type": "string",
+          "pattern": "^\\/images\\/banks\\/(?!.*(?:\\/\\/|\\.\\.))[A-Za-z0-9._/-]+\\.(png|jpg|jpeg|svg|webp|ico)$",
+          "description": "Optional app-relative icon path under /images/banks/."
         }
       }
     },
@@ -304,6 +309,26 @@
         }
       }
     },
+    "transactions": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "outgoingDestinations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["country"],
+            "properties": {
+              "country": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    },
     "clients": {
       "type": "object",
       "additionalProperties": false,
@@ -508,6 +533,74 @@
         }
       }
     },
+    "theme": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "primaryColor": {
+          "type": "string"
+        },
+        "secondaryColor": {
+          "type": "string"
+        },
+        "fontFamily": {
+          "type": "string"
+        },
+        "accentColor": {
+          "type": "string"
+        },
+        "darkTheme": {
+          "$ref": "#/$defs/themeVariant"
+        },
+        "lightTheme": {
+          "$ref": "#/$defs/themeVariant"
+        }
+      }
+    },
+    "animationConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gradientStops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gradientStop"
+          }
+        },
+        "balls": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/animationBall"
+          }
+        },
+        "animationType": {
+          "type": "string"
+        }
+      }
+    },
+    "defaultLanguage": {
+      "type": "string"
+    },
+    "websiteUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "contactInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "phone": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "address": {
+          "type": "string"
+        }
+      }
+    },
     "redFlags": {
       "type": "array",
       "description": "Timeline events or concerns that may affect trust, compliance, or operational quality.",
@@ -557,6 +650,10 @@
           "format": "date-time"
         },
         "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastReviewed": {
           "type": "string",
           "format": "date-time"
         },
@@ -632,6 +729,60 @@
         "impact": {
           "type": "string",
           "enum": ["none", "low", "moderate", "high"]
+        }
+      }
+    },
+    "themeVariant": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "primaryColor": {
+          "type": "string"
+        },
+        "secondaryColor": {
+          "type": "string"
+        },
+        "accentColor": {
+          "type": "string"
+        },
+        "backgroundStart": {
+          "type": "string"
+        },
+        "backgroundEnd": {
+          "type": "string"
+        }
+      }
+    },
+    "gradientStop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["offset", "color"],
+      "properties": {
+        "offset": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        }
+      }
+    },
+    "animationBall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["centerX", "centerY", "radius", "color"],
+      "properties": {
+        "centerX": {
+          "type": "number"
+        },
+        "centerY": {
+          "type": "number"
+        },
+        "radius": {
+          "type": "number",
+          "minimum": 0
+        },
+        "color": {
+          "type": "string"
         }
       }
     }

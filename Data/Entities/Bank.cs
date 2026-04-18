@@ -12,4 +12,5 @@ public class Bank
     public ICollection<BankRating> BankRatings { get; set; } = new List<BankRating>();
     public ICollection<RatingHistory> RatingHistories { get; set; } = new List<RatingHistory>();
     public ICollection<ViewHistory> ViewHistories { get; set; } = new List<ViewHistory>();
+    public ICollection<UserRatingSubmission> UserRatingSubmissions { get; set; } = new List<UserRatingSubmission>();
 }

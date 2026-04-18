@@ -1,0 +1,347 @@
+@inject IJSRuntime JSRuntime
+@inject ICountryCodeMapperService CountryCodeMapper
+@inject ILocalizationService Localization
+@implements IAsyncDisposable
+
+@if (IsVisible)
+{
+    <div class="transaction-roadmap-modal-overlay"
+         data-testid="transaction-roadmap-modal"
+         @onclick="CloseModalAsync">
+        <div class="transaction-roadmap-modal-container"
+             @onclick:stopPropagation="true"
+             @onkeydown="HandleKeyDown"
+             tabindex="0"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="transaction-roadmap-modal-title">
+            <div class="transaction-roadmap-modal-header">
+                <h2 id="transaction-roadmap-modal-title">
+                    @Localization.GetString("page.bankDetail.transactionRoutes.modalTitle")
+                </h2>
+                <button class="transaction-roadmap-modal-close"
+                        type="button"
+                        data-testid="transaction-roadmap-close"
+                        @onclick="CloseModalAsync"
+                        aria-label="@Localization.GetString("common.close")">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <div class="transaction-roadmap-modal-summary">
+                <span>
+                    <strong>@Localization.GetString("page.bankDetail.transactionRoutes.fromLabel"):</strong>
+                    @OriginCountry
+                </span>
+                <span>
+                    <strong>@Localization.GetString("page.bankDetail.transactionRoutes.toCountriesLabel"):</strong>
+                    @_mappedDestinations.Count
+                </span>
+            </div>
+
+            @if (_unmappedDestinations.Count > 0)
+            {
+                <div class="alert alert-warning transaction-roadmap-unmapped-warning">
+                    @Localization.GetString("page.bankDetail.transactionRoutes.unmappedWarning")
+                    @string.Join(", ", _unmappedDestinations)
+                </div>
+            }
+
+            @if (!CanRenderMap)
+            {
+                <div class="alert alert-info transaction-roadmap-empty-state" data-testid="transaction-roadmap-empty">
+                    @Localization.GetString("page.bankDetail.transactionRoutes.empty")
+                </div>
+            }
+
+            <div id="@_chartContainerId"
+                 class="transaction-roadmap-chart @(CanRenderMap ? string.Empty : "transaction-roadmap-chart-hidden")"
+                 data-testid="transaction-roadmap-chart">
+            </div>
+
+            @if (_mappedDestinations.Count > 0)
+            {
+                <div class="transaction-roadmap-destination-list">
+                    @foreach (var destination in _mappedDestinations)
+                    {
+                        <span class="chip">@destination.Country</span>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<style>
+    .transaction-roadmap-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 1200;
+        background: rgba(6, 12, 28, 0.62);
+        backdrop-filter: blur(6px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    .transaction-roadmap-modal-container {
+        width: min(980px, 100%);
+        max-height: 92vh;
+        overflow: auto;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.96);
+        color: #121826;
+        box-shadow: 0 28px 65px rgba(12, 20, 35, 0.32);
+        padding: 1.25rem;
+        outline: none;
+    }
+
+    .transaction-roadmap-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 0.8rem;
+        margin-bottom: 0.9rem;
+    }
+
+    .transaction-roadmap-modal-header h2 {
+        margin: 0;
+        font-size: 1.35rem;
+    }
+
+    .transaction-roadmap-modal-close {
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font-size: 1.1rem;
+        width: 2.1rem;
+        height: 2.1rem;
+        border-radius: 999px;
+    }
+
+    .transaction-roadmap-modal-close:hover {
+        background: rgba(0, 0, 0, 0.08);
+    }
+
+    .transaction-roadmap-modal-summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .transaction-roadmap-chart {
+        width: 100%;
+        height: 520px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.75), rgba(209, 220, 255, 0.4) 45%, rgba(40, 62, 96, 0.2));
+        border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+
+    .transaction-roadmap-chart-hidden {
+        display: none;
+    }
+
+    .transaction-roadmap-empty-state {
+        margin-bottom: 0;
+    }
+
+    .transaction-roadmap-unmapped-warning {
+        margin-bottom: 0.75rem;
+    }
+
+    .transaction-roadmap-destination-list {
+        margin-top: 0.9rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+
+    @@media (max-width: 768px) {
+        .transaction-roadmap-modal-container {
+            padding: 1rem;
+        }
+
+        .transaction-roadmap-chart {
+            height: 380px;
+        }
+    }
+</style>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public string OriginCountry { get; set; } = string.Empty;
+    [Parameter] public IReadOnlyList<string> DestinationCountries { get; set; } = Array.Empty<string>();
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private readonly string _chartContainerId = $"transactionRoadmapChart_{Guid.NewGuid():N}";
+    private readonly List<MappedDestination> _mappedDestinations = new();
+    private readonly List<string> _unmappedDestinations = new();
+    private bool _isChartRendered;
+    private string _lastRenderSignature = string.Empty;
+    private string _originIsoCode = string.Empty;
+
+    private bool CanRenderMap => IsVisible
+        && !string.IsNullOrWhiteSpace(_originIsoCode)
+        && _mappedDestinations.Count > 0;
+
+    protected override void OnParametersSet()
+    {
+        _mappedDestinations.Clear();
+        _unmappedDestinations.Clear();
+        _originIsoCode = string.Empty;
+
+        if (!CountryCodeMapper.TryGetIso2Code(OriginCountry, out var originCode))
+        {
+            return;
+        }
+
+        _originIsoCode = originCode;
+        var seenCountries = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var destination in DestinationCountries)
+        {
+            if (string.IsNullOrWhiteSpace(destination))
+            {
+                continue;
+            }
+
+            var normalized = destination.Trim();
+            if (string.Equals(normalized, OriginCountry, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (!seenCountries.Add(normalized))
+            {
+                continue;
+            }
+
+            if (!CountryCodeMapper.TryGetIso2Code(normalized, out var destinationCode))
+            {
+                _unmappedDestinations.Add(normalized);
+                continue;
+            }
+
+            _mappedDestinations.Add(new MappedDestination
+            {
+                Country = normalized,
+                IsoCode = destinationCode
+            });
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!IsVisible)
+        {
+            await DestroyRoadmapAsync();
+            return;
+        }
+
+        if (!CanRenderMap)
+        {
+            await DestroyRoadmapAsync();
+            return;
+        }
+
+        var renderSignature = BuildRenderSignature();
+        if (_isChartRendered && string.Equals(renderSignature, _lastRenderSignature, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        try
+        {
+            var destinationsPayload = _mappedDestinations
+                .Select(destination => new RoadmapDestinationPayload
+                {
+                    Code = destination.IsoCode,
+                    Name = destination.Country
+                })
+                .ToList();
+
+            await JSRuntime.InvokeVoidAsync(
+                "transactionRoadmap.renderRoadmap",
+                _chartContainerId,
+                _originIsoCode,
+                destinationsPayload);
+
+            _isChartRendered = true;
+            _lastRenderSignature = renderSignature;
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit disconnected while rendering chart.
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected", StringComparison.OrdinalIgnoreCase))
+        {
+            // Circuit disconnected while rendering chart.
+        }
+    }
+
+    private async Task CloseModalAsync()
+    {
+        await DestroyRoadmapAsync();
+        await OnClose.InvokeAsync();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs eventArgs)
+    {
+        if (eventArgs.Key == "Escape")
+        {
+            await CloseModalAsync();
+        }
+    }
+
+    private async Task DestroyRoadmapAsync()
+    {
+        if (!_isChartRendered)
+        {
+            return;
+        }
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("transactionRoadmap.destroyRoadmap", _chartContainerId);
+        }
+        catch (JSDisconnectedException)
+        {
+            // Circuit already disconnected.
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected", StringComparison.OrdinalIgnoreCase))
+        {
+            // Circuit already disconnected.
+        }
+        finally
+        {
+            _isChartRendered = false;
+            _lastRenderSignature = string.Empty;
+        }
+    }
+
+    private string BuildRenderSignature()
+    {
+        var destinationsKey = string.Join("|", _mappedDestinations.Select(destination => $"{destination.IsoCode}:{destination.Country}"));
+        return $"{_originIsoCode}|{destinationsKey}";
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await DestroyRoadmapAsync();
+    }
+
+    private sealed class MappedDestination
+    {
+        public required string Country { get; init; }
+        public required string IsoCode { get; init; }
+    }
+
+    private sealed class RoadmapDestinationPayload
+    {
+        public required string Code { get; init; }
+        public required string Name { get; init; }
+    }
+}

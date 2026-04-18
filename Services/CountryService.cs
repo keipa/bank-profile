@@ -2,12 +2,6 @@ using BankProfiles.Web.Models;
 
 namespace BankProfiles.Web.Services;
 
-public interface ICountryService
-{
-    CountryInfo? GetCountryInfo(string countryCode);
-    IEnumerable<CountryInfo> GetAllCountries();
-}
-
 public class CountryService : ICountryService
 {
     private static readonly Dictionary<string, CountryInfo> _countries = new()

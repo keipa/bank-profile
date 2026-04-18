@@ -1,5 +1,3 @@
-@using BankProfiles.Web.Models
-
 @if (Config != null && Config.GradientStops != null && Config.Balls != null)
 {
     <div class="animated-background">
@@ -24,12 +22,12 @@
                 {
                     var ball = Config.Balls[i];
                     var animationClass = GetAnimationClass(i);
-                    
-                    <circle 
-                        class="animated-ball @animationClass" 
-                        fill="@ball.Color" 
-                        cx="@ball.CenterX" 
-                        cy="@ball.CenterY" 
+
+                    <circle
+                        class="animated-ball @animationClass"
+                        fill="@ball.Color"
+                        cx="@ball.CenterX"
+                        cy="@ball.CenterY"
                         r="@ball.Radius"
                         opacity="0.6" />
                 }
@@ -48,7 +46,7 @@
             return "animation-float";
 
         var animationType = Config.AnimationType.ToLower();
-        
+
         return animationType switch
         {
             "wave" => $"animation-wave animation-delay-{index % 3}",

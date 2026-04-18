@@ -61,6 +61,9 @@ public class BankProfile
     [JsonPropertyName("products")]
     public BankProducts? Products { get; set; }
 
+    [JsonPropertyName("transactions")]
+    public BankTransactions? Transactions { get; set; }
+
     [JsonPropertyName("redFlags")]
     public List<RedFlagEvent>? RedFlags { get; set; }
 
@@ -112,6 +115,9 @@ public class BankProfile
 
     [JsonIgnore]
     public string? LogoUrl => Overview?.LogoUrl;
+
+    [JsonIgnore]
+    public string? IconUrl => Overview?.IconUrl;
 
     [JsonIgnore]
     public TechnicalInfo? TechnicalInfo => null; // Deprecated, data now in systems/fees/currencies

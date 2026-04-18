@@ -43,6 +43,36 @@ export function detectSystemPreference() {
     return 'light';
 }
 
+let navbarScrollHandler = null;
+let navbarScrollCallback = null;
+const navbarScrollThreshold = 8;
+
+function notifyNavbarScrollState() {
+    if (!navbarScrollCallback) {
+        return;
+    }
+
+    const isScrolled = window.scrollY > navbarScrollThreshold;
+    navbarScrollCallback.invokeMethodAsync('OnNavbarScrollChanged', isScrolled);
+}
+
+export function initializeNavbarScrollTracking(dotNetCallback) {
+    disposeNavbarScrollTracking();
+    navbarScrollCallback = dotNetCallback;
+    navbarScrollHandler = () => notifyNavbarScrollState();
+    window.addEventListener('scroll', navbarScrollHandler, { passive: true });
+    notifyNavbarScrollState();
+}
+
+export function disposeNavbarScrollTracking() {
+    if (navbarScrollHandler) {
+        window.removeEventListener('scroll', navbarScrollHandler);
+        navbarScrollHandler = null;
+    }
+
+    navbarScrollCallback = null;
+}
+
 // Apply theme immediately on page load to prevent flash
 applyThemeFromCookie();
 
@@ -53,4 +83,9 @@ window.themeHelper = {
     applyThemeFromCookie,
     getCurrentTheme,
     detectSystemPreference
+};
+
+window.navbarHelper = {
+    initializeScrollTracking: initializeNavbarScrollTracking,
+    disposeScrollTracking: disposeNavbarScrollTracking
 };

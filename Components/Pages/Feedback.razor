@@ -1,6 +1,5 @@
 @page "/feedback"
 @using BankProfiles.Web.Data.Entities
-@using BankProfiles.Web.Services
 @inject ILocalizationService Localization
 @inject IFeedbackService FeedbackService
 @inject IBankDataService BankDataService
@@ -8,7 +7,7 @@
 @inject NavigationManager Navigation
 @rendermode InteractiveServer
 
-<PageTitle>@Localization.GetString("page.feedback.pageTitle")</PageTitle>
+<PageTitle>@Localization.GetString(PageTitleKey)</PageTitle>
 
 <div class="feedback-page container my-5">
     <div class="row justify-content-center">
@@ -17,7 +16,7 @@
                 <div class="card-header bg-primary text-white">
                     <h1 class="h3 mb-0">
                         <i class="fas fa-comment-dots me-2" aria-hidden="true"></i>
-                        @Localization.GetString("page.feedback.title")
+                        @Localization.GetString(PageHeadingKey)
                     </h1>
                 </div>
                 <div class="card-body p-4">
@@ -25,8 +24,8 @@
                     {
                         <div class="alert alert-info mb-4" role="status">
                             <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
-                            <p class="mb-2">@Localization.GetString("page.feedback.description")</p>
-                            <small>@Localization.GetString("page.feedback.instructions")</small>
+                            <p class="mb-2">@Localization.GetString(PageDescriptionKey)</p>
+                            <small>@Localization.GetString(PageInstructionsKey)</small>
                         </div>
 
                         @if (_remainingSubmissions >= 0 && _remainingSubmissions < 10)
@@ -65,7 +64,7 @@
                                     <option value="">@Localization.GetString("feedback.generalFeedback")</option>
                                     @foreach (var bank in _banks)
                                     {
-                                        <option value="@bank.BankId">@bank.Name</option>
+                                        <option value="@bank.BankCode">@bank.Name</option>
                                     }
                                 </select>
                             </div>
@@ -158,12 +157,12 @@
                                     @if (_isSubmitting)
                                     {
                                         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                        <span>@Localization.GetString("feedback.submitting")</span>
+                                        <span>@Localization.GetString(SubmittingKey)</span>
                                     }
                                     else
                                     {
                                         <i class="fas fa-paper-plane me-2" aria-hidden="true"></i>
-                                        <span>@Localization.GetString("feedback.submitButton")</span>
+                                        <span>@Localization.GetString(SubmitButtonKey)</span>
                                     }
                                 </button>
                             </div>
@@ -176,12 +175,12 @@
                             <div class="mb-4">
                                 <i class="fas fa-check-circle text-success" style="font-size: 5rem;" aria-hidden="true"></i>
                             </div>
-                            <h2 class="h3 mb-3">@Localization.GetString("feedback.success.title")</h2>
-                            <p class="lead text-muted mb-4">@Localization.GetString("feedback.success.message")</p>
+                            <h2 class="h3 mb-3">@Localization.GetString(SuccessTitleKey)</h2>
+                            <p class="lead text-muted mb-4">@Localization.GetString(SuccessMessageKey)</p>
                             <div class="d-grid gap-2 col-md-6 mx-auto">
                                 <button type="button" class="btn btn-primary" @onclick="ResetForm">
                                     <i class="fas fa-plus-circle me-2" aria-hidden="true"></i>
-                                    @Localization.GetString("feedback.submitAnother")
+                                    @Localization.GetString(SubmitAnotherKey)
                                 </button>
                                 <a href="/banks" class="btn btn-outline-secondary">
                                     <i class="fas fa-arrow-left me-2" aria-hidden="true"></i>
@@ -197,6 +196,16 @@
 </div>
 
 @code {
+    [Parameter] public string PageTitleKey { get; set; } = "page.feedback.pageTitle";
+    [Parameter] public string PageHeadingKey { get; set; } = "page.feedback.title";
+    [Parameter] public string PageDescriptionKey { get; set; } = "page.feedback.description";
+    [Parameter] public string PageInstructionsKey { get; set; } = "page.feedback.instructions";
+    [Parameter] public string SubmitButtonKey { get; set; } = "feedback.submitButton";
+    [Parameter] public string SubmittingKey { get; set; } = "feedback.submitting";
+    [Parameter] public string SubmitAnotherKey { get; set; } = "feedback.submitAnother";
+    [Parameter] public string SuccessTitleKey { get; set; } = "feedback.success.title";
+    [Parameter] public string SuccessMessageKey { get; set; } = "feedback.success.message";
+
     private MetricFeedback _feedback = new() { MetricCategory = "", MetricName = "", Explanation = "" };
     private List<BankProfile> _banks = new();
     private bool _isSubmitting = false;
@@ -210,22 +219,7 @@
     private List<string>? _currentMetrics;
 
     private Dictionary<string, string> _categories = new();
-    
-    // Metric definitions by category
-    private Dictionary<string, List<string>> _metricsByCategory = new()
-    {
-        { "fees", new List<string> { "incomingDomesticPercent", "incomingInternationalPercent", "outgoingDomesticPercent", "outgoingInternationalPercent", "cashWithdrawalLocalAtmPercent", "cashWithdrawalInternationalAtmPercent", "fxMarkupPercent", "accountOpening", "monthlyMaintenance", "accountClosure", "dormancyFee", "cardIssuance", "premiumCardAnnualFee", "replacementCardFee", "swiftPaymentProcessing", "urgentPaymentSurcharge", "chargebackHandling" } },
-        { "systems", new List<string> { "cardSystems", "swiftAvailable", "ibanSupported", "sepaAvailable", "localClearing", "instantTransfers", "cryptoExposure" } },
-        { "currencies", new List<string> { "available", "baseCurrency", "multiCurrencyAccounts", "fxMarkupPercent" } },
-        { "branches", new List<string> { "count", "countries", "atmCount", "partnerAtmNetwork" } },
-        { "clients", new List<string> { "total", "retail", "business", "corporate", "privateBanking" } },
-        { "compliance", new List<string> { "sanctionsRisk", "governmentAffiliate", "pepExposure", "offshoreLinks", "amlStatus", "kycStatus", "fATCA", "crs", "auditPublished", "depositInsurance" } },
-        { "digitalChannels", new List<string> { "mobileApp", "webBanking", "ios", "android", "apiAccess", "biometricLogin", "deviceTrust", "pushNotifications", "uptimePercent", "averageAccountOpeningMinutes" } },
-        { "support", new List<string> { "available24x7", "channels", "averageResponseTimeMinutes", "languages" } },
-        { "products", new List<string> { "accounts", "cards", "savings", "loans", "mortgages", "investmentTools", "merchantAcquiring", "payroll", "escrow", "tradeFinance" } },
-        { "metrics", new List<string> { "clientSatisfactionPercent", "corporateSatisfactionPercent", "complaintRatioPercent", "avgRemediationDays", "openIssues", "resolvedEvents" } },
-        { "overview", new List<string> { "type", "segment", "foundedYear", "description", "logoUrl" } }
-    };
+    private readonly IReadOnlyDictionary<string, IReadOnlyList<string>> _metricsByCategory = FeedbackMetricCatalog.MetricNamesByCategory;
 
     protected override async Task OnInitializedAsync()
     {
@@ -259,14 +253,9 @@
 
     private void OnBankChanged(ChangeEventArgs e)
     {
-        if (int.TryParse(e.Value?.ToString(), out int bankId))
-        {
-            _feedback.BankId = bankId;
-        }
-        else
-        {
-            _feedback.BankId = null;
-        }
+        var selectedBankCode = e.Value?.ToString();
+        _feedback.BankCode = string.IsNullOrWhiteSpace(selectedBankCode) ? null : selectedBankCode.Trim();
+        _feedback.BankId = null;
     }
 
     private void OnCategoryChanged()
@@ -276,7 +265,7 @@
         
         if (!string.IsNullOrEmpty(_selectedCategory) && _metricsByCategory.ContainsKey(_selectedCategory))
         {
-            _currentMetrics = _metricsByCategory[_selectedCategory];
+            _currentMetrics = FeedbackMetricCatalog.GetMetricsForCategory(_selectedCategory).ToList();
         }
         
         _validationErrors.Remove("category");
@@ -334,6 +323,14 @@
             // Set feedback properties
             _feedback.MetricCategory = _selectedCategory;
             _feedback.MetricName = _selectedMetric;
+            if (!FeedbackMetricCatalog.TryResolveMetricPath(_selectedCategory, _selectedMetric, out var metricPath))
+            {
+                _validationErrors["metric"] = Localization.GetString("feedback.validation.metricRequired");
+                _errorMessage = Localization.GetString("feedback.error.validation");
+                return;
+            }
+
+            _feedback.MetricPath = metricPath;
             _feedback.SubmitterIP = GetClientIpAddress();
             _feedback.SubmittedDate = DateTime.UtcNow;
 
@@ -385,20 +382,6 @@
     {
         var httpContext = HttpContextAccessor.HttpContext;
         if (httpContext == null) return "";
-
-        // Try to get the real IP from headers (for reverse proxies)
-        var forwardedFor = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-        if (!string.IsNullOrEmpty(forwardedFor))
-        {
-            return forwardedFor.Split(',')[0].Trim();
-        }
-
-        var realIp = httpContext.Request.Headers["X-Real-IP"].FirstOrDefault();
-        if (!string.IsNullOrEmpty(realIp))
-        {
-            return realIp;
-        }
-
         return httpContext.Connection.RemoteIpAddress?.ToString() ?? "";
     }
 }

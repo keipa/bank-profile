@@ -60,8 +60,11 @@ builder.Services.AddScoped<IChartDataService, ChartDataService>();
 builder.Services.AddScoped<IBankMetricsExtractorService, BankMetricsExtractorService>();
 builder.Services.AddScoped<INumberFormatterService, NumberFormatterService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+builder.Services.AddScoped<IBankOnboardingService, BankOnboardingService>();
+builder.Services.AddScoped<IUserRatingService, UserRatingService>();
 builder.Services.AddScoped<ModalService>();
 builder.Services.AddSingleton<ICountryService, CountryService>();
+builder.Services.AddSingleton<ICountryCodeMapperService, CountryCodeMapperService>();
 
 // Register background services
 builder.Services.AddHostedService<RatingHistoryService>();

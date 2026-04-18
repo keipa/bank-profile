@@ -1,0 +1,294 @@
+@page "/admin/feedback"
+@using BankProfiles.Web.Data.Entities
+@inject IFeedbackService FeedbackService
+@inject ILocalizationService Localization
+@inject IWebHostEnvironment Environment
+@inject ILogger<AdminFeedback> Logger
+@rendermode InteractiveServer
+
+<PageTitle>@Localization.GetString("page.adminFeedback.pageTitle")</PageTitle>
+
+<div class="container-fluid my-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">@Localization.GetString("page.adminFeedback.title")</h1>
+        <button class="btn btn-outline-secondary btn-sm" @onclick="LoadAsync" disabled="@_isProcessing">
+            @Localization.GetString("page.adminFeedback.refresh")
+        </button>
+    </div>
+
+    @if (!Environment.IsDevelopment())
+    {
+        <div class="alert alert-warning" role="alert">
+            @Localization.GetString("page.adminFeedback.disabled")
+        </div>
+    }
+    else
+    {
+        @if (!string.IsNullOrWhiteSpace(_successMessage))
+        {
+            <div class="alert alert-success" role="status">@_successMessage</div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(_errorMessage))
+        {
+            <div class="alert alert-danger" role="alert">@_errorMessage</div>
+        }
+
+        <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    @Localization.GetString("page.adminFeedback.pendingHeader") (@_pendingFeedback.Count)
+                </div>
+                <div class="list-group list-group-flush">
+                    @if (_pendingFeedback.Count == 0)
+                    {
+                        <div class="p-3 text-muted">@Localization.GetString("page.adminFeedback.noPending")</div>
+                    }
+                    else
+                    {
+                        @foreach (var feedback in _pendingFeedback)
+                        {
+                            <button type="button"
+                                    class="list-group-item list-group-item-action @(feedback.FeedbackId == _selectedFeedback?.FeedbackId ? "active" : "")"
+                                    @onclick="() => SelectFeedback(feedback)">
+                                <div class="fw-bold">@feedback.BankCode</div>
+                                <small>@feedback.MetricPath</small>
+                                <div class="small">@feedback.SubmittedDate.ToLocalTime().ToString("g")</div>
+                            </button>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    @if (_selectedFeedback == null)
+                    {
+                        <span>@Localization.GetString("page.adminFeedback.selectPrompt")</span>
+                    }
+                    else
+                    {
+                        <span>@Localization.GetString("page.adminFeedback.reviewHeader") #@_selectedFeedback.FeedbackId</span>
+                    }
+                </div>
+                <div class="card-body">
+                    @if (_selectedFeedback == null)
+                    {
+                        <p class="text-muted mb-0">@Localization.GetString("page.adminFeedback.selectDetails")</p>
+                    }
+                    else
+                    {
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div><strong>@Localization.GetString("page.adminFeedback.bankCode"):</strong> @(_selectedFeedback.BankCode ?? "-")</div>
+                                <div><strong>@Localization.GetString("page.adminFeedback.metricCategory"):</strong> @_selectedFeedback.MetricCategory</div>
+                                <div><strong>@Localization.GetString("page.adminFeedback.metricName"):</strong> @_selectedFeedback.MetricName</div>
+                                <div><strong>@Localization.GetString("page.adminFeedback.metricPath"):</strong> @(_selectedFeedback.MetricPath ?? "-")</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div><strong>@Localization.GetString("page.adminFeedback.currentValue"):</strong> @(_selectedFeedback.CurrentValue ?? "-")</div>
+                                <div><strong>@Localization.GetString("page.adminFeedback.suggestedValue"):</strong> @(_selectedFeedback.SuggestedValue ?? "-")</div>
+                                <div><strong>@Localization.GetString("page.adminFeedback.submittedAt"):</strong> @_selectedFeedback.SubmittedDate.ToLocalTime().ToString("g")</div>
+                                <div><strong>@Localization.GetString("page.adminFeedback.submitterIp"):</strong> @(_selectedFeedback.SubmitterIP ?? "-")</div>
+                            </div>
+                            <div class="col-12">
+                                <strong>@Localization.GetString("page.adminFeedback.explanation"):</strong>
+                                <div class="mt-1">@_selectedFeedback.Explanation</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localization.GetString("page.adminFeedback.reviewer")</label>
+                            <input class="form-control" maxlength="100" @bind="_reviewedBy" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">@Localization.GetString("page.adminFeedback.reviewNotes")</label>
+                            <textarea class="form-control" rows="4" maxlength="2000" @bind="_reviewNotes"></textarea>
+                        </div>
+
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-success" @onclick="ApproveSelectedAsync" disabled="@_isProcessing">
+                                @Localization.GetString("page.adminFeedback.approve")
+                            </button>
+                            <button class="btn btn-outline-danger" @onclick="RejectSelectedAsync" disabled="@_isProcessing">
+                                @Localization.GetString("page.adminFeedback.reject")
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">@Localization.GetString("page.adminFeedback.recentHeader")</div>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>@Localization.GetString("page.adminFeedback.table.id")</th>
+                                <th>@Localization.GetString("page.adminFeedback.table.bank")</th>
+                                <th>@Localization.GetString("page.adminFeedback.table.metric")</th>
+                                <th>@Localization.GetString("page.adminFeedback.table.status")</th>
+                                <th>@Localization.GetString("page.adminFeedback.table.reviewer")</th>
+                                <th>@Localization.GetString("page.adminFeedback.table.reviewedDate")</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (_recentReviewedFeedback.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-muted text-center py-3">
+                                        @Localization.GetString("page.adminFeedback.noReviewed")
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var feedback in _recentReviewedFeedback)
+                                {
+                                    <tr>
+                                        <td>@feedback.FeedbackId</td>
+                                        <td>@(feedback.BankCode ?? "-")</td>
+                                        <td>@(feedback.MetricPath ?? feedback.MetricName)</td>
+                                        <td>@feedback.Status</td>
+                                        <td>@(feedback.ReviewedBy ?? "-")</td>
+                                        <td>@(feedback.ReviewedDate?.ToLocalTime().ToString("g") ?? "-")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>
+
+@code {
+    private List<MetricFeedback> _pendingFeedback = new();
+    private List<MetricFeedback> _recentReviewedFeedback = new();
+    private MetricFeedback? _selectedFeedback;
+    private string _reviewedBy = "admin";
+    private string? _reviewNotes;
+    private string? _successMessage;
+    private string? _errorMessage;
+    private bool _isProcessing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        if (!Environment.IsDevelopment())
+        {
+            _pendingFeedback.Clear();
+            _recentReviewedFeedback.Clear();
+            _selectedFeedback = null;
+            return;
+        }
+
+        _pendingFeedback = await FeedbackService.GetFeedbackByStatusAsync(MetricFeedbackStatuses.Pending, 200);
+        _recentReviewedFeedback = (await FeedbackService.GetFeedbackByStatusAsync(MetricFeedbackStatuses.Approved, 100))
+            .Concat(await FeedbackService.GetFeedbackByStatusAsync(MetricFeedbackStatuses.Rejected, 100))
+            .OrderByDescending(f => f.ReviewedDate ?? f.SubmittedDate)
+            .Take(50)
+            .ToList();
+
+        if (_selectedFeedback != null)
+        {
+            _selectedFeedback = _pendingFeedback.FirstOrDefault(f => f.FeedbackId == _selectedFeedback.FeedbackId);
+        }
+    }
+
+    private void SelectFeedback(MetricFeedback feedback)
+    {
+        _selectedFeedback = feedback;
+        _errorMessage = null;
+        _successMessage = null;
+        _reviewNotes = null;
+    }
+
+    private async Task ApproveSelectedAsync()
+    {
+        if (_selectedFeedback == null || !Environment.IsDevelopment())
+        {
+            return;
+        }
+
+        _isProcessing = true;
+        _successMessage = null;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await FeedbackService.ApproveFeedbackAsync(_selectedFeedback.FeedbackId, _reviewedBy, _reviewNotes);
+            if (!result.Success)
+            {
+                _errorMessage = result.ErrorMessage ?? Localization.GetString("page.adminFeedback.error.approve");
+                return;
+            }
+
+            _successMessage = string.Format(
+                Localization.GetString("page.adminFeedback.success.approved"),
+                _selectedFeedback.FeedbackId);
+
+            _selectedFeedback = null;
+            _reviewNotes = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to approve feedback {FeedbackId}.", _selectedFeedback?.FeedbackId);
+            _errorMessage = Localization.GetString("page.adminFeedback.error.approve");
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+
+    private async Task RejectSelectedAsync()
+    {
+        if (_selectedFeedback == null || !Environment.IsDevelopment())
+        {
+            return;
+        }
+
+        _isProcessing = true;
+        _successMessage = null;
+        _errorMessage = null;
+
+        try
+        {
+            var result = await FeedbackService.RejectFeedbackAsync(_selectedFeedback.FeedbackId, _reviewedBy, _reviewNotes);
+            if (!result.Success)
+            {
+                _errorMessage = result.ErrorMessage ?? Localization.GetString("page.adminFeedback.error.reject");
+                return;
+            }
+
+            _successMessage = string.Format(
+                Localization.GetString("page.adminFeedback.success.rejected"),
+                _selectedFeedback.FeedbackId);
+
+            _selectedFeedback = null;
+            _reviewNotes = null;
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to reject feedback {FeedbackId}.", _selectedFeedback?.FeedbackId);
+            _errorMessage = Localization.GetString("page.adminFeedback.error.reject");
+        }
+        finally
+        {
+            _isProcessing = false;
+        }
+    }
+}

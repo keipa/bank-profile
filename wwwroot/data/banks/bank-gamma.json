@@ -11,7 +11,8 @@
     "segment": "Digital Banking",
     "foundedYear": 2015,
     "description": "Modern digital-first bank with cutting-edge technology, zero fees, and 24/7 customer support. Built for the digital age since 2015.",
-    "logoUrl": "/images/banks/gamma-logo.png"
+    "logoUrl": "/images/banks/gamma-logo.png",
+    "iconUrl": "/images/banks/gamma-icon.svg"
   },
   "systems": {
     "cardSystems": ["visa", "mastercard", "maestro"],
@@ -61,6 +62,14 @@
     "countries": ["Germany"],
     "atmCount": 0,
     "partnerAtmNetwork": 50000
+  },
+  "transactions": {
+    "outgoingDestinations": [
+      { "country": "France" },
+      { "country": "Netherlands" },
+      { "country": "Austria" },
+      { "country": "Poland" }
+    ]
   },
   "clients": {
     "total": 2000000,

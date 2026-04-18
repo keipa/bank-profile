@@ -1,0 +1,288 @@
+@page "/{CountryCode}/{BankCode}/rate"
+@inject IBankDataService BankDataService
+@inject IUserRatingService UserRatingService
+@inject ILocalizationService Localization
+@inject IHttpContextAccessor HttpContextAccessor
+@inject IConfiguration Configuration
+@rendermode InteractiveServer
+
+<PageTitle>@Localization.GetString("page.rateBank.pageTitle")</PageTitle>
+
+<div class="container my-5">
+    @if (_loading)
+    {
+        <div class="text-center p-5" role="status" aria-label="Loading rating form">
+            <span class="spinner-border spinner-border-lg"></span>
+        </div>
+    }
+    else if (_bank == null)
+    {
+        <div class="alert alert-warning" role="alert">
+            @Localization.GetString("page.rateBank.error.bankNotFound")
+        </div>
+    }
+    else if (_submitted)
+    {
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-check-circle text-success" style="font-size: 5rem;" aria-hidden="true"></i>
+            </div>
+            <h1 class="h3 mb-3">@Localization.GetString("page.rateBank.success.title")</h1>
+            <p class="lead text-muted mb-4">@Localization.GetString("page.rateBank.success.message")</p>
+            <div class="d-grid gap-2 col-md-6 mx-auto">
+                <button type="button" class="btn btn-primary" @onclick="ResetForm">
+                    <i class="fas fa-star me-2" aria-hidden="true"></i>
+                    @Localization.GetString("page.rateBank.submitAnother")
+                </button>
+                <a href="/@(_bank.CountryCode ?? CountryCode)/@BankCode" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2" aria-hidden="true"></i>
+                    @Localization.GetString("page.rateBank.backToBank")
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="h3 mb-0">
+                            <i class="fas fa-star me-2" aria-hidden="true"></i>
+                            @Localization.GetString("page.rateBank.title")
+                        </h1>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="alert alert-info mb-4" role="status">
+                            <div><strong>@Localization.GetString("page.rateBank.bankLabel"):</strong> @_bank.BankName</div>
+                            <small>@Localization.GetString("page.rateBank.description")</small>
+                        </div>
+
+                        @if (_remainingSubmissions >= 0 && _remainingSubmissions < 10)
+                        {
+                            <div class="alert @(_remainingSubmissions > 0 ? "alert-warning" : "alert-danger") mb-3" role="status">
+                                <i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>
+                                @if (_remainingSubmissions > 0)
+                                {
+                                    <text>@string.Format(Localization.GetString("feedback.rateLimit.remaining"), _remainingSubmissions)</text>
+                                }
+                                else
+                                {
+                                    <text>@string.Format(Localization.GetString("feedback.rateLimit.exceeded"), 24)</text>
+                                }
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(_errorMessage))
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-circle me-2" aria-hidden="true"></i>
+                                @_errorMessage
+                            </div>
+                        }
+
+                        <form @onsubmit="HandleSubmit" @onsubmit:preventDefault>
+                            @foreach (var criterion in _criteriaInputs)
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold" for="@($"criterion-{criterion.CriteriaId}")">@criterion.Name</label>
+                                    <InputNumber @bind-Value="criterion.Rating"
+                                                 id="@($"criterion-{criterion.CriteriaId}")"
+                                                 class="form-control"
+                                                 min="@_minRating"
+                                                 max="@_maxRating"
+                                                 step="0.1" />
+                                </div>
+                            }
+
+                            <div class="mb-4">
+                                <label for="rating-comment" class="form-label">@Localization.GetString("page.rateBank.commentLabel")</label>
+                                <textarea id="rating-comment"
+                                          rows="4"
+                                          maxlength="1000"
+                                          class="form-control"
+                                          @bind="_comment"
+                                          placeholder="@Localization.GetString("page.rateBank.commentPlaceholder")"></textarea>
+                                <small class="form-text text-muted">@((_comment?.Length ?? 0)) / 1000</small>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" disabled="@(_isSubmitting || _remainingSubmissions <= 0)">
+                                    @if (_isSubmitting)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                        <span>@Localization.GetString("page.rateBank.submitting")</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-paper-plane me-2" aria-hidden="true"></i>
+                                        <span>@Localization.GetString("page.rateBank.submitButton")</span>
+                                    }
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string CountryCode { get; set; } = string.Empty;
+    [Parameter] public string BankCode { get; set; } = string.Empty;
+
+    private const decimal DefaultMinRating = 0;
+    private const decimal DefaultMaxRating = 10;
+
+    private sealed class CriterionInput
+    {
+        public int CriteriaId { get; init; }
+        public string Name { get; init; } = string.Empty;
+        public decimal? Rating { get; set; }
+    }
+
+    private BankProfile? _bank;
+    private bool _loading = true;
+    private bool _submitted;
+    private bool _isSubmitting;
+    private string? _errorMessage;
+    private string? _comment;
+    private int _remainingSubmissions = 10;
+    private decimal _minRating = DefaultMinRating;
+    private decimal _maxRating = DefaultMaxRating;
+    private readonly List<CriterionInput> _criteriaInputs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _minRating = Configuration.GetValue("RatingSettings:MinRating", DefaultMinRating);
+        _maxRating = Configuration.GetValue("RatingSettings:MaxRating", DefaultMaxRating);
+
+        _bank = await BankDataService.GetBankByCodeAsync(BankCode);
+        if (_bank == null)
+        {
+            _loading = false;
+            return;
+        }
+
+        var criteria = await UserRatingService.GetRequiredCriteriaAsync();
+        _criteriaInputs.Clear();
+        _criteriaInputs.AddRange(criteria.Select(c => new CriterionInput
+        {
+            CriteriaId = c.CriteriaId,
+            Name = c.Name
+        }));
+
+        _remainingSubmissions = await UserRatingService.GetRemainingSubmissionsAsync(GetClientIpAddress());
+        _loading = false;
+    }
+
+    private async Task HandleSubmit()
+    {
+        _errorMessage = null;
+
+        if (!ValidateForm())
+        {
+            return;
+        }
+
+        _isSubmitting = true;
+
+        var ipAddress = GetClientIpAddress();
+        var request = new UserRatingSubmissionRequest
+        {
+            BankCode = BankCode,
+            SubmitterIP = ipAddress,
+            Comment = _comment,
+            CriteriaRatings = _criteriaInputs.ToDictionary(c => c.CriteriaId, c => c.Rating!.Value)
+        };
+
+        var result = await UserRatingService.SubmitRatingAsync(request);
+        if (result.Success)
+        {
+            _submitted = true;
+            _remainingSubmissions = result.RemainingSubmissions;
+            _errorMessage = null;
+        }
+        else
+        {
+            _remainingSubmissions = await UserRatingService.GetRemainingSubmissionsAsync(ipAddress);
+            _errorMessage = result.Error switch
+            {
+                UserRatingSubmissionError.InvalidBankCode => Localization.GetString("page.rateBank.error.bankNotFound"),
+                UserRatingSubmissionError.BankNotFound => Localization.GetString("page.rateBank.error.bankNotFound"),
+                UserRatingSubmissionError.MissingCriteria => Localization.GetString("page.rateBank.error.missingCriteria"),
+                UserRatingSubmissionError.InvalidRatingValue => Localization.GetString("page.rateBank.error.invalidRange"),
+                UserRatingSubmissionError.CommentTooLong => Localization.GetString("page.rateBank.error.commentTooLong"),
+                UserRatingSubmissionError.RateLimited => Localization.GetString("page.rateBank.error.rateLimit"),
+                _ => Localization.GetString("page.rateBank.error.generic")
+            };
+        }
+
+        _isSubmitting = false;
+    }
+
+    private bool ValidateForm()
+    {
+        if (_criteriaInputs.Count == 0)
+        {
+            _errorMessage = Localization.GetString("page.rateBank.error.missingCriteria");
+            return false;
+        }
+
+        if (_criteriaInputs.Any(c => !c.Rating.HasValue))
+        {
+            _errorMessage = Localization.GetString("page.rateBank.error.missingRatings");
+            return false;
+        }
+
+        if (_criteriaInputs.Any(c => c.Rating < _minRating || c.Rating > _maxRating))
+        {
+            _errorMessage = Localization.GetString("page.rateBank.error.invalidRange");
+            return false;
+        }
+
+        if (!string.IsNullOrEmpty(_comment) && _comment.Length > 1000)
+        {
+            _errorMessage = Localization.GetString("page.rateBank.error.commentTooLong");
+            return false;
+        }
+
+        return true;
+    }
+
+    private void ResetForm()
+    {
+        foreach (var criterion in _criteriaInputs)
+        {
+            criterion.Rating = null;
+        }
+
+        _comment = null;
+        _errorMessage = null;
+        _submitted = false;
+    }
+
+    private string? GetClientIpAddress()
+    {
+        var httpContext = HttpContextAccessor.HttpContext;
+        if (httpContext == null)
+        {
+            return null;
+        }
+
+        var forwardedFor = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(forwardedFor))
+        {
+            return forwardedFor.Split(',')[0].Trim();
+        }
+
+        var realIp = httpContext.Request.Headers["X-Real-IP"].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(realIp))
+        {
+            return realIp.Trim();
+        }
+
+        return httpContext.Connection.RemoteIpAddress?.ToString();
+    }
+}

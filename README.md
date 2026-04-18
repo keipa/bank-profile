@@ -207,6 +207,17 @@ BankProfiles.Web/
 
 ## Adding a New Bank
 
+### User flow pipeline (recommended)
+
+1. Open `/submit-bank` and submit minimal bank information.
+2. Review pending submissions in `/admin/bank-submissions`.
+3. Approve a submission to publish it:
+   - Bank profile is published to the event store.
+   - `Banks` and default `BankRatings` rows are initialized automatically.
+   - Bank cache is refreshed for immediate visibility.
+
+### Manual data flow (legacy/ops)
+
 1. Create a JSON file in \wwwroot/data/banks/\ (e.g., \ank-newbank.json\)
 2. Follow the JSON schema (see existing files)
 3. Add a corresponding Bank entry in the database:
@@ -226,6 +237,8 @@ VALUES ('bank-newbank', 0, GETUTCDATE())
 - **Banks** - Browse all banks with search/filter/sort
 - **Bank Detail** - Comprehensive bank profile with ratings
 - **Ratings** - Compare all banks side-by-side
+- **Submit Bank** - Public intake form for proposing new banks
+- **Bank Submissions (Admin)** - Review/approve/reject onboarding submissions
 - **Contacts** - Contact information
 - **About** - Application information
 
@@ -235,6 +248,7 @@ VALUES ('bank-newbank', 0, GETUTCDATE())
 - **RatingService** - Manages ratings and history
 - **RatingHistoryService** - Tracks and retrieves historical ratings
 - **ViewCountService** - Tracks profile views
+- **BankOnboardingService** - Handles submit/review/approval publish pipeline
 - **CacheManager** - Custom 500MB LRU cache
 - **ThemeService** - Manages theme variables and dark mode
 - **LocalizationService** - Handles multi-language support

@@ -2,9 +2,9 @@
 
 describe('Bank Detail Page E2E Tests', () => {
   const banks = [
-    { country: 'uk', code: 'alpha-bank', name: 'Alpha' },
-    { country: 'us', code: 'beta-finance', name: 'Beta' },
-    { country: 'de', code: 'gamma-bank', name: 'Gamma' }
+    { country: 'uk', code: 'bank-alpha', name: 'Alpha' },
+    { country: 'us', code: 'bank-beta', name: 'Beta' },
+    { country: 'de', code: 'bank-gamma', name: 'Gamma' }
   ];
 
   banks.forEach((bank) => {
@@ -45,6 +45,34 @@ describe('Bank Detail Page E2E Tests', () => {
 
         it('should display bank details', () => {
           cy.get('body').should('not.be.empty');
+        });
+
+        it('should render animated metric counters to final values', () => {
+          cy.get('.metric-value [data-counter-enabled="true"]').should('have.length.greaterThan', 0);
+          cy.wait(1200);
+
+          cy.contains('.metric-label', 'Founded')
+            .closest('.glass-card')
+            .find('.metric-value [data-counter-enabled="true"]')
+            .invoke('text')
+            .should('match', /^\d{4}$/);
+        });
+
+        it('should render featured Total Clients tile with decorative svg', () => {
+          cy.contains('.metric-label', 'Total Clients')
+            .closest('[role="listitem"]')
+            .should('have.class', 'total-clients-item')
+            .find('.glass-card.metric-tile')
+            .should('have.class', 'total-clients-featured')
+            .find('.total-clients-svg')
+            .should('exist');
+        });
+
+        it('should open transaction roadmap modal from globe card', () => {
+          cy.get('[data-testid="transaction-roadmap-card"]').should('exist').click();
+          cy.get('[data-testid="transaction-roadmap-modal"]').should('be.visible');
+          cy.get('[data-testid="transaction-roadmap-close"]').click();
+          cy.get('[data-testid="transaction-roadmap-modal"]').should('not.exist');
         });
       });
 

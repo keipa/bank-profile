@@ -1,37 +1,56 @@
 @inject ILocalizationService Localization
+@inject IWebHostEnvironment Environment
 
 <div class="collapse navbar-collapse" id="navbarNav">
-    <nav class="navbar-nav ms-auto" aria-label="Main navigation">
-        <NavLink class="nav-link" href="" Match="NavLinkMatch.All" aria-label="Home">
-            <i class="fas fa-home me-1" aria-hidden="true"></i> @Localization.GetString("nav.home")
-        </NavLink>
+    <div class="navbar-layout">
+        <nav class="navbar-nav navbar-links" aria-label="Main navigation">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All" aria-label="Home">
+                @Localization.GetString("nav.home")
+            </NavLink>
 
-        <NavLink class="nav-link" href="banks" aria-label="Banks">
-            <i class="fas fa-building me-1" aria-hidden="true"></i> @Localization.GetString("nav.banks")
-        </NavLink>
+            <NavLink class="nav-link" href="banks" aria-label="Banks">
+                @Localization.GetString("nav.banks")
+            </NavLink>
 
-        <NavLink class="nav-link" href="ratings" aria-label="Ratings">
-            <i class="fas fa-star me-1" aria-hidden="true"></i> @Localization.GetString("nav.ratings")
-        </NavLink>
+            <NavLink class="nav-link" href="ratings" aria-label="Ratings">
+                @Localization.GetString("nav.ratings")
+            </NavLink>
 
-        <NavLink class="nav-link" href="contacts" aria-label="Contacts">
-            <i class="fas fa-envelope me-1" aria-hidden="true"></i> @Localization.GetString("nav.contacts")
-        </NavLink>
+            <NavLink class="nav-link" href="contacts" aria-label="Contacts">
+                @Localization.GetString("nav.contacts")
+            </NavLink>
 
-        <NavLink class="nav-link" href="about" aria-label="About">
-            <i class="fas fa-info-circle me-1" aria-hidden="true"></i> @Localization.GetString("nav.about")
-        </NavLink>
+            <NavLink class="nav-link" href="about" aria-label="About">
+                @Localization.GetString("nav.about")
+            </NavLink>
 
-        <NavLink class="nav-link" href="feedback" aria-label="Feedback">
-            <i class="fas fa-comment-dots me-1" aria-hidden="true"></i> @Localization.GetString("nav.feedback")
-        </NavLink>
-        
-        <div class="nav-link">
-            <LanguageSelector />
-        </div>
-        
-        <div class="nav-link">
+            <NavLink class="nav-link" href="feedback" aria-label="Feedback">
+                @Localization.GetString("nav.feedback")
+            </NavLink>
+
+            <NavLink class="nav-link" href="metric-suggestions" aria-label="Metric suggestions">
+                @Localization.GetString("nav.metricSuggestions")
+            </NavLink>
+
+            <NavLink class="nav-link" href="submit-bank" aria-label="Submit new bank">
+                @Localization.GetString("nav.submitBank")
+            </NavLink>
+
+            <NavLink class="nav-link" href="admin/bank-submissions" aria-label="Bank submissions admin">
+                @Localization.GetString("nav.bankSubmissions")
+            </NavLink>
+
+            @if (Environment.IsDevelopment())
+            {
+                <NavLink class="nav-link" href="admin/feedback" aria-label="Feedback moderation admin">
+                    @Localization.GetString("nav.feedbackModeration")
+                </NavLink>
+            }
+        </nav>
+
+        <div class="navbar-controls" role="group" aria-label="Language and theme controls">
+            <LanguageSelector CompactMode="true" />
             <ThemeToggle />
         </div>
-    </nav>
+    </div>
 </div>
