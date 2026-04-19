@@ -105,19 +105,24 @@ public class RatingService : IRatingService
 
     public async Task<List<BankRatingsSummary>> GetAllBankRatingsAsync()
     {
-        using var context = await _contextFactory.CreateDbContextAsync();
-        
-        var banks = await context.Banks
-            .Include(b => b.BankRatings)
-            .ThenInclude(br => br.Criteria)
-            .ToListAsync();
-
-        var summaries = new List<BankRatingsSummary>();
-
-        foreach (var bank in banks)
+        List<Bank> banks;
+        using (var context = await _contextFactory.CreateDbContextAsync())
         {
+            banks = await context.Banks
+                .Include(b => b.BankRatings)
+                .ThenInclude(br => br.Criteria)
+                .ToListAsync();
+        }
+
+        var bankProfiles = await Task.WhenAll(banks.Select(b => _bankDataService.GetBankByCodeAsync(b.BankCode)));
+
+        var summaries = new List<BankRatingsSummary>(banks.Count);
+
+        for (var i = 0; i < banks.Count; i++)
+        {
+            var bank = banks[i];
             // Load the full bank profile to get country code and name
-            var bankProfile = await _bankDataService.GetBankByCodeAsync(bank.BankCode);
+            var bankProfile = bankProfiles[i];
             
             var criteriaRatings = bank.BankRatings
                 .GroupBy(br => br.Criteria)
@@ -145,18 +150,19 @@ public class RatingService : IRatingService
         return summaries;
     }
 
-    public async Task AddRatingHistorySnapshotAsync()
+    public async Task AddRatingHistorySnapshotAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            using var context = await _contextFactory.CreateDbContextAsync();
+            using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
             
             var banks = await context.Banks
                 .Include(b => b.BankRatings)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
 
             foreach (var bank in banks)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 var criteriaGroups = bank.BankRatings.GroupBy(br => br.CriteriaId);
 
                 foreach (var group in criteriaGroups)
@@ -174,8 +180,13 @@ public class RatingService : IRatingService
                 }
             }
 
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Rating history snapshot created successfully");
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogInformation("Rating history snapshot creation cancelled");
+            throw;
         }
         catch (Exception ex)
         {

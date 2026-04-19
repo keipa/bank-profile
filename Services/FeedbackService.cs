@@ -482,7 +482,7 @@ public class FeedbackService : IFeedbackService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error checking rate limit for IP: {IP}", ipAddress);
-            return true;
+            return false;
         }
     }
 
@@ -508,7 +508,7 @@ public class FeedbackService : IFeedbackService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting remaining submissions for IP: {IP}", ipAddress);
-            return MaxSubmissionsPerDay;
+            return 0;
         }
     }
 

@@ -88,13 +88,13 @@ public class BankDataService : IBankDataService
 
         try
         {
-            var eventBackedCount = 0;
-
             // Event-backed banks first
             var bankCodes = await _eventStoreService.GetAllBankCodesAsync();
-            foreach (var bankCode in bankCodes)
+            var eventBanks = await Task.WhenAll(bankCodes.Select(GetBankByCodeAsync));
+
+            var eventBackedCount = 0;
+            foreach (var bank in eventBanks)
             {
-                var bank = await GetBankByCodeAsync(bankCode);
                 if (bank == null)
                 {
                     continue;

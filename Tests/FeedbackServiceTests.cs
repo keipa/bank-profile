@@ -112,6 +112,26 @@ public class FeedbackServiceTests
     }
 
     [Fact]
+    public async Task CheckRateLimitAsync_ReturnsFalse_WhenStorageFails()
+    {
+        var service = CreateServiceWithThrowingContextFactory();
+
+        var isAllowed = await service.CheckRateLimitAsync("127.0.0.11");
+
+        Assert.False(isAllowed);
+    }
+
+    [Fact]
+    public async Task GetRemainingSubmissionsAsync_ReturnsZero_WhenStorageFails()
+    {
+        var service = CreateServiceWithThrowingContextFactory();
+
+        var remaining = await service.GetRemainingSubmissionsAsync("127.0.0.12");
+
+        Assert.Equal(0, remaining);
+    }
+
+    [Fact]
     public async Task ApproveFeedbackAsync_AppendsEventAndMarksFeedbackApproved()
     {
         await EnsureBankAsync("bank-alpha");
@@ -250,6 +270,21 @@ public class FeedbackServiceTests
         });
 
         await context.SaveChangesAsync();
+    }
+
+    private FeedbackService CreateServiceWithThrowingContextFactory()
+    {
+        var throwingFactory = new ThrowingDbContextFactory();
+        var eventStore = new EventStoreService(throwingFactory, TestDbContextFactory.CreateLogger<EventStoreService>());
+
+        return new FeedbackService(
+            throwingFactory,
+            eventStore,
+            _eventMigrationService,
+            new StubBankDataService(CreateBankProfile("bank-alpha")),
+            new TestCacheManager(),
+            new StubWebHostEnvironment(Environments.Development),
+            TestDbContextFactory.CreateLogger<FeedbackService>());
     }
 
     private static MetricFeedback CreateValidFeedback(string ipAddress, string bankCode)
@@ -419,5 +454,13 @@ public class FeedbackServiceTests
         public IFileProvider WebRootFileProvider { get; set; }
         public string ContentRootPath { get; set; }
         public IFileProvider ContentRootFileProvider { get; set; }
+    }
+
+    private sealed class ThrowingDbContextFactory : IDbContextFactory<BankDbContext>
+    {
+        public BankDbContext CreateDbContext()
+        {
+            throw new InvalidOperationException("Simulated database failure");
+        }
     }
 }

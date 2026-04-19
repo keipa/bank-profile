@@ -8,6 +8,6 @@ namespace BankProfiles.Web.Services
       Task<List<RatingHistoryPoint>> GetRatingHistoryAsync(string bankCode, int criteriaId, int days = 30);
       Task<decimal> GetOverallRatingAsync(string bankCode);
       Task<List<BankRatingsSummary>> GetAllBankRatingsAsync();
-      Task AddRatingHistorySnapshotAsync();
+      Task AddRatingHistorySnapshotAsync(CancellationToken cancellationToken = default);
    }
 }
