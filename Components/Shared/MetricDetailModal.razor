@@ -1,6 +1,9 @@
 @inject ModalService ModalService
 @inject IJSRuntime JSRuntime
 @inject ILocalizationService Localization
+@using BankProfiles.Web.Application.Interfaces.Services.Localization
+@using BankProfiles.Web.Domain.Common.Metrics
+@using BankProfiles.Web.Presentation.Services.Modal
 @implements IDisposable
 
 @if (ModalService.IsVisible && ModalService.SelectedMetric != null)

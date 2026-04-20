@@ -1,10 +1,22 @@
 using BankProfiles.Web.Components;
-using BankProfiles.Web.Data;
-using BankProfiles.Web.Services;
-using BankProfiles.Web.HostedServices;
-using BankProfiles.Web.Middleware;
+using BankProfiles.Web.Presentation.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;
+using System.Globalization;
+using BankProfiles.Web.Infrastructure.Persistence.DbContext;
+using BankProfiles.Web.Presentation.Middleware;
+
+static TimeSpan ParseInvariantDuration(string? rawValue, string settingKey, string fallbackValue)
+{
+    var value = string.IsNullOrWhiteSpace(rawValue) ? fallbackValue : rawValue;
+    if (TimeSpan.TryParseExact(value, "c", CultureInfo.InvariantCulture, out var parsed))
+    {
+        return parsed;
+    }
+
+    throw new InvalidOperationException(
+        $"Invalid duration value for SignalR setting '{settingKey}': '{value}'. Expected invariant constant format (for example, 00:03:00).");
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +30,14 @@ builder.Services.AddServerSideBlazor(options =>
     var signalRSettings = builder.Configuration.GetSection("SignalRSettings");
     options.DetailedErrors = builder.Environment.IsDevelopment();
     options.DisconnectedCircuitMaxRetained = signalRSettings.GetValue<int>("DisconnectedCircuitMaxRetained");
-    options.DisconnectedCircuitRetentionPeriod = TimeSpan.Parse(signalRSettings.GetValue<string>("DisconnectedCircuitRetentionPeriod") ?? "00:03:00");
-    options.JSInteropDefaultCallTimeout = TimeSpan.Parse(signalRSettings.GetValue<string>("JSInteropDefaultCallTimeout") ?? "00:01:00");
+    options.DisconnectedCircuitRetentionPeriod = ParseInvariantDuration(
+        signalRSettings.GetValue<string>("DisconnectedCircuitRetentionPeriod"),
+        "DisconnectedCircuitRetentionPeriod",
+        "00:03:00");
+    options.JSInteropDefaultCallTimeout = ParseInvariantDuration(
+        signalRSettings.GetValue<string>("JSInteropDefaultCallTimeout"),
+        "JSInteropDefaultCallTimeout",
+        "00:01:00");
 }).AddHubOptions(options =>
 {
     var signalRSettings = builder.Configuration.GetSection("SignalRSettings");
@@ -47,27 +65,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 
 // Register application services
-builder.Services.AddScoped<ICacheManager, CacheManager>();
-builder.Services.AddScoped<IEventStoreService, EventStoreService>();
-builder.Services.AddScoped<IEventProjectionService, EventProjectionService>();
-builder.Services.AddScoped<IEventMigrationService, EventMigrationService>();
-builder.Services.AddScoped<IBankDataService, BankDataService>();
-builder.Services.AddScoped<IRatingService, RatingService>();
-builder.Services.AddScoped<IViewCountService, ViewCountService>();
-builder.Services.AddScoped<ILocalizationService, LocalizationService>();
-builder.Services.AddScoped<IThemeService, ThemeService>();
-builder.Services.AddScoped<IChartDataService, ChartDataService>();
-builder.Services.AddScoped<IBankMetricsExtractorService, BankMetricsExtractorService>();
-builder.Services.AddScoped<INumberFormatterService, NumberFormatterService>();
-builder.Services.AddScoped<IFeedbackService, FeedbackService>();
-builder.Services.AddScoped<IBankOnboardingService, BankOnboardingService>();
-builder.Services.AddScoped<IUserRatingService, UserRatingService>();
-builder.Services.AddScoped<ModalService>();
-builder.Services.AddSingleton<ICountryService, CountryService>();
-builder.Services.AddSingleton<ICountryCodeMapperService, CountryCodeMapperService>();
-
-// Register background services
-builder.Services.AddHostedService<RatingHistoryService>();
+builder.Services.AddBankProfileServices();
 
 // Configure Rate Limiting
 builder.Services.AddRateLimiter(options =>
@@ -76,7 +74,7 @@ builder.Services.AddRateLimiter(options =>
     var permitLimit = rateLimitSettings.GetValue<int>("PermitLimit");
     var windowSeconds = rateLimitSettings.GetValue<int>("WindowSeconds");
     var queueLimit = rateLimitSettings.GetValue<int>("QueueLimit");
-    
+
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -87,7 +85,7 @@ builder.Services.AddRateLimiter(options =>
                 QueueLimit = queueLimit,
                 AutoReplenishment = true
             }));
-    
+
     options.OnRejected = async (context, token) =>
     {
         context.HttpContext.Response.StatusCode = 429;

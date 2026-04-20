@@ -3,7 +3,7 @@
 /* Performance: Separate transitions for transform and color for better compositing */
 .theme-toggle {
     padding: 0.5rem;
-    color: var(--text-primary, #333);
+    color: var(--text-primary);
     font-size: 1.25rem;
     transition: transform 0.3s ease, color 0.2s ease;
     border: none;
@@ -19,13 +19,13 @@
 /* Performance: Scale transform uses GPU acceleration for smooth interaction */
 .theme-toggle:hover {
     transform: scale(1.1);
-    color: var(--primary-color, #007bff);
+    color: var(--text-secondary);
     text-decoration: none;
     will-change: auto; /* Remove hint during active state */
 }
 
 .theme-toggle:focus {
-    outline: 2px solid var(--focus-color, #007bff);
+    outline: 2px solid var(--focus-color);
     outline-offset: 2px;
     border-radius: 4px;
 }
@@ -45,15 +45,6 @@
 .theme-toggle:hover i {
     transform: rotate(20deg);
     will-change: auto;
-}
-
-/* Ensure proper contrast in different themes */
-[data-theme="dark"] .theme-toggle {
-    color: var(--text-primary, #f8f9fa);
-}
-
-[data-theme="dark"] .theme-toggle:hover {
-    color: var(--primary-color, #4dabf7);
 }
 
 /* Accessibility: High contrast mode support */

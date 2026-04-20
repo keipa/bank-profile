@@ -94,7 +94,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-[data-bs-theme="dark"] .bank-detail-container .breadcrumb {
+[data-theme="dark"] .bank-detail-container .breadcrumb {
     background: rgba(33, 37, 41, 0.8);
 }
 

@@ -131,42 +131,39 @@ Navigate to \https://localhost:5001\ or \http://localhost:5000\
 
 ```
 BankProfiles.Web/
+├── Application/
+│   ├── Interfaces/
+│   │   ├── Repositories/      # Repository contracts
+│   │   └── Services/          # Service contracts by feature
+│   └── Features/
+│       ├── BankProfiles/      # Bank profile application services
+│       ├── Caching/           # Cache orchestration
+│       ├── EventSourcing/     # Event migration/projection services
+│       ├── Feedback/          # Feedback moderation workflow
+│       ├── Localization/      # i18n/theme/country formatting services
+│       ├── Onboarding/        # Bank onboarding workflow
+│       └── Ratings/           # Ratings, charts, view/user rating flows
+├── Domain/
+│   ├── BankProfiles/          # Core bank domain models
+│   ├── Ratings/               # Rating-specific models
+│   └── Common/
+│       └── Metrics/           # Shared metric DTO/types
+├── Infrastructure/
+│   └── Persistence/
+│       ├── DbContext/         # EF Core DbContext + factory
+│       ├── Entities/          # EF entities
+│       ├── Migrations/        # EF migrations + model snapshot
+│       ├── Repositories/      # Persistence repository implementations
+│       ├── Scripts/           # SQL scripts
+│       └── Seeders/           # Seeder implementations
+├── Presentation/
+│   ├── DependencyInjection/   # Service registration modules
+│   ├── Middleware/            # HTTP/circuit middleware
+│   └── Services/              # Presentation-only helpers
 ├── Components/
-│   ├── Layout/          # MainLayout, NavMenu
-│   ├── Pages/           # All application pages
-│   │   ├── BankDetail.razor    # Main bank profile (/{country}/{bank})
-│   │   ├── BankRedirect.razor  # Legacy URL redirector
-│   │   ├── Banks.razor         # Bank listing
-│   │   ├── Home.razor          # Homepage
-│   │   └── Ratings.razor       # Rating comparison
-│   └── Shared/          # Reusable components
-│       ├── AnimatedBackground.razor  # SVG animations
-│       ├── BankCard.razor            # Bank card display
-│       ├── ChartSkeleton.razor       # Loading skeleton
-│       ├── CreditCard.razor          # 3D credit card
-│       ├── GlassWindow.razor         # Glass morphism panels
-│       ├── LanguageSelector.razor    # Language switcher
-│       ├── RatingChart.razor         # Rating trend chart
-│       ├── ThemeToggle.razor         # Light/dark mode
-│       ├── ViewsChart.razor          # View history chart
-│       └── ... (skeletons and displays)
-├── Data/
-│   ├── Entities/        # EF Core entities
-│   └── BankDbContext.cs # Database context
-├── Models/              # JSON models
-│   ├── BankProfile.cs   # Bank data model (with CountryCode, DefaultLanguage)
-│   ├── AnimationConfig.cs  # Animation configurations
-│   ├── BankTheme.cs     # Theme definitions
-│   └── CountryInfo.cs   # Country metadata
-├── Services/            # Business logic services
-│   ├── BankDataService.cs      # Bank data loading
-│   ├── CacheManager.cs         # LRU cache
-│   ├── ChartDataService.cs     # Chart data preparation
-│   ├── CountryService.cs       # Country metadata
-│   ├── LocalizationService.cs  # i18n service
-│   ├── RatingService.cs        # Rating management
-│   ├── ThemeService.cs         # Theme management
-│   └── ViewCountService.cs     # View tracking
+│   ├── Layout/                # MainLayout, NavMenu
+│   ├── Pages/                 # Routable pages
+│   └── Shared/                # Reusable Blazor components
 ├── Resources/           # i18n resource files
 │   ├── Strings.en-US.json
 │   ├── Strings.en-GB.json

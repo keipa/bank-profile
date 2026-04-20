@@ -1,5 +1,7 @@
+@using BankProfiles.Web.Application.Interfaces.Services.Localization
 @inject IThemeService ThemeService
 @inject IJSRuntime JS
+@inject ILogger<ThemeToggle> Logger
 
 <button @onclick="ToggleTheme" 
         class="btn btn-link theme-toggle"
@@ -30,6 +32,8 @@
         
         try
         {
+            await ThemeService.SetThemeAsync(newTheme);
+
             // Set cookie via JavaScript to avoid "Headers are read-only" error
             // In Blazor Server, event handlers execute after HTTP response is sent
             await JS.InvokeVoidAsync("setCookie", "theme", newTheme, 365);
@@ -41,7 +45,7 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error toggling theme: {ex.Message}");
+            Logger.LogWarning(ex, "Failed to toggle theme to {Theme}", newTheme);
         }
     }
 }

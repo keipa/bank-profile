@@ -1,7 +1,9 @@
-using BankProfiles.Web.Data;
-using BankProfiles.Web.Data.Entities;
-using BankProfiles.Web.Models;
-using BankProfiles.Web.Services;
+using BankProfiles.Tests.Infrastructure.Persistence;
+using BankProfiles.Web.Application.Features.Ratings.Services;
+using BankProfiles.Web.Application.Interfaces.Services.BankProfiles;
+using BankProfiles.Web.Domain.BankProfiles;
+using BankProfiles.Web.Infrastructure.Persistence.DbContext;
+using BankProfiles.Web.Infrastructure.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BankProfiles.Tests;

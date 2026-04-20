@@ -119,7 +119,7 @@
     font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: -0.01em;
-    color: var(--text-primary, var(--c-text, #e8e6f0));
+    color: var(--text-primary);
     position: relative;
     z-index: 2;
     margin: 0;
@@ -129,7 +129,7 @@
     font-family: var(--font-mono, 'DM Mono', monospace);
     font-size: 0.7rem;
     letter-spacing: 0.08em;
-    color: var(--text-muted, var(--c-muted, rgba(232, 230, 240, 0.5)));
+    color: var(--text-secondary);
     position: relative;
     z-index: 2;
     background: rgba(255, 255, 255, 0.06);
@@ -153,12 +153,12 @@
 
 :root[data-theme="light"] .country-glass-card .country-name,
 [data-theme="light"] .country-glass-card .country-name {
-    color: #1a1a1a;
+    color: var(--text-primary);
 }
 
 :root[data-theme="light"] .country-glass-card .country-bank-count,
 [data-theme="light"] .country-glass-card .country-bank-count {
-    color: rgba(26, 26, 26, 0.6);
+    color: var(--text-secondary);
     background: rgba(0, 0, 0, 0.04);
     border-color: rgba(0, 0, 0, 0.08);
 }

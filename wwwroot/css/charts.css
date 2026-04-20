@@ -22,7 +22,7 @@
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    color: var(--text-primary, #1f2937);
+    color: var(--text-primary);
 }
 
 .chart-controls {
@@ -35,7 +35,7 @@
     padding: 0.5rem 1rem;
     border: 2px solid rgba(59, 130, 246, 0.3);
     background: rgba(255, 255, 255, 0.05);
-    color: #3b82f6;
+    color: var(--text-primary);
     border-radius: 8px;
     cursor: pointer;
     font-size: 0.875rem;
@@ -52,7 +52,7 @@
 
 .time-btn.active {
     background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    color: white;
+    color: var(--text-primary);
     border-color: #2563eb;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
@@ -77,7 +77,7 @@
 }
 
 .chart-loading p {
-    color: var(--text-secondary, #6b7280);
+    color: var(--text-secondary);
     font-size: 0.875rem;
 }
 
@@ -105,7 +105,7 @@
 }
 
 .chart-empty p {
-    color: var(--text-secondary, #6b7280);
+    color: var(--text-secondary);
     font-size: 1rem;
 }
 
@@ -179,29 +179,23 @@
 }
 
 /* Dark theme support */
-@media (prefers-color-scheme: dark) {
-    .rating-chart {
-        background: rgba(17, 24, 39, 0.6);
-        border-color: rgba(255, 255, 255, 0.05);
-    }
+[data-theme="dark"] .rating-chart {
+    background: rgba(17, 24, 39, 0.6);
+    border-color: rgba(255, 255, 255, 0.05);
+}
 
-    .chart-header h3 {
-        color: #f3f4f6;
-    }
+[data-theme="dark"] .time-btn {
+    color: var(--text-primary);
+    background: rgba(17, 24, 39, 0.4);
+}
 
-    .time-btn {
-        color: #93c5fd;
-        background: rgba(17, 24, 39, 0.4);
-    }
+[data-theme="dark"] .time-btn:hover {
+    background: rgba(59, 130, 246, 0.15);
+}
 
-    .time-btn:hover {
-        background: rgba(59, 130, 246, 0.15);
-    }
-
-    .chart-loading p,
-    .chart-empty p {
-        color: #9ca3af;
-    }
+[data-theme="dark"] .chart-loading p,
+[data-theme="dark"] .chart-empty p {
+    color: var(--text-secondary);
 }
 
 /* Canvas styling */
@@ -224,7 +218,7 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-    color: var(--text-secondary, #6b7280);
+    color: var(--text-secondary);
 }
 
 /* Tooltip customization via CSS variables */

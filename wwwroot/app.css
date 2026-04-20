@@ -8,12 +8,19 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     overflow-x: hidden;
+    color: var(--text-primary);
 }
 
 /* Dark background for better aurora visibility */
 body {
     background: var(--bg-primary, #0a0a0a);
-    color: var(--text-primary);
+    color: inherit;
+}
+
+.page,
+.page main,
+.page .content {
+    color: inherit;
 }
 
 a, .btn-link {

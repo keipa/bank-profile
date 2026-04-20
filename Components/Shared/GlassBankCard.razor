@@ -1,3 +1,5 @@
+@using BankProfiles.Web.Application.Interfaces.Services.Localization
+@using BankProfiles.Web.Domain.BankProfiles
 @inject ICountryService CountryService
 
 <div class="glass-card" data-tilt role="article" aria-label="@Bank?.BankName bank card">
@@ -71,6 +73,7 @@
         line-height: 1.6;
         margin-bottom: 1rem;
         min-height: 3rem;
+        color: var(--text-muted);
     }
     
     .glass-card .bank-card-footer {
@@ -110,19 +113,19 @@
     
     /* Theme support */
     [data-theme="light"] .glass-card .bank-card-title {
-        color: #1d1d1f;
+        color: var(--text-primary);
     }
     
     [data-theme="dark"] .glass-card .bank-card-title {
-        color: #f5f5f7;
+        color: var(--text-primary);
     }
     
     [data-theme="light"] .glass-card .bank-card-description {
-        color: #6e6e73;
+        color: var(--text-muted);
     }
     
     [data-theme="dark"] .glass-card .bank-card-description {
-        color: #a1a1a6;
+        color: var(--text-muted);
     }
     
     /* Responsive */

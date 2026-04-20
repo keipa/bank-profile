@@ -3,14 +3,27 @@
     flex-direction: column;
     min-height: 100vh;
     position: relative;
+    color: var(--text-primary);
 }
 
 main {
     flex: 1;
+    color: inherit;
+}
+
+.content {
+    color: inherit;
 }
 
 .footer {
     margin-top: auto;
+    background-color: var(--bg-secondary);
+    color: inherit;
+    border-top: 1px solid var(--border-color);
+}
+
+.footer-content {
+    color: inherit;
 }
 
 /* Transparent Navigation Bar with Glass Morphism */
@@ -59,12 +72,12 @@ main {
 /* Light theme brand text */
 :root[data-theme="light"] .navbar-brand,
 .navbar-brand {
-    color: #1a1a1a;
+    color: var(--text-primary);
 }
 
 /* Dark theme brand text */
 :root[data-theme="dark"] .navbar-brand {
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .navbar-brand:hover {
@@ -85,18 +98,18 @@ main {
 /* Light theme nav links */
 :root[data-theme="light"] ::deep .nav-link,
 ::deep .nav-link {
-    color: #1a1a1a;
+    color: var(--text-primary);
 }
 
 :root[data-theme="light"] ::deep .nav-link:hover,
 ::deep .nav-link:hover {
-    color: #000000;
+    color: var(--text-primary);
     background-color: rgba(0, 0, 0, 0.05);
 }
 
 :root[data-theme="light"] ::deep .nav-link.active,
 ::deep .nav-link.active {
-    color: #000000;
+    color: var(--text-primary);
     background-color: rgba(0, 0, 0, 0.1);
     font-weight: 500;
     border-bottom: none;
@@ -104,16 +117,16 @@ main {
 
 /* Dark theme nav links */
 :root[data-theme="dark"] ::deep .nav-link {
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 :root[data-theme="dark"] ::deep .nav-link:hover {
-    color: #ffffff;
+    color: var(--text-primary);
     background-color: rgba(255, 255, 255, 0.1);
 }
 
 :root[data-theme="dark"] ::deep .nav-link.active {
-    color: #ffffff;
+    color: var(--text-primary);
     background-color: rgba(255, 255, 255, 0.15);
     font-weight: 500;
 }

@@ -1,5 +1,9 @@
 @page "/submit-bank"
 @using System.ComponentModel.DataAnnotations
+@using BankProfiles.Web.Application.Features.Onboarding.Models
+@using BankProfiles.Web.Application.Interfaces.Services.Localization
+@using BankProfiles.Web.Application.Interfaces.Services.Onboarding
+@using BankProfiles.Web.Domain.BankProfiles
 @inject IBankOnboardingService OnboardingService
 @inject ICountryService CountryService
 @inject IHttpContextAccessor HttpContextAccessor

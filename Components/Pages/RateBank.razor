@@ -1,4 +1,9 @@
 @page "/{CountryCode}/{BankCode}/rate"
+@using BankProfiles.Web.Application.Features.Ratings.Models
+@using BankProfiles.Web.Application.Interfaces.Services.BankProfiles
+@using BankProfiles.Web.Application.Interfaces.Services.Localization
+@using BankProfiles.Web.Application.Interfaces.Services.Ratings
+@using BankProfiles.Web.Domain.BankProfiles
 @inject IBankDataService BankDataService
 @inject IUserRatingService UserRatingService
 @inject ILocalizationService Localization

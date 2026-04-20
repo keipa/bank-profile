@@ -1,5 +1,7 @@
 @page "/admin/feedback"
-@using BankProfiles.Web.Data.Entities
+@using BankProfiles.Web.Application.Interfaces.Services.Feedback
+@using BankProfiles.Web.Application.Interfaces.Services.Localization
+@using BankProfiles.Web.Infrastructure.Persistence.Entities
 @inject IFeedbackService FeedbackService
 @inject ILocalizationService Localization
 @inject IWebHostEnvironment Environment

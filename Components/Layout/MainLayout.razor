@@ -1,6 +1,7 @@
-﻿@inherits LayoutComponentBase
+@inherits LayoutComponentBase
 @implements IAsyncDisposable
 @inject IJSRuntime JS
+@inject ILogger<MainLayout> Logger
 
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
@@ -23,9 +24,9 @@
         </div>
     </main>
 
-    <footer class="footer mt-5 py-3 bg-light" role="contentinfo">
-        <div class="container text-center text-muted">
-            <p>&copy; 2026 Bank Profiles. All rights reserved. | Data for informational purposes only.</p>
+    <footer class="footer mt-5 py-3" role="contentinfo">
+        <div class="container text-center footer-content">
+            <p class="mb-0">&copy; 2026 Bank Profiles. All rights reserved. | Data for informational purposes only.</p>
         </div>
     </footer>
 </div>
@@ -52,7 +53,7 @@
             }
             catch (JSException ex)
             {
-                Console.WriteLine($"Theme initialization failed: {ex.Message}");
+                Logger.LogWarning(ex, "Theme initialization failed during first render");
             }
 
             try
@@ -61,7 +62,7 @@
             }
             catch (JSException ex)
             {
-                Console.WriteLine($"Navbar scroll tracking failed: {ex.Message}");
+                Logger.LogWarning(ex, "Navbar scroll tracking initialization failed");
             }
         }
     }

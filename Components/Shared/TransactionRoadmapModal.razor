@@ -1,6 +1,7 @@
 @inject IJSRuntime JSRuntime
 @inject ICountryCodeMapperService CountryCodeMapper
 @inject ILocalizationService Localization
+@using BankProfiles.Web.Application.Interfaces.Services.Localization
 @implements IAsyncDisposable
 
 @if (IsVisible)
@@ -71,104 +72,6 @@
         </div>
     </div>
 }
-
-<style>
-    .transaction-roadmap-modal-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 1200;
-        background: rgba(6, 12, 28, 0.62);
-        backdrop-filter: blur(6px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 1rem;
-    }
-
-    .transaction-roadmap-modal-container {
-        width: min(980px, 100%);
-        max-height: 92vh;
-        overflow: auto;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.96);
-        color: #121826;
-        box-shadow: 0 28px 65px rgba(12, 20, 35, 0.32);
-        padding: 1.25rem;
-        outline: none;
-    }
-
-    .transaction-roadmap-modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 0.8rem;
-        margin-bottom: 0.9rem;
-    }
-
-    .transaction-roadmap-modal-header h2 {
-        margin: 0;
-        font-size: 1.35rem;
-    }
-
-    .transaction-roadmap-modal-close {
-        border: 0;
-        background: transparent;
-        color: inherit;
-        font-size: 1.1rem;
-        width: 2.1rem;
-        height: 2.1rem;
-        border-radius: 999px;
-    }
-
-    .transaction-roadmap-modal-close:hover {
-        background: rgba(0, 0, 0, 0.08);
-    }
-
-    .transaction-roadmap-modal-summary {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem 1.5rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .transaction-roadmap-chart {
-        width: 100%;
-        height: 520px;
-        border-radius: 12px;
-        overflow: hidden;
-        background: radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.75), rgba(209, 220, 255, 0.4) 45%, rgba(40, 62, 96, 0.2));
-        border: 1px solid rgba(255, 255, 255, 0.35);
-    }
-
-    .transaction-roadmap-chart-hidden {
-        display: none;
-    }
-
-    .transaction-roadmap-empty-state {
-        margin-bottom: 0;
-    }
-
-    .transaction-roadmap-unmapped-warning {
-        margin-bottom: 0.75rem;
-    }
-
-    .transaction-roadmap-destination-list {
-        margin-top: 0.9rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem;
-    }
-
-    @@media (max-width: 768px) {
-        .transaction-roadmap-modal-container {
-            padding: 1rem;
-        }
-
-        .transaction-roadmap-chart {
-            height: 380px;
-        }
-    }
-</style>
 
 @code {
     [Parameter] public bool IsVisible { get; set; }

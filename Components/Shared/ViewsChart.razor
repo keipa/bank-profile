@@ -1,5 +1,7 @@
+@using BankProfiles.Web.Application.Interfaces.Services.Ratings
 @inject IChartDataService ChartDataService
 @inject IJSRuntime JSRuntime
+@inject ILogger<ViewsChart> Logger
 
 <div class="views-chart-container">
     <div class="chart-header">
@@ -189,7 +191,7 @@
             {
                 // Circuit disconnected - user navigated away, this is expected
             }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected"))
+            catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected", StringComparison.OrdinalIgnoreCase))
             {
                 // Alternative exception for circuit disconnect
             }
@@ -212,7 +214,7 @@
             {
                 // Circuit disconnected - user navigated away
             }
-            catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected"))
+            catch (InvalidOperationException ex) when (ex.Message.Contains("circuit has disconnected", StringComparison.OrdinalIgnoreCase))
             {
                 // Alternative exception for circuit disconnect
             }
@@ -337,12 +339,12 @@
         catch (ObjectDisposedException)
         {
             // Component was disposed during async operation - this is normal
-            Console.WriteLine("Component disposed during chart loading - this is expected.");
+            Logger.LogDebug("Views chart component was disposed while loading data for {BankCode}", BankCode);
             hasData = false;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading chart data: {ex.Message}");
+            Logger.LogError(ex, "Failed to load view chart data for {BankCode} and range {TimeRange}", BankCode, TimeRange);
             hasData = false;
         }
         finally

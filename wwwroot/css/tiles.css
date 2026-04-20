@@ -11,7 +11,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 28px;
     font-weight: 600;
-    color: #1d1d1f;
+    color: var(--text-primary);
     margin-bottom: 20px;
     letter-spacing: -0.5px;
     display: flex;
@@ -85,6 +85,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    color: var(--text-primary);
 }
 
 .metric-tile:hover {
@@ -187,7 +188,7 @@
 
 .metric-tile.boolean-false {
     background: #F2F2F7;
-    color: #8E8E93;
+    color: var(--text-secondary);
     border: 1px solid #E5E5EA;
 }
 
@@ -203,7 +204,7 @@
 }
 
 .metric-tile.percentage .metric-value {
-    color: #007AFF;
+    color: var(--text-primary);
 }
 
 .percentage-container {
@@ -234,7 +235,7 @@
 }
 
 .metric-tile.currency .metric-value {
-    color: #FF9500;
+    color: var(--text-primary);
 }
 
 /* Numeric Tiles */
@@ -244,7 +245,7 @@
 }
 
 .metric-tile.numeric .metric-value {
-    color: #1d1d1f;
+    color: var(--text-primary);
 }
 
 /* List/Text Tiles */
@@ -265,7 +266,7 @@
     display: inline-block;
     padding: 4px 10px;
     background: #F2F2F7;
-    color: #1d1d1f;
+    color: var(--text-primary);
     border-radius: 12px;
     font-size: 12px;
     font-weight: 500;
@@ -274,7 +275,7 @@
 
 .chip.more {
     background: #007AFF;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 /* Alert Tiles */
@@ -346,33 +347,27 @@
 .metric-tile:nth-child(n+11) { animation-delay: 0.55s; }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .metric-tile {
-        background: #1c1c1e;
-        color: #ffffff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    }
+[data-theme="dark"] .metric-tile {
+    background: #1c1c1e;
+    color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
 
-    .metric-tile.numeric,
-    .metric-tile.list,
-    .metric-tile.text {
-        border-color: #3a3a3c;
-    }
+[data-theme="dark"] .metric-tile.numeric,
+[data-theme="dark"] .metric-tile.list,
+[data-theme="dark"] .metric-tile.text {
+    border-color: #3a3a3c;
+}
 
-    .tile-section-header {
-        color: #ffffff;
-    }
+[data-theme="dark"] .metric-tile.boolean-false {
+    background: #2c2c2e;
+    color: var(--text-secondary);
+    border-color: #3a3a3c;
+}
 
-    .metric-tile.boolean-false {
-        background: #2c2c2e;
-        color: #98989d;
-        border-color: #3a3a3c;
-    }
-
-    .chip {
-        background: #3a3a3c;
-        color: #ffffff;
-    }
+[data-theme="dark"] .chip {
+    background: #3a3a3c;
+    color: var(--text-primary);
 }
 
 /* Accessibility */

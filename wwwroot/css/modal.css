@@ -21,6 +21,99 @@
     animation: fadeIn 0.2s ease-out forwards;
 }
 
+/* Transaction Roadmap Modal */
+.transaction-roadmap-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    background: rgba(6, 12, 28, 0.62);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+.transaction-roadmap-modal-container {
+    width: min(980px, 100%);
+    max-height: 92vh;
+    overflow: auto;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.96);
+    color: var(--text-primary);
+    box-shadow: 0 28px 65px rgba(12, 20, 35, 0.32);
+    padding: 1.25rem;
+    outline: none;
+}
+
+.transaction-roadmap-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.8rem;
+    margin-bottom: 0.9rem;
+}
+
+.transaction-roadmap-modal-header h2 {
+    margin: 0;
+    font-size: 1.35rem;
+}
+
+.transaction-roadmap-modal-close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.1rem;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 999px;
+}
+
+.transaction-roadmap-modal-close:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.transaction-roadmap-modal-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.transaction-roadmap-chart {
+    width: 100%;
+    height: 520px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.75), rgba(209, 220, 255, 0.4) 45%, rgba(40, 62, 96, 0.2));
+    border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.transaction-roadmap-empty-state {
+    margin-bottom: 0;
+}
+
+.transaction-roadmap-unmapped-warning {
+    margin-bottom: 0.75rem;
+}
+
+.transaction-roadmap-destination-list {
+    margin-top: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+@media (max-width: 768px) {
+    .transaction-roadmap-modal-container {
+        padding: 1rem;
+    }
+
+    .transaction-roadmap-chart {
+        height: 380px;
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -120,7 +213,7 @@
 .modal-close-button svg {
     width: 16px;
     height: 16px;
-    stroke: #1d1d1f;
+    stroke: var(--text-primary);
     stroke-width: 2;
 }
 
@@ -128,7 +221,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 32px;
     font-weight: 600;
-    color: #1d1d1f;
+    color: var(--text-primary);
     margin: 0;
     letter-spacing: -0.5px;
     padding-right: 40px;
@@ -171,7 +264,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px;
     font-weight: 500;
-    color: #86868b;
+    color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 8px;
@@ -181,7 +274,7 @@
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 48px;
     font-weight: 600;
-    color: #1d1d1f;
+    color: var(--text-primary);
     margin-bottom: 16px;
     line-height: 1.1;
 }
@@ -193,7 +286,7 @@
 .metric-detail-type {
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 16px;
-    color: #6e6e73;
+    color: var(--text-secondary);
     display: inline-block;
     padding: 6px 12px;
     background: #f5f5f7;
@@ -204,7 +297,7 @@
 .metric-detail-description {
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 18px;
-    color: #6e6e73;
+    color: var(--text-secondary);
     line-height: 1.6;
     margin-top: 16px;
 }
@@ -228,7 +321,7 @@
 
 .metric-boolean-indicator.false {
     background: #E5E5EA;
-    color: #86868b;
+    color: var(--text-secondary);
 }
 
 .metric-boolean-indicator svg {
@@ -246,7 +339,7 @@
 
 .metric-detail-list .chip {
     background: #f5f5f7;
-    color: #1d1d1f;
+    color: var(--text-primary);
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 15px;
@@ -260,69 +353,51 @@
 }
 
 /* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-    .modal-container {
-        background: #1c1c1e;
-    }
+[data-theme="dark"] .transaction-roadmap-modal-container {
+    background: rgba(28, 28, 30, 0.96);
+}
 
-    .modal-header {
-        border-bottom: 1px solid #38383a;
-    }
+[data-theme="dark"] .modal-container {
+    background: #1c1c1e;
+}
 
-    .modal-close-button {
-        background: #2c2c2e;
-    }
+[data-theme="dark"] .modal-header {
+    border-bottom: 1px solid #38383a;
+}
 
-    .modal-close-button:hover {
-        background: #3a3a3c;
-    }
+[data-theme="dark"] .modal-close-button {
+    background: #2c2c2e;
+}
 
-    .modal-close-button svg {
-        stroke: #f5f5f7;
-    }
+[data-theme="dark"] .modal-close-button:hover {
+    background: #3a3a3c;
+}
 
-    .modal-title {
-        color: #f5f5f7;
-    }
+[data-theme="dark"] .modal-body::-webkit-scrollbar-thumb {
+    background: #48484a;
+}
 
-    .modal-body::-webkit-scrollbar-thumb {
-        background: #48484a;
-    }
+[data-theme="dark"] .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #636366;
+}
 
-    .modal-body::-webkit-scrollbar-thumb:hover {
-        background: #636366;
-    }
+[data-theme="dark"] .metric-detail-type {
+    background: #2c2c2e;
+    color: var(--text-secondary);
+}
 
-    .metric-detail-label {
-        color: #98989d;
-    }
+[data-theme="dark"] .metric-boolean-indicator.false {
+    background: #3a3a3c;
+    color: var(--text-secondary);
+}
 
-    .metric-detail-value {
-        color: #f5f5f7;
-    }
+[data-theme="dark"] .metric-detail-list .chip {
+    background: #2c2c2e;
+    color: var(--text-primary);
+}
 
-    .metric-detail-type {
-        background: #2c2c2e;
-        color: #e5e5ea;
-    }
-
-    .metric-detail-description {
-        color: #aeaeb2;
-    }
-
-    .metric-boolean-indicator.false {
-        background: #3a3a3c;
-        color: #98989d;
-    }
-
-    .metric-detail-list .chip {
-        background: #2c2c2e;
-        color: #f5f5f7;
-    }
-
-    .metric-detail-list .chip:hover {
-        background: #3a3a3c;
-    }
+[data-theme="dark"] .metric-detail-list .chip:hover {
+    background: #3a3a3c;
 }
 
 /* Responsive Design */

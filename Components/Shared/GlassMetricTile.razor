@@ -1,4 +1,5 @@
 @using System.Globalization
+@using BankProfiles.Web.Domain.Common.Metrics
 @inject IJSRuntime JSRuntime
 
 <div class="@GetCssClasses()" data-tilt role="region" aria-label="@Metric.Label metric" @onclick="HandleClick">
@@ -168,7 +169,7 @@
     .chip.more {
         background: var(--accent-3, #007AFF);
         border-color: var(--accent-3, #007AFF);
-        color: white;
+        color: var(--text-inverse);
     }
     
     /* Percentage Progress Bar */
@@ -246,7 +247,7 @@
     [data-theme="light"] .chip {
         background: rgba(0, 0, 0, 0.05);
         border-color: rgba(0, 0, 0, 0.1);
-        color: #1d1d1f;
+        color: var(--text-primary);
     }
     
     /* Responsive */

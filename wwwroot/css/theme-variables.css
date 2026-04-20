@@ -11,14 +11,14 @@
   --bg-active: #e8e8e8;
   --bg-disabled: #f8f8f8;
   
-  /* Text colors - Neutral blacks and grays - WCAG AA compliant */
-  --text-primary: #1a1a1a;        /* Almost black for readability */
-  --text-secondary: #555555;      /* Dark gray */
-  --text-muted: #777777;          /* Medium gray */
-  --text-disabled: #aaaaaa;       /* Light gray */
+  /* Text colors - strict policy for normal text */
+  --text-primary: #000000;
+  --text-secondary: #000000;
+  --text-muted: #000000;
+  --text-disabled: #000000;
   --text-inverse: #ffffff;
-  --text-link: #000000;           /* Black links for neutral look */
-  --text-link-hover: #333333;     /* Dark gray hover */
+  --text-link: #000000;
+  --text-link-hover: #000000;
   
   /* Borders */
   --border-color: #e0e0e0;
@@ -93,6 +93,17 @@
   /* Overlays */
   --overlay-bg: rgba(0, 0, 0, 0.5);
   --modal-backdrop: rgba(0, 0, 0, 0.4);
+
+  /* Bootstrap color variable bridge */
+  --bs-body-color: var(--text-primary);
+  --bs-body-bg: var(--bg-primary);
+  --bs-emphasis-color: var(--text-primary);
+  --bs-secondary-color: var(--text-primary);
+  --bs-secondary-color-rgb: 0, 0, 0;
+  --bs-tertiary-color: var(--text-primary);
+  --bs-heading-color: var(--text-primary);
+  --bs-link-color: var(--text-link);
+  --bs-link-hover-color: var(--text-link-hover);
 }
 
 :root[data-theme="dark"] {
@@ -104,14 +115,14 @@
   --bg-active: #353535;
   --bg-disabled: #1a1a1a;
   
-  /* Text colors - Neutral whites and grays - WCAG AA compliant */
-  --text-primary: #ffffff;        /* Pure white for maximum contrast */
-  --text-secondary: #cccccc;      /* Light gray */
-  --text-muted: #999999;          /* Medium gray */
-  --text-disabled: #666666;       /* Dark gray */
+  /* Text colors - strict policy for normal text */
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --text-muted: #ffffff;
+  --text-disabled: #ffffff;
   --text-inverse: #1a1a1a;
-  --text-link: #ffffff;           /* White links for neutral look */
-  --text-link-hover: #e0e0e0;     /* Light gray hover */
+  --text-link: #ffffff;
+  --text-link-hover: #ffffff;
   
   /* Borders - Darker for true dark theme */
   --border-color: #333333;
@@ -186,6 +197,17 @@
   /* Overlays */
   --overlay-bg: rgba(0, 0, 0, 0.8);
   --modal-backdrop: rgba(0, 0, 0, 0.7);
+
+  /* Bootstrap color variable bridge */
+  --bs-body-color: var(--text-primary);
+  --bs-body-bg: var(--bg-primary);
+  --bs-emphasis-color: var(--text-primary);
+  --bs-secondary-color: var(--text-primary);
+  --bs-secondary-color-rgb: 255, 255, 255;
+  --bs-tertiary-color: var(--text-primary);
+  --bs-heading-color: var(--text-primary);
+  --bs-link-color: var(--text-link);
+  --bs-link-hover-color: var(--text-link-hover);
 }
 
 /* Default theme (fallback to light if no data-theme attribute) */
@@ -198,14 +220,14 @@
   --bg-active: #e8e8e8;
   --bg-disabled: #f8f8f8;
   
-  /* Text colors - Neutral blacks and grays */
-  --text-primary: #1a1a1a;
-  --text-secondary: #555555;
-  --text-muted: #777777;
-  --text-disabled: #aaaaaa;
+  /* Text colors - strict policy for normal text */
+  --text-primary: #000000;
+  --text-secondary: #000000;
+  --text-muted: #000000;
+  --text-disabled: #000000;
   --text-inverse: #ffffff;
   --text-link: #000000;
-  --text-link-hover: #333333;
+  --text-link-hover: #000000;
   
   /* Borders */
   --border-color: #e0e0e0;
@@ -278,6 +300,17 @@
   /* Overlays */
   --overlay-bg: rgba(0, 0, 0, 0.5);
   --modal-backdrop: rgba(0, 0, 0, 0.4);
+
+  /* Bootstrap color variable bridge */
+  --bs-body-color: var(--text-primary);
+  --bs-body-bg: var(--bg-primary);
+  --bs-emphasis-color: var(--text-primary);
+  --bs-secondary-color: var(--text-primary);
+  --bs-secondary-color-rgb: 0, 0, 0;
+  --bs-tertiary-color: var(--text-primary);
+  --bs-heading-color: var(--text-primary);
+  --bs-link-color: var(--text-link);
+  --bs-link-hover-color: var(--text-link-hover);
   
   /* Transition duration */
   --transition-speed: 0.3s;
