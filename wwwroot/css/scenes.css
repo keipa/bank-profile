@@ -1,0 +1,435 @@
+/* ═══════════════════════════════════════════════════════════
+   SCENE-BASED SCROLLING LAYOUT
+   Full-viewport scenes with navigation dots and HUD
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── SCENE SCROLL CONTAINER ──────────────────────────────── */
+.scene-scroll-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Override MainLayout container padding when scenes are present */
+.content:has(.scene-scroll-container) {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    max-width: 100%;
+}
+
+.container-fluid:has(.scene-scroll-container) {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* ── INDIVIDUAL SCENE ────────────────────────────────────── */
+.scene {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 24px 40px;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.scene-inner {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Scene 1 hero is taller to accommodate header + tiles */
+.scene-hero {
+    justify-content: flex-start;
+    padding-top: 100px;
+}
+
+/* Metric scenes center content */
+.scene-metrics {
+    justify-content: center;
+}
+
+/* Charts scene may need more room */
+.scene-charts {
+    justify-content: center;
+}
+
+/* ── SCENE HEADER (inside each metric scene) ─────────────── */
+.scene-section-header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.scene-section-title {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--text-primary);
+    margin: 0 0 8px 0;
+    line-height: 1.15;
+}
+
+.scene-section-icon {
+    font-size: 32px;
+    opacity: 0.5;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.scene-section-subtitle {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-secondary);
+    margin: 0;
+    opacity: 0.7;
+}
+
+/* ── SCENE NAVIGATION DOTS ───────────────────────────────── */
+.scene-dots {
+    position: fixed;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+}
+
+.scene-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.scene-dot:hover {
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(1.3);
+}
+
+.scene-dot.active {
+    background: var(--accent-3, #007AFF);
+    border-color: var(--accent-3, #007AFF);
+    width: 12px;
+    height: 12px;
+    box-shadow: 0 0 12px rgba(0, 122, 255, 0.5);
+}
+
+/* Dot tooltip on hover */
+.scene-dot::after {
+    content: attr(data-label);
+    position: absolute;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    white-space: nowrap;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 4px 10px;
+    border-radius: 6px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.scene-dot:hover::after {
+    opacity: 1;
+}
+
+/* Light theme dots */
+[data-theme="light"] .scene-dot {
+    background: rgba(0, 0, 0, 0.15);
+    border-color: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="light"] .scene-dot:hover {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="light"] .scene-dot.active {
+    background: var(--accent-3, #007AFF);
+    border-color: var(--accent-3, #007AFF);
+}
+
+[data-theme="light"] .scene-dot::after {
+    background: rgba(255, 255, 255, 0.85);
+    color: #1a1a1a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ── SCENE HUD (Progress Indicator) ──────────────────────── */
+.scene-hud {
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.scene-hud-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.scene-hud-counter {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.scene-hud-bar-track {
+    width: 120px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+[data-theme="light"] .scene-hud-bar-track {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.scene-hud-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-3, #007AFF), var(--accent-1, #34C759));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.15s ease-out;
+}
+
+/* ── NAVBAR ADAPTIVE HEADER ──────────────────────────────── */
+.navbar-bank-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-bank-name {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.navbar-bank-name.shrunk {
+    font-size: 0.85rem;
+    opacity: 0.6;
+    max-width: 180px;
+}
+
+.navbar-scene-title {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.navbar-scene-title.visible {
+    opacity: 0.8;
+    transform: translateY(0);
+}
+
+/* Separator between bank name and scene title */
+.navbar-bank-header .nav-separator {
+    width: 1px;
+    height: 18px;
+    background: var(--text-secondary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.navbar-bank-name.shrunk ~ .nav-separator {
+    opacity: 0.3;
+}
+
+/* ── HERO SCENE SPECIFICS ────────────────────────────────── */
+.scene-hero .bank-header-apple {
+    text-align: center;
+    padding: 20px 20px 40px;
+    position: relative;
+}
+
+.scene-hero .bank-name-apple {
+    font-size: 56px;
+}
+
+/* Tile section inside scenes: remove default margins, let scene handle spacing */
+.scene .tile-section {
+    margin-bottom: 0;
+}
+
+.scene-metrics .tile-section-header {
+    display: none;
+}
+
+/* In scene-metrics, tile grids get more generous sizing */
+.scene-metrics .tile-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ── CHARTS IN SCENE ─────────────────────────────────────── */
+.scene-charts .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.scene-charts .chart-card {
+    background: var(--glass-card-bg, rgba(255, 255, 255, 0.04));
+    border: 1px solid var(--glass-card-border, rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 20px;
+    padding: 24px;
+}
+
+/* ── QUICK ACTIONS IN SCENE ──────────────────────────────── */
+.scene-quick-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+
+/* ── FADE-IN ANIMATIONS PER SCENE ────────────────────────── */
+@keyframes sceneFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.scene .scene-inner {
+    animation: sceneFadeIn 0.8s ease-out;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 991px) {
+    .scene-dots {
+        left: 12px;
+        gap: 10px;
+    }
+
+    .scene-dot {
+        width: 8px;
+        height: 8px;
+    }
+
+    .scene-dot.active {
+        width: 10px;
+        height: 10px;
+    }
+
+    .scene-dot::after {
+        display: none;
+    }
+
+    .scene-hud {
+        top: 72px;
+        right: 16px;
+    }
+
+    .scene-hud-bar-track {
+        width: 80px;
+    }
+}
+
+@media (max-width: 768px) {
+    .scene {
+        padding: 70px 16px 32px;
+        min-height: auto;
+        min-height: 100vh;
+    }
+
+    .scene-hero {
+        padding-top: 80px;
+    }
+
+    .scene-section-title {
+        font-size: 30px;
+    }
+
+    .scene-dots {
+        display: none;
+    }
+
+    .scene-hud {
+        top: auto;
+        bottom: 16px;
+        right: 16px;
+    }
+
+    .navbar-bank-name {
+        max-width: 160px;
+        font-size: 0.95rem;
+    }
+
+    .navbar-bank-name.shrunk {
+        max-width: 100px;
+        font-size: 0.75rem;
+    }
+
+    .scene-hero .bank-name-apple {
+        font-size: 36px;
+    }
+
+    .scene-charts .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── ACCESSIBILITY: REDUCED MOTION ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .scene .scene-inner {
+        animation: none;
+    }
+
+    .navbar-bank-name,
+    .navbar-scene-title,
+    .scene-dot,
+    .scene-hud-bar {
+        transition: none !important;
+    }
+}
