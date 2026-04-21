@@ -59,14 +59,14 @@ public class ThemeService : IThemeService
 
         try
         {
-            context.Response.Cookies.Append(ThemeCookieName, theme, cookieOptions);
+            if (!context.Response.HasStarted)
+            {
+                context.Response.Cookies.Append(ThemeCookieName, theme, cookieOptions);
+            }
         }
-        catch (InvalidOperationException ex)
+        catch (InvalidOperationException)
         {
-            // Headers already sent - this is expected when called from event handlers
-            // Cookie should be set via JavaScript instead (see ThemeToggle.razor)
-            // Log and continue - theme can still be applied via JavaScript in the component.
-            _logger.LogWarning(ex, "Theme cookie could not be set server-side for theme {Theme}", theme);
+            // Headers already sent - cookie will be set via JavaScript in ThemeToggle.razor
         }
 
         OnThemeChanged?.Invoke(theme);
