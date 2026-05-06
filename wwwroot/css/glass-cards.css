@@ -6,7 +6,7 @@
 /* ── BASE GLASS CARD ─────────────────────────────────────── */
 .glass-card {
   position: relative;
-  border-radius: 20px;
+  border-radius: 8px;
   padding: 2rem;
   background: var(--glass-card-bg, rgba(255, 255, 255, 0.04));
   border: 1px solid var(--glass-card-border, rgba(255, 255, 255, 0.1));
@@ -74,12 +74,8 @@
   content: "";
   position: absolute;
   inset: -1px;
-  border-radius: 21px;
-  background: linear-gradient(
-    135deg,
-    var(--accent-1, #b3ffc8),
-    var(--accent-3, #5eadff)
-  );
+  border-radius: 9px;
+  background: var(--bank-accent, #007AFF);
   z-index: -1;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -106,7 +102,7 @@
 
 /* ── FOCUS STATE (KEYBOARD NAVIGATION) ───────────────────── */
 .glass-card:focus-visible {
-  outline: 2px solid var(--accent-3, #007AFF);
+  outline: 2px solid var(--bank-accent, #007AFF);
   outline-offset: 4px;
 }
 
@@ -157,9 +153,6 @@
   --glass-card-border-hover: rgba(255, 255, 255, 0.5);
   --shimmer-color: rgba(255, 255, 255, 0.2);
   --shimmer-highlight: rgba(255, 255, 255, 0.35);
-  --accent-1: #34C759;
-  --accent-2: #FF2D55;
-  --accent-3: #007AFF;
 }
 
 :root[data-theme="light"] .glass-card:hover,
@@ -177,9 +170,6 @@
   --glass-card-border-hover: rgba(255, 255, 255, 0.2);
   --shimmer-color: rgba(255, 255, 255, 0.08);
   --shimmer-highlight: rgba(255, 255, 255, 0.15);
-  --accent-1: #b3ffc8;
-  --accent-2: #ff6ef7;
-  --accent-3: #5eadff;
 }
 
 :root[data-theme="dark"] .glass-card:hover,

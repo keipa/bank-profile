@@ -48,11 +48,25 @@
 /* Metric scenes center content */
 .scene-metrics {
     justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 /* Charts scene may need more room */
 .scene-charts {
     justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Scenes 2+ stretch to full viewport width */
+.scene-metrics .scene-inner,
+.scene-charts .scene-inner {
+    width: 100%;
+    max-width: none;
+    padding-left: 24px;
+    padding-right: 24px;
+    box-sizing: border-box;
 }
 
 /* ── SCENE HEADER (inside each metric scene) ─────────────── */
@@ -62,7 +76,9 @@
 }
 
 .scene-section-title {
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial,
+        sans-serif;
     font-size: 42px;
     font-weight: 700;
     letter-spacing: -1px;
@@ -79,7 +95,9 @@
 }
 
 .scene-section-subtitle {
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial,
+        sans-serif;
     font-size: 16px;
     font-weight: 400;
     color: var(--text-secondary);
@@ -90,19 +108,19 @@
 /* ── SCENE NAVIGATION DOTS ───────────────────────────────── */
 .scene-dots {
     position: fixed;
-    left: 24px;
+    left: 5px;
     top: 50%;
     transform: translateY(-50%);
     z-index: 1050;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 5px;
     align-items: center;
 }
 
 .scene-dot {
-    width: 10px;
-    height: 10px;
+    width: 2px;
+    height: 2px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.25);
     border: 1.5px solid rgba(255, 255, 255, 0.4);
@@ -117,11 +135,11 @@
 }
 
 .scene-dot.active {
-    background: var(--accent-3, #007AFF);
-    border-color: var(--accent-3, #007AFF);
+    background: var(--bank-accent, #007aff);
+    border-color: var(--bank-accent, #007aff);
     width: 12px;
     height: 12px;
-    box-shadow: 0 0 12px rgba(0, 122, 255, 0.5);
+    box-shadow: 0 0 12px var(--accent-muted, rgba(0, 122, 255, 0.5));
 }
 
 /* Dot tooltip on hover */
@@ -132,7 +150,9 @@
     top: 50%;
     transform: translateY(-50%);
     white-space: nowrap;
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial,
+        sans-serif;
     font-size: 12px;
     font-weight: 500;
     color: var(--text-primary);
@@ -161,8 +181,8 @@
 }
 
 [data-theme="light"] .scene-dot.active {
-    background: var(--accent-3, #007AFF);
-    border-color: var(--accent-3, #007AFF);
+    background: var(--accent-desaturated, var(--bank-accent, #007aff));
+    border-color: var(--accent-desaturated, var(--bank-accent, #007aff));
 }
 
 [data-theme="light"] .scene-dot::after {
@@ -181,7 +201,9 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 6px;
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial,
+        sans-serif;
 }
 
 .scene-hud-label {
@@ -214,7 +236,7 @@
 
 .scene-hud-bar {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent-3, #007AFF), var(--accent-1, #34C759));
+    background: var(--bank-accent, #007aff);
     border-radius: 2px;
     width: 0%;
     transition: width 0.15s ease-out;
@@ -230,7 +252,9 @@
 }
 
 .navbar-bank-name {
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial,
+        sans-serif;
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--text-primary);
@@ -248,7 +272,9 @@
 }
 
 .navbar-scene-title {
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial,
+        sans-serif;
     font-size: 0.95rem;
     font-weight: 500;
     color: var(--text-primary);
@@ -298,8 +324,9 @@
 
 /* In scene-metrics, tile grids get more generous sizing */
 .scene-metrics .tile-grid {
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
 }
 
 /* ── CHARTS IN SCENE ─────────────────────────────────────── */
@@ -315,7 +342,7 @@
     border: 1px solid var(--glass-card-border, rgba(255, 255, 255, 0.1));
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border-radius: 20px;
+    border-radius: 8px;
     padding: 24px;
 }
 
@@ -327,6 +354,91 @@
     gap: 20px;
     flex-wrap: wrap;
     margin-top: 32px;
+}
+
+/* ── NEXT-SCENE ARROW ──────────────────────────────────────── */
+.scene-next-arrow {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.18),
+        rgba(255, 255, 255, 0.08)
+    );
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:
+        0 10px 24px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 6;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.scene-next-arrow:hover {
+    transform: translateX(-50%) translateY(-3px) scale(1.04);
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow:
+        0 14px 28px rgba(0, 0, 0, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.scene-next-arrow:focus-visible {
+    outline: none;
+    box-shadow:
+        0 0 0 3px rgba(0, 122, 255, 0.45),
+        0 14px 28px rgba(0, 0, 0, 0.24),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.scene-next-arrow-icon {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    line-height: 0.75;
+    animation: sceneArrowBounce 1.4s ease-in-out infinite;
+}
+
+.scene-next-arrow-icon i:last-child {
+    opacity: 0.65;
+    margin-top: -2px;
+}
+
+@keyframes sceneArrowBounce {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+[data-theme="light"] .scene-next-arrow {
+    border-color: rgba(0, 0, 0, 0.14);
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.9),
+        rgba(245, 247, 250, 0.9)
+    );
+    box-shadow:
+        0 8px 20px rgba(15, 23, 42, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.92);
 }
 
 /* ── FADE-IN ANIMATIONS PER SCENE ────────────────────────── */
@@ -387,6 +499,12 @@
         padding-top: 80px;
     }
 
+    .scene-metrics .scene-inner,
+    .scene-charts .scene-inner {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
     .scene-section-title {
         font-size: 30px;
     }
@@ -418,6 +536,12 @@
     .scene-charts .charts-grid {
         grid-template-columns: 1fr;
     }
+
+    .scene-next-arrow {
+        width: 50px;
+        height: 50px;
+        bottom: 14px;
+    }
 }
 
 /* ── ACCESSIBILITY: REDUCED MOTION ───────────────────────── */
@@ -431,5 +555,9 @@
     .scene-dot,
     .scene-hud-bar {
         transition: none !important;
+    }
+
+    .scene-next-arrow-icon {
+        animation: none;
     }
 }

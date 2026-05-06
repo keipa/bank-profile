@@ -2,8 +2,10 @@
 @inject IJSRuntime JSRuntime
 @inject ILocalizationService Localization
 @using BankProfiles.Web.Application.Interfaces.Services.Localization
+@using BankProfiles.Web.Application.Interfaces.Services.MetricCharts
 @using BankProfiles.Web.Domain.Common.Metrics
 @using BankProfiles.Web.Presentation.Services.Modal
+@inject IMetricChartService MetricChartService
 @implements IDisposable
 
 @if (ModalService.IsVisible && ModalService.SelectedMetric != null)
@@ -75,6 +77,15 @@
                         @GetMetricDescription()
                     </div>
                 </div>
+
+                @if (IsChartableMetric())
+                {
+                    <div class="metric-charts-section">
+                        <MetricCharts BankCode="@(ModalService.CurrentBankCode ?? "")"
+                                      Metric="@ModalService.SelectedMetric"
+                                      AccentColor="@GetAccentColor()" />
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -173,4 +184,18 @@
 
         return Localization.GetString("metric.description.default");
     }
+
+    private bool IsChartableMetric()
+    {
+        var metric = ModalService.SelectedMetric;
+        if (metric == null || string.IsNullOrWhiteSpace(ModalService.CurrentBankCode))
+            return false;
+
+        if (metric.Type is not (MetricType.Numeric or MetricType.Percentage or MetricType.Currency))
+            return false;
+
+        return MetricChartService.IsChartableMetric(metric.Key);
+    }
+
+    private string GetAccentColor() => ModalService.AccentColor ?? "#007AFF";
 }

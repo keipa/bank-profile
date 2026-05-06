@@ -1,0 +1,494 @@
+/* ═══════════════════════════════════════════════════════════
+   CARD DESIGNS WIDGET & GALLERY
+   Holo effect, widget preview, full-screen gallery modal
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── HOLO CARD BASE ──────────────────────────────────────── */
+.holo-card {
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+    touch-action: none;
+    isolation: isolate;
+    border-radius: 5% / 3.5%;
+    box-shadow:
+        -5px -5px 5px -5px var(--holo-color1, rgb(0, 231, 255)),
+        5px 5px 5px -5px var(--holo-color2, rgb(255, 0, 231)),
+        0 0 5px 0 rgba(255, 255, 255, 0),
+        0 40px 30px -20px rgba(0, 0, 0, 0.4);
+    transition: transform 0.5s ease, box-shadow 0.2s ease;
+    will-change: transform, filter;
+    background-color: #040712;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    transform-origin: center;
+}
+
+.holo-card img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    pointer-events: none;
+    user-select: none;
+}
+
+.holo-card:hover {
+    box-shadow:
+        -20px -20px 30px -25px var(--holo-color1, rgb(0, 231, 255)),
+        20px 20px 30px -25px var(--holo-color2, rgb(255, 0, 231)),
+        -7px -7px 10px -5px var(--holo-color1, rgb(0, 231, 255)),
+        7px 7px 10px -5px var(--holo-color2, rgb(255, 0, 231)),
+        0 0 13px 4px rgba(255, 255, 255, 0.3),
+        0 40px 30px -20px rgba(0, 0, 0, 0.4);
+}
+
+/* Gradient overlay (::before) */
+.holo-card::before,
+.holo-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    mix-blend-mode: color-dodge;
+    transition: all 0.33s ease;
+    pointer-events: none;
+}
+
+.holo-card::before {
+    background-position: 50% 50%;
+    background-size: 300% 300%;
+    background-image: linear-gradient(
+        115deg,
+        transparent 0%,
+        var(--holo-color1, rgb(0, 231, 255)) 25%,
+        transparent 47%,
+        transparent 53%,
+        var(--holo-color2, rgb(255, 0, 231)) 75%,
+        transparent 100%
+    );
+    opacity: 0.5;
+    filter: brightness(0.5) contrast(1);
+    z-index: 1;
+}
+
+.holo-card::after {
+    opacity: 1;
+    background-image:
+        url("https://assets.codepen.io/13471/sparkles.gif"),
+        url("https://assets.codepen.io/13471/holo.png"),
+        linear-gradient(
+            125deg,
+            #ff008450 15%,
+            #fca40040 30%,
+            #ffff0030 40%,
+            #00ff8a20 60%,
+            #00cfff40 70%,
+            #cc4cfa50 85%
+        );
+    background-position: 50% 50%;
+    background-size: 160%;
+    background-blend-mode: overlay;
+    z-index: 2;
+    filter: brightness(1) contrast(1);
+    mix-blend-mode: color-dodge;
+    opacity: 0.75;
+}
+
+/* Active / hover pseudo states */
+.holo-card:hover::after {
+    filter: brightness(1) contrast(1);
+    opacity: 1;
+}
+
+.holo-card:hover {
+    animation: none;
+    transition: box-shadow 0.1s ease-out;
+}
+
+.holo-card:hover::before {
+    animation: none;
+    background-image: linear-gradient(
+        110deg,
+        transparent 25%,
+        var(--holo-color1, rgb(0, 231, 255)) 48%,
+        var(--holo-color2, rgb(255, 0, 231)) 52%,
+        transparent 75%
+    );
+    background-position: 50% 50%;
+    background-size: 250% 250%;
+    opacity: 0.88;
+    filter: brightness(0.66) contrast(1.33);
+    transition: none;
+}
+
+.holo-card:hover::before,
+.holo-card:hover::after {
+    animation: none;
+    transition: none;
+}
+
+/* Animated state (after mouse leave) */
+.holo-card.holo-animated {
+    transition: none;
+    animation: holoCard 12s ease 0s 1;
+}
+.holo-card.holo-animated::before {
+    transition: none;
+    animation: holoGradient 12s ease 0s 1;
+}
+.holo-card.holo-animated::after {
+    transition: none;
+    animation: holoSparkle 12s ease 0s 1;
+}
+
+/* ── KEYFRAMES ───────────────────────────────────────────── */
+@keyframes holoSparkle {
+    0%, 100% {
+        opacity: 0.75;
+        background-position: 50% 50%;
+        filter: brightness(1.2) contrast(1.25);
+    }
+    5%, 8% {
+        opacity: 1;
+        background-position: 40% 40%;
+        filter: brightness(0.8) contrast(1.2);
+    }
+    13%, 16% {
+        opacity: 0.5;
+        background-position: 50% 50%;
+        filter: brightness(1.2) contrast(0.8);
+    }
+    35%, 38% {
+        opacity: 1;
+        background-position: 60% 60%;
+        filter: brightness(1) contrast(1);
+    }
+    55% {
+        opacity: 0.33;
+        background-position: 45% 45%;
+        filter: brightness(1.2) contrast(1.25);
+    }
+}
+
+@keyframes holoGradient {
+    0%, 100% {
+        opacity: 0.5;
+        background-position: 50% 50%;
+        filter: brightness(0.5) contrast(1);
+    }
+    5%, 9% {
+        background-position: 100% 100%;
+        opacity: 1;
+        filter: brightness(0.75) contrast(1.25);
+    }
+    13%, 17% {
+        background-position: 0% 0%;
+        opacity: 0.88;
+    }
+    35%, 39% {
+        background-position: 100% 100%;
+        opacity: 1;
+        filter: brightness(0.5) contrast(1);
+    }
+    55% {
+        background-position: 0% 0%;
+        opacity: 1;
+        filter: brightness(0.75) contrast(1.25);
+    }
+}
+
+@keyframes holoCard {
+    0%, 100% {
+        transform: rotateZ(0deg) rotateX(0deg) rotateY(0deg);
+    }
+    5%, 8% {
+        transform: rotateZ(0deg) rotateX(6deg) rotateY(-20deg);
+    }
+    13%, 16% {
+        transform: rotateZ(0deg) rotateX(-9deg) rotateY(32deg);
+    }
+    35%, 38% {
+        transform: rotateZ(3deg) rotateX(12deg) rotateY(20deg);
+    }
+    55% {
+        transform: rotateZ(-3deg) rotateX(-12deg) rotateY(-27deg);
+    }
+}
+
+/* ── 3D WRAPPER ──────────────────────────────────────────── */
+.holo-card-wrapper {
+    perspective: 750px;
+    isolation: isolate;
+    transform: translate3d(0.1px, 0.1px, 0.1px);
+}
+
+/* ── CARD SIZES ──────────────────────────────────────────── */
+/* Horizontal card (standard credit card ~1.586:1) */
+.holo-card-horizontal {
+    width: 320px;
+    height: 202px;
+}
+
+/* Vertical card (~1:1.586) */
+.holo-card-vertical {
+    width: 220px;
+    height: 349px;
+}
+
+/* ── CARD DESIGNS WIDGET (preview in hero scene) ─────────── */
+.card-designs-widget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    margin: 0 auto 40px;
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+}
+
+.card-designs-widget-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-designs-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.card-designs-widget:hover .card-designs-count-badge {
+    background: rgba(255, 255, 255, 0.14);
+    color: var(--text-primary, #fff);
+}
+
+.card-designs-widget-label {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.6));
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* ── GALLERY MODAL ───────────────────────────────────────── */
+.card-gallery-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: galleryFadeIn 0.3s ease;
+}
+
+@keyframes galleryFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.card-gallery-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.card-gallery-close {
+    position: absolute;
+    top: -48px;
+    right: -12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    z-index: 10;
+}
+
+.card-gallery-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.card-gallery-stage {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.card-gallery-nav {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.card-gallery-nav:hover {
+    background: rgba(255, 255, 255, 0.16);
+    transform: scale(1.08);
+}
+
+.card-gallery-nav:disabled {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.card-gallery-card-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Gallery uses larger card sizes */
+.card-gallery-card-area .holo-card-horizontal {
+    width: min(500px, 70vw);
+    height: min(315px, 44vw);
+}
+
+.card-gallery-card-area .holo-card-vertical {
+    width: min(320px, 50vw);
+    height: min(508px, 79vw);
+}
+
+.card-gallery-info {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-gallery-name {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.card-gallery-counter {
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Dots indicator */
+.card-gallery-dots {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-gallery-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.card-gallery-dot.active {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.3);
+}
+
+.card-gallery-dot:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@@media (max-width: 768px) {
+    .holo-card-horizontal {
+        width: 260px;
+        height: 164px;
+    }
+
+    .holo-card-vertical {
+        width: 180px;
+        height: 286px;
+    }
+
+    .card-gallery-stage {
+        gap: 12px;
+    }
+
+    .card-gallery-nav {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+
+    .card-gallery-card-area .holo-card-horizontal {
+        width: min(320px, 65vw);
+        height: min(202px, 41vw);
+    }
+
+    .card-gallery-card-area .holo-card-vertical {
+        width: min(240px, 45vw);
+        height: min(381px, 71vw);
+    }
+}
+
+@@media (max-width: 480px) {
+    .holo-card-horizontal {
+        width: 220px;
+        height: 139px;
+    }
+
+    .holo-card-vertical {
+        width: 150px;
+        height: 238px;
+    }
+
+    .card-gallery-nav {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+}

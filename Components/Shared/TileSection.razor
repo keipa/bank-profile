@@ -39,6 +39,12 @@
     
     [Parameter]
     public bool ShowProgressBars { get; set; } = false;
+
+    [Parameter]
+    public string BankCode { get; set; } = "";
+
+    [Parameter]
+    public string AccentColor { get; set; } = "#007AFF";
     
     private string SectionId => SectionKey;
     private bool IsOverviewRatingsSection => SectionKey.Equals(BankMetricsExtractorService.OverviewRatingsSectionKey, StringComparison.Ordinal);
@@ -66,6 +72,6 @@
 
     private void HandleTileClick(MetricDto metric)
     {
-        ModalService.ShowModal(metric);
+        ModalService.ShowModal(metric, BankCode, AccentColor);
     }
 }

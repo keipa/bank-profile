@@ -282,9 +282,9 @@ a {
 /* Buttons */
 .btn,
 button {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.5rem 1rem;
+    min-height: 5px;
+    min-width: 5px;
+    padding: 0.25rem 0.25rem;
 }
 
 /* Small buttons adjust on mobile */
@@ -425,7 +425,7 @@ select {
     .nav-link + .nav-link {
         margin-top: 0.5rem;
     }
-    
+
     .btn-group .btn,
     .input-group .btn {
         margin: 4px;

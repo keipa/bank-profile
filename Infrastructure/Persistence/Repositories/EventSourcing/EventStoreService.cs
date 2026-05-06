@@ -129,6 +129,20 @@ public class EventStoreService : IEventStoreService
             .AnyAsync(e => e.BankCode == bankCode);
     }
 
+    public async Task<List<MetricEvent>> GetLatestEventByMetricAcrossBanksAsync(string metricName)
+    {
+        await using var context = await _contextFactory.CreateDbContextAsync();
+
+        var latestEvents = await context.MetricEvents
+            .AsNoTracking()
+            .Where(e => e.MetricName == metricName)
+            .GroupBy(e => e.BankCode)
+            .Select(g => g.OrderByDescending(e => e.EventSequence).First())
+            .ToListAsync();
+
+        return latestEvents;
+    }
+
     private static async Task<long> GetNextSequenceAsync(BankDbContext context, string bankCode)
     {
         var maxSeq = await context.MetricEvents

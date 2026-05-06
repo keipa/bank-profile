@@ -3,8 +3,8 @@
     <svg class="credit-card" viewBox="0 0 340 540" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
         <defs>
             <linearGradient id="@GetGradientId("card")" x1="0%" y1="0%" x2="100%" y2="65%">
-                <stop offset="10%" stop-color="@Bank.Theme?.PrimaryColor" />
-                <stop offset="90%" stop-color="@Bank.Theme?.SecondaryColor" />
+                <stop offset="10%" stop-color="@(Bank.Theme?.AccentColor ?? "#007AFF")" />
+                <stop offset="90%" stop-color="@DarkenAccent()" />
             </linearGradient>
 
             <linearGradient id="@GetGradientId("chip")" x1="0%" y1="0%" x2="100%" y2="85%">
@@ -23,7 +23,7 @@
             </filter>
 
             <pattern id="@GetGradientId("noise")" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                <rect width="40" height="40" fill="@Bank.Theme?.PrimaryColor" opacity="0.1"/>
+                <rect width="40" height="40" fill="@(Bank.Theme?.AccentColor ?? "#007AFF")" opacity="0.1"/>
             </pattern>
         </defs>
 
@@ -59,12 +59,12 @@
         }
         else
         {
-            @((MarkupString)$"<text x=\"30\" y=\"60\" fill=\"url(#{GetGradientId("overlay")})\" font-size=\"{CalculateFontSize(Bank.BankName, 20)}\" font-family=\"{Bank.Theme?.FontFamily ?? "Arial, sans-serif"}\" font-weight=\"600\" letter-spacing=\"1\" textLength=\"280\" lengthAdjust=\"spacingAndGlyphs\">{Bank.BankName}</text>")
+            @((MarkupString)$"<text x=\"30\" y=\"60\" fill=\"url(#{GetGradientId("overlay")})\" font-size=\"{CalculateFontSize(Bank.BankName, 20)}\" font-family=\"Arial, sans-serif\" font-weight=\"600\" letter-spacing=\"1\" textLength=\"280\" lengthAdjust=\"spacingAndGlyphs\">{Bank.BankName}</text>")
         }
 
         <!-- Decorative Elements -->
-        <circle fill="@Bank.Theme?.AccentColor" opacity="0.2" cx="280" cy="80" r="60"/>
-        <circle fill="@Bank.Theme?.SecondaryColor" opacity="0.15" cx="300" cy="480" r="80"/>
+        <circle fill="@(Bank.Theme?.AccentColor ?? "#007AFF")" opacity="0.25" cx="280" cy="80" r="60"/>
+        <circle fill="@(Bank.Theme?.AccentColor ?? "#007AFF")" opacity="0.12" cx="300" cy="480" r="80"/>
     </svg>
 </div>
 
@@ -150,5 +150,20 @@
         if (length <= 30) return (int)(baseFontSize * 0.9);
         if (length <= 40) return (int)(baseFontSize * 0.8);
         return (int)(baseFontSize * 0.7);
+    }
+
+    /// <summary>
+    /// Produces a darker shade of the accent color for SVG gradient stops.
+    /// </summary>
+    private string DarkenAccent()
+    {
+        var hex = Bank.Theme?.AccentColor ?? "#007AFF";
+        if (hex.StartsWith('#')) hex = hex[1..];
+        if (hex.Length == 3) hex = $"{hex[0]}{hex[0]}{hex[1]}{hex[1]}{hex[2]}{hex[2]}";
+
+        var r = Math.Max(0, Convert.ToInt32(hex[..2], 16) * 55 / 100);
+        var g = Math.Max(0, Convert.ToInt32(hex[2..4], 16) * 55 / 100);
+        var b = Math.Max(0, Convert.ToInt32(hex[4..6], 16) * 55 / 100);
+        return $"#{r:X2}{g:X2}{b:X2}";
     }
 }

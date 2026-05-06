@@ -147,24 +147,7 @@
     "confidence": 0.96
   },
   "theme": {
-    "primaryColor": "#004d40",
-    "secondaryColor": "#00695c",
-    "fontFamily": "Merriweather, serif",
-    "accentColor": "#ffd600",
-    "darkTheme": {
-      "primaryColor": "#26a69a",
-      "secondaryColor": "#4db6ac",
-      "accentColor": "#ffee58",
-      "backgroundStart": "#0a1f1c",
-      "backgroundEnd": "#1a3a35"
-    },
-    "lightTheme": {
-      "primaryColor": "#00897b",
-      "secondaryColor": "#26a69a",
-      "accentColor": "#fbc02d",
-      "backgroundStart": "#e0f2f1",
-      "backgroundEnd": "#b2dfdb"
-    }
+    "accentColor": "#ffd600"
   },
   "animationConfig": {
     "gradientStops": [

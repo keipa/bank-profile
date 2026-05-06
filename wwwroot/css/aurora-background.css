@@ -97,10 +97,7 @@
 /* ── LIGHT THEME AURORA ──────────────────────────────────── */
 :root[data-theme="light"] .aurora,
 [data-theme="light"] .aurora {
-  --aurora-opacity: 0.12;
-  --aurora-color-1: #34C759;  /* Apple green */
-  --aurora-color-2: #FF2D55;  /* Apple pink */
-  --aurora-color-3: #007AFF;  /* Apple blue */
+  --aurora-opacity: 0.10;
 }
 
 :root[data-theme="light"] .aurora-noise,
@@ -112,9 +109,6 @@
 :root[data-theme="dark"] .aurora,
 [data-theme="dark"] .aurora {
   --aurora-opacity: 0.2;
-  --aurora-color-1: #b3ffc8;  /* Neon mint */
-  --aurora-color-2: #ff6ef7;  /* Neon magenta */
-  --aurora-color-3: #5eadff;  /* Neon blue */
 }
 
 :root[data-theme="dark"] .aurora-noise,
@@ -125,9 +119,6 @@
 /* ── DEFAULT (DARK) ──────────────────────────────────────── */
 .aurora {
   --aurora-opacity: 0.18;
-  --aurora-color-1: #b3ffc8;
-  --aurora-color-2: #ff6ef7;
-  --aurora-color-3: #5eadff;
 }
 
 /* ── ACCESSIBILITY: REDUCED MOTION ───────────────────────── */

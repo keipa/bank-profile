@@ -19,25 +19,38 @@ public class HistoricalDataSeeder
         _logger = logger;
     }
 
-    public async Task SeedHistoricalDataAsync(CancellationToken cancellationToken = default)
+    public async Task SeedHistoricalDataAsync(bool forceReseed = false, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Starting historical data seeding");
+        _logger.LogInformation("Starting historical rating/view data seeding. Force reseed: {ForceReseed}", forceReseed);
 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
-        // Check if historical data already exists
-        var hasRatingHistory = await context.RatingHistories.AnyAsync(cancellationToken);
-        var hasViewHistory = await context.ViewHistory.AnyAsync(cancellationToken);
+        var seedRatings = true;
+        var seedViews = true;
 
-        if (hasRatingHistory || hasViewHistory)
+        if (!forceReseed)
         {
-            _logger.LogInformation("Historical data already exists. Skipping seeding.");
-            return;
+            // Check if historical data already exists
+            var hasRatingHistory = await context.RatingHistories.AnyAsync(cancellationToken);
+            var hasViewHistory = await context.ViewHistory.AnyAsync(cancellationToken);
+
+            seedRatings = !hasRatingHistory;
+            seedViews = !hasViewHistory;
+
+            if (!seedRatings && !seedViews)
+            {
+                _logger.LogInformation("Historical rating/view data already exists. Skipping seeding.");
+                return;
+            }
         }
 
         var banks = await context.Banks.ToListAsync(cancellationToken);
-        var criteriaIds = await context.RatingCriterias.Select(c => c.CriteriaId).ToListAsync(cancellationToken);
-        var bankRatings = await context.BankRatings.ToListAsync(cancellationToken);
+        var criteriaIds = seedRatings
+            ? await context.RatingCriterias.Select(c => c.CriteriaId).ToListAsync(cancellationToken)
+            : new List<int>();
+        var bankRatings = seedRatings
+            ? await context.BankRatings.ToListAsync(cancellationToken)
+            : new List<BankRating>();
 
         _logger.LogInformation(
             "Seeding historical data for {BankCount} banks over {DaysOfHistory} days",
@@ -61,52 +74,85 @@ public class HistoricalDataSeeder
                 cancellationToken.ThrowIfCancellationRequested();
                 var recordDate = DateTime.UtcNow.Date.AddDays(-daysAgo);
 
-                // Generate rating history for each criteria
-                foreach (var criteriaId in criteriaIds)
+                if (seedRatings)
                 {
-                    var currentRating = bankRatings.FirstOrDefault(r => r.BankId == bank.BankId && r.CriteriaId == criteriaId);
-                    if (currentRating != null)
+                    // Generate rating history for each criteria
+                    foreach (var criteriaId in criteriaIds)
                     {
-                        var historicalRating = GenerateHistoricalRating(
-                            currentRating.RatingValue,
-                            daysAgo,
-                            pattern,
-                            bank.BankCode,
-                            criteriaId
-                        );
-
-                        ratingHistories.Add(new RatingHistory
+                        var currentRating = bankRatings.FirstOrDefault(r => r.BankId == bank.BankId && r.CriteriaId == criteriaId);
+                        if (currentRating != null)
                         {
-                            BankId = bank.BankId,
-                            CriteriaId = criteriaId,
-                            OverallRating = historicalRating,
-                            RecordedDate = recordDate
-                        });
+                            var historicalRating = GenerateHistoricalRating(
+                                currentRating.RatingValue,
+                                daysAgo,
+                                pattern,
+                                bank.BankCode,
+                                criteriaId
+                            );
+
+                            ratingHistories.Add(new RatingHistory
+                            {
+                                BankId = bank.BankId,
+                                CriteriaId = criteriaId,
+                                OverallRating = historicalRating,
+                                RecordedDate = recordDate
+                            });
+                        }
                     }
                 }
 
-                // Generate view history
-                var historicalViewCount = GenerateHistoricalViewCount(
-                    baseViewCount,
-                    daysAgo,
-                    pattern
-                );
-
-                viewHistories.Add(new ViewHistory
+                if (seedViews)
                 {
-                    BankId = bank.BankId,
-                    ViewCount = historicalViewCount,
-                    RecordedDate = recordDate
-                });
+                    // Generate view history
+                    var historicalViewCount = GenerateHistoricalViewCount(
+                        baseViewCount,
+                        daysAgo,
+                        pattern
+                    );
+
+                    viewHistories.Add(new ViewHistory
+                    {
+                        BankId = bank.BankId,
+                        ViewCount = historicalViewCount,
+                        RecordedDate = recordDate
+                    });
+                }
             }
         }
 
         _logger.LogInformation("Generated {RatingCount} rating history records", ratingHistories.Count);
         _logger.LogInformation("Generated {ViewCount} view history records", viewHistories.Count);
 
+        var replaceRatings = forceReseed && ratingHistories.Count > 0;
+        var replaceViews = forceReseed && viewHistories.Count > 0;
+
+        if (forceReseed && !replaceRatings && !replaceViews)
+        {
+            throw new InvalidOperationException(
+                "Force reseed failed: no replacement rating/view history records were generated.");
+        }
+
+        if (replaceRatings)
+        {
+            context.RatingHistories.RemoveRange(context.RatingHistories);
+        }
+
+        if (replaceViews)
+        {
+            context.ViewHistory.RemoveRange(context.ViewHistory);
+        }
+
         // Batch insert for performance
-        await context.RatingHistories.AddRangeAsync(ratingHistories, cancellationToken);
-        await context.ViewHistory.AddRangeAsync(viewHistories, cancellationToken);
+        if (seedRatings && ratingHistories.Count > 0)
+        {
+            await context.RatingHistories.AddRangeAsync(ratingHistories, cancellationToken);
+        }
+
+        if (seedViews && viewHistories.Count > 0)
+        {
+            await context.ViewHistory.AddRangeAsync(viewHistories, cancellationToken);
+        }
+
         await context.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation("Historical data seeding completed successfully");

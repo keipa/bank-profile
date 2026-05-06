@@ -50,8 +50,8 @@
     }
 
     .overview-ratings-grid .tile-grid-item.total-clients-item {
-        grid-column: 3 / -1;
-        grid-row: 1 / span 2;
+        grid-column: 1 / -1;
+        grid-row: auto;
     }
 }
 
@@ -71,7 +71,7 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
+    border-radius: 8px;
     min-height: 160px;
     padding: 24px;
     box-shadow:
@@ -200,7 +200,7 @@
 /* Percentage Tiles */
 .metric-tile.percentage {
     background: linear-gradient(135deg, #ffffff 0%, #f9f9fb 100%);
-    border: 2px solid #007AFF;
+    border: 1px solid #E5E5EA;
 }
 
 .metric-tile.percentage .metric-value {
@@ -231,7 +231,7 @@
 /* Currency Tiles */
 .metric-tile.currency {
     background: linear-gradient(135deg, #ffffff 0%, #fffef9 100%);
-    border: 2px solid #FF9500;
+    border: 1px solid #E5E5EA;
 }
 
 .metric-tile.currency .metric-value {
@@ -280,7 +280,7 @@
 
 /* Alert Tiles */
 .metric-tile.alert-alert {
-    border: 2px solid #FF3B30;
+    border: 1px solid #E5E5EA;
     background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
 }
 
@@ -289,7 +289,7 @@
 }
 
 .metric-tile.alert-warning {
-    border: 2px solid #FF9500;
+    border: 1px solid #E5E5EA;
     background: linear-gradient(135deg, #fffaf0 0%, #ffffff 100%);
 }
 

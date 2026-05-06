@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.RateLimiting;
 using System.Globalization;
 using BankProfiles.Web.Infrastructure.Persistence.DbContext;
+using BankProfiles.Web.Infrastructure.Persistence.Seeders;
 using BankProfiles.Web.Presentation.Middleware;
 
 static TimeSpan ParseInvariantDuration(string? rawValue, string settingKey, string fallbackValue)
@@ -98,6 +99,26 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+
+var runSeedHistoricalData = args.Any(arg =>
+    string.Equals(arg, "--seed-historical-data", StringComparison.OrdinalIgnoreCase));
+var runReseedHistoricalData = args.Any(arg =>
+    string.Equals(arg, "--reseed-historical-data", StringComparison.OrdinalIgnoreCase));
+
+if (runSeedHistoricalData || runReseedHistoricalData)
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    var historicalDataSeeder = scope.ServiceProvider.GetRequiredService<HistoricalDataSeeder>();
+    var metricEventHistoricalSeeder = scope.ServiceProvider.GetRequiredService<MetricEventHistoricalSeeder>();
+    var forceReseed = runReseedHistoricalData;
+
+    await metricEventHistoricalSeeder.SeedMetricEventHistoryAsync(forceReseed, CancellationToken.None);
+    await historicalDataSeeder.SeedHistoricalDataAsync(forceReseed, CancellationToken.None);
+
+    logger.LogInformation("Historical seeding command completed. Force reseed: {ForceReseed}", forceReseed);
+    return;
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

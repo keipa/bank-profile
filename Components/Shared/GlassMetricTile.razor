@@ -19,20 +19,35 @@
         @if (IsTotalClientsMetric)
         {
             <div class="total-clients-illustration" aria-hidden="true">
-                <svg class="total-clients-svg" viewBox="0 0 280 180" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                <svg class="total-clients-svg" viewBox="0 0 360 220" xmlns="http://www.w3.org/2000/svg" focusable="false">
                     <defs>
                         <linearGradient id="clientsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="rgba(0,122,255,0.65)" />
-                            <stop offset="100%" stop-color="rgba(52,199,89,0.55)" />
+                            <stop offset="0%" stop-color="rgba(94, 173, 255, 0.88)" />
+                            <stop offset="55%" stop-color="rgba(0, 122, 255, 0.74)" />
+                            <stop offset="100%" stop-color="rgba(52, 199, 89, 0.72)" />
+                        </linearGradient>
+                        <radialGradient id="clientsGlow" cx="50%" cy="45%" r="55%">
+                            <stop offset="0%" stop-color="rgba(255,255,255,0.72)" />
+                            <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+                        </radialGradient>
+                        <linearGradient id="clientsBars" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="rgba(255,255,255,0.26)" />
+                            <stop offset="100%" stop-color="rgba(255,255,255,0.06)" />
                         </linearGradient>
                     </defs>
-                    <circle cx="196" cy="78" r="48" fill="none" stroke="url(#clientsGradient)" stroke-width="8" />
-                    <path d="M154 78h84M196 30a84 84 0 0 0 0 96M196 30a84 84 0 0 1 0 96" stroke="url(#clientsGradient)" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.9" />
-                    <rect x="40" y="104" width="98" height="58" rx="10" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.55)" stroke-width="2" />
-                    <rect x="55" y="94" width="110" height="62" rx="10" fill="rgba(255,255,255,0.5)" stroke="rgba(255,255,255,0.7)" stroke-width="2" />
-                    <rect x="70" y="84" width="120" height="66" rx="12" fill="rgba(255,255,255,0.85)" stroke="rgba(0,122,255,0.35)" stroke-width="2" />
-                    <rect x="84" y="102" width="92" height="8" rx="4" fill="rgba(0,122,255,0.35)" />
-                    <circle cx="164" cy="128" r="9" fill="rgba(255,149,0,0.65)" />
+                    <circle class="pulse-ring" cx="252" cy="86" r="62" fill="none" stroke="url(#clientsGradient)" stroke-width="10" opacity="0.9" />
+                    <circle cx="252" cy="86" r="46" fill="url(#clientsGlow)" opacity="0.82" />
+                    <path d="M194 86h116M252 28a106 106 0 0 0 0 116M252 28a106 106 0 0 1 0 116" stroke="url(#clientsGradient)" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.84" />
+
+                    <rect x="28" y="122" width="160" height="76" rx="16" fill="url(#clientsBars)" stroke="rgba(255,255,255,0.36)" stroke-width="2" />
+                    <rect x="44" y="106" width="172" height="82" rx="16" fill="rgba(255,255,255,0.24)" stroke="rgba(255,255,255,0.48)" stroke-width="2" />
+                    <rect x="60" y="92" width="182" height="88" rx="18" fill="rgba(255,255,255,0.78)" stroke="rgba(0,122,255,0.3)" stroke-width="2" />
+
+                    <rect x="80" y="116" width="118" height="10" rx="5" fill="rgba(0,122,255,0.36)" />
+                    <rect x="80" y="134" width="92" height="8" rx="4" fill="rgba(0,122,255,0.2)" />
+                    <circle cx="210" cy="150" r="11" fill="rgba(52,199,89,0.72)" />
+                    <circle class="float-dot-a" cx="278" cy="44" r="8" fill="rgba(255,255,255,0.74)" />
+                    <circle class="float-dot-b" cx="314" cy="106" r="6" fill="rgba(94,173,255,0.72)" />
                 </svg>
             </div>
         }
@@ -65,7 +80,9 @@
             }
             else
             {
-                <span @ref="_metricValueElement" data-counter-enabled="@CounterEnabledAttribute">@GetDisplayValueForRender()</span>
+                <span class="metric-value-number @(IsTotalClientsMetric ? "total-clients-value-number" : string.Empty)"
+                      @ref="_metricValueElement"
+                      data-counter-enabled="@CounterEnabledAttribute">@GetDisplayValueForRender()</span>
             }
         </div>
         
@@ -167,9 +184,9 @@
     }
     
     .chip.more {
-        background: var(--accent-3, #007AFF);
-        border-color: var(--accent-3, #007AFF);
-        color: var(--text-inverse);
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: var(--text-primary);
     }
     
     /* Percentage Progress Bar */
@@ -190,7 +207,7 @@
     
     .progress-bar {
         height: 100%;
-        background: linear-gradient(90deg, var(--accent-3, #007AFF) 0%, var(--accent-1, #34C759) 100%);
+        background: var(--bank-accent, #007AFF);
         border-radius: 3px;
         transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -205,21 +222,57 @@
     }
     
     .glass-card.alert-success .metric-value {
-        color: var(--accent-1, #34C759);
+        color: #34C759;
     }
 
     .glass-card.metric-tile.metric-tile-featured.total-clients-featured {
-        min-height: 260px;
+        min-height: 300px;
+        width: 100%;
+        border-radius: 12px;
+        background:
+            linear-gradient(150deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.07) 55%, rgba(94, 173, 255, 0.12) 100%),
+            radial-gradient(120% 100% at 88% 100%, rgba(94, 173, 255, 0.2) 0%, rgba(0, 0, 0, 0) 72%);
+        border-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .scene-hero .glass-card.metric-tile.metric-tile-featured.total-clients-featured {
+        height: clamp(300px, 50vh, 560px);
+    }
+
+    .glass-card.metric-tile.metric-tile-featured.total-clients-featured .metric-tile-inner {
+        min-height: 100%;
+    }
+
+    .glass-card.metric-tile.metric-tile-featured.total-clients-featured .metric-header {
+        position: relative;
+        z-index: 3;
+    }
+
+    .glass-card.metric-tile.metric-tile-featured.total-clients-featured .metric-value {
+        margin-top: auto;
+        width: 100%;
+        position: relative;
+        z-index: 3;
+    }
+
+    .total-clients-value-number {
+        display: block;
+        width: 100%;
+        font-size: clamp(2.8rem, 6vw, 5rem);
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        line-height: 0.94;
     }
 
     .total-clients-illustration {
         position: absolute;
-        right: -16px;
-        bottom: -20px;
-        width: min(52%, 260px);
-        opacity: 0.42;
+        right: -26px;
+        bottom: -30px;
+        width: min(60%, 360px);
+        opacity: 0.88;
         pointer-events: none;
         z-index: 1;
+        filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.15));
     }
 
     .total-clients-svg {
@@ -228,10 +281,56 @@
         display: block;
     }
 
+    .total-clients-svg .pulse-ring {
+        animation: totalClientsPulse 4.4s ease-in-out infinite;
+        transform-origin: 252px 86px;
+    }
+
+    .total-clients-svg .float-dot-a {
+        animation: totalClientsFloatA 3.4s ease-in-out infinite;
+    }
+
+    .total-clients-svg .float-dot-b {
+        animation: totalClientsFloatB 4s ease-in-out infinite;
+    }
+
+    @@keyframes totalClientsPulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 0.9;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 0.65;
+        }
+    }
+
+    @@keyframes totalClientsFloatA {
+        0%, 100% {
+            transform: translateY(0);
+            opacity: 0.78;
+        }
+        50% {
+            transform: translateY(-8px);
+            opacity: 0.95;
+        }
+    }
+
+    @@keyframes totalClientsFloatB {
+        0%, 100% {
+            transform: translate(0, 0);
+            opacity: 0.72;
+        }
+        50% {
+            transform: translate(-6px, -9px);
+            opacity: 0.92;
+        }
+    }
+
     /* Boolean Tiles */
     .glass-card.boolean-true {
         background: linear-gradient(135deg, rgba(52, 199, 89, 0.2) 0%, rgba(48, 209, 88, 0.15) 100%);
-        border-color: rgba(52, 199, 89, 0.4);
+        border-color: rgba(255, 255, 255, 0.2);
     }
     
     .glass-card.boolean-false {
@@ -266,14 +365,19 @@
         }
 
         .glass-card.metric-tile.metric-tile-featured.total-clients-featured {
-            min-height: 180px;
+            min-height: 220px;
+            height: clamp(220px, 42vh, 360px);
         }
 
         .total-clients-illustration {
-            width: min(46%, 180px);
-            opacity: 0.34;
-            right: -8px;
-            bottom: -10px;
+            width: min(58%, 230px);
+            opacity: 0.78;
+            right: -16px;
+            bottom: -16px;
+        }
+
+        .total-clients-value-number {
+            font-size: clamp(2.1rem, 9vw, 3.3rem);
         }
     }
 </style>
@@ -358,6 +462,11 @@
     {
         if (_counterAnimationOptions is null)
         {
+            if (IsTotalClientsMetric && TryConvertToDouble(Metric.Value, out var totalClientsValue))
+            {
+                return totalClientsValue.ToString("N0", CultureInfo.CurrentCulture);
+            }
+
             return Metric.FormattedValue;
         }
 
@@ -391,7 +500,7 @@
             ["decimals"] = decimals,
             ["prefix"] = prefix,
             ["suffix"] = suffix,
-            ["useGrouping"] = false
+            ["useGrouping"] = IsTotalClientsMetric
         };
     }
 

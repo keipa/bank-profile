@@ -1,0 +1,240 @@
+@using PSC.Blazor.Components.Chartjs
+@using PSC.Blazor.Components.Chartjs.Enums
+@using PSC.Blazor.Components.Chartjs.Models.Common
+@using PSC.Blazor.Components.Chartjs.Models.Line
+@using PSC.Blazor.Components.Chartjs.Models.Bar
+@using BankProfiles.Web.Application.Interfaces.Services.MetricCharts
+@using BankProfiles.Web.Application.Interfaces.Services.Localization
+@using BankProfiles.Web.Domain.Common.Metrics
+@inject IMetricChartService ChartService
+@inject ILocalizationService Localization
+@inject ILogger<MetricCharts> Logger
+
+@if (_isLoading)
+{
+    <div class="metric-charts-loading">
+        <div class="chart-skeleton"></div>
+    </div>
+}
+else if (!_hasAnyData)
+{
+    <div class="metric-charts-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="32" height="32">
+            <path d="M3 3v18h18" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M7 16l4-4 3 3 5-5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>@Localization.GetString("modal.metricChart.noHistory")</span>
+    </div>
+}
+else
+{
+    <div class="metric-charts-container">
+        <div class="chart-pill-toggle" role="tablist">
+            <button class="pill-tab @(_activeTab == Tab.History ? "active" : "")"
+                    role="tab"
+                    aria-selected="@(_activeTab == Tab.History)"
+                    @onclick="() => SetTab(Tab.History)">
+                @Localization.GetString("modal.metricChart.history")
+            </button>
+            <button class="pill-tab @(_activeTab == Tab.Compare ? "active" : "")"
+                    role="tab"
+                    aria-selected="@(_activeTab == Tab.Compare)"
+                    @onclick="() => SetTab(Tab.Compare)">
+                @Localization.GetString("modal.metricChart.compare")
+            </button>
+        </div>
+
+        <div class="chart-panel">
+            @if (_activeTab == Tab.History)
+            {
+                @if (_lineConfig != null)
+                {
+                    <Chart @ref="_lineChart" Config="_lineConfig" Height="260" />
+                }
+                else
+                {
+                    <div class="metric-charts-empty">
+                        <span>@Localization.GetString("modal.metricChart.noHistory")</span>
+                    </div>
+                }
+            }
+            else
+            {
+                @if (_barConfig != null)
+                {
+                    <Chart @ref="_barChart" Config="_barConfig" Height="260" />
+                }
+                else
+                {
+                    <div class="metric-charts-empty">
+                        <span>@Localization.GetString("modal.metricChart.noComparison")</span>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public string BankCode { get; set; } = string.Empty;
+    [Parameter] public MetricDto? Metric { get; set; }
+    [Parameter] public string AccentColor { get; set; } = "#007AFF";
+
+    private enum Tab { History, Compare }
+    private Tab _activeTab = Tab.History;
+
+    private LineChartConfig? _lineConfig;
+    private BarChartConfig? _barConfig;
+    private Chart? _lineChart;
+    private Chart? _barChart;
+    private bool _isLoading = true;
+    private bool _hasAnyData;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Metric == null || string.IsNullOrWhiteSpace(BankCode))
+            return;
+
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            await Task.WhenAll(BuildHistoryChart(), BuildComparisonChart());
+            _hasAnyData = _lineConfig != null || _barConfig != null;
+        }
+        catch (ObjectDisposedException)
+        {
+            Logger.LogDebug("MetricCharts disposed while loading for {BankCode}/{MetricKey}", BankCode, Metric?.Key);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load metric charts for {BankCode}/{MetricKey}", BankCode, Metric?.Key);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SetTab(Tab tab)
+    {
+        _activeTab = tab;
+    }
+
+    private async Task BuildHistoryChart()
+    {
+        if (Metric == null) return;
+
+        var history = await ChartService.GetMetricHistoryAsync(BankCode, Metric.Key);
+        if (history is not { HasData: true })
+        {
+            _lineConfig = null;
+            return;
+        }
+
+        var config = new LineChartConfig();
+
+        foreach (var point in history.Points)
+        {
+            config.Data.Labels.Add(point.Date.ToString("MMM dd"));
+        }
+
+        var dataset = new LineDataset
+        {
+            Label = Metric.Label,
+            Data = history.Points.Select(p => (decimal?)Convert.ToDecimal(p.Value)).ToList(),
+            BorderColor = AccentColor,
+            BackgroundColor = AccentColor + "33",
+            BorderWidth = 2,
+            Fill = true,
+            PointRadius = 3,
+            Tension = 0.3m
+        };
+
+        config.Data.Datasets.Add(dataset);
+        config.Options = new Options
+        {
+            Responsive = true,
+            MaintainAspectRatio = false,
+            Plugins = new Plugins { Legend = new Legend { Display = false } },
+            Scales = new Dictionary<string, Axis>
+            {
+                ["x"] = new Axis
+                {
+                    Grid = new Grid { Display = false }
+                },
+                ["y"] = new Axis
+                {
+                    Grid = new Grid { Color = "rgba(128,128,128,0.15)" }
+                }
+            }
+        };
+
+        _lineConfig = config;
+    }
+
+    private async Task BuildComparisonChart()
+    {
+        if (Metric == null) return;
+
+        var comparison = await ChartService.GetMetricComparisonAsync(BankCode, Metric.Key);
+        if (comparison is not { HasData: true })
+        {
+            _barConfig = null;
+            return;
+        }
+
+        var config = new BarChartConfig();
+
+        var bgColors = new List<string>();
+        var borderColors = new List<string>();
+
+        foreach (var item in comparison.Items)
+        {
+            config.Data.Labels.Add(item.BankName);
+            if (item.IsCurrentBank)
+            {
+                bgColors.Add(AccentColor);
+                borderColors.Add(AccentColor);
+            }
+            else
+            {
+                bgColors.Add("rgba(128,128,128,0.35)");
+                borderColors.Add("rgba(128,128,128,0.5)");
+            }
+        }
+
+        var dataset = new BarDataset
+        {
+            Label = Metric.Label,
+            Data = comparison.Items.Select(i => (decimal?)Convert.ToDecimal(i.Value)).ToList(),
+            BackgroundColor = bgColors,
+            BorderColor = borderColors,
+            BorderWidth = 1
+        };
+
+        config.Data.Datasets.Add(dataset);
+        config.Options = new Options
+        {
+            Responsive = true,
+            MaintainAspectRatio = false,
+            IndexAxis = "y",
+            Plugins = new Plugins { Legend = new Legend { Display = false } },
+            Scales = new Dictionary<string, Axis>
+            {
+                ["x"] = new Axis
+                {
+                    Grid = new Grid { Color = "rgba(128,128,128,0.15)" }
+                },
+                ["y"] = new Axis
+                {
+                    Grid = new Grid { Display = false }
+                }
+            }
+        };
+
+        _barConfig = config;
+    }
+}

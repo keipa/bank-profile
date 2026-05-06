@@ -80,6 +80,9 @@ public class BankProfile
     [JsonPropertyName("animationConfig")]
     public AnimationConfig? AnimationConfig { get; set; }
 
+    [JsonPropertyName("cardDesigns")]
+    public List<CardDesign>? CardDesigns { get; set; }
+
 
     [JsonPropertyName("defaultLanguage")]
     public string? DefaultLanguage { get; set; }

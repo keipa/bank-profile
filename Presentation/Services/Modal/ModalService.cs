@@ -9,12 +9,16 @@ public class ModalService
 
     public MetricDto? SelectedMetric => _selectedMetric;
     public bool IsVisible => _isVisible;
+    public string? CurrentBankCode { get; private set; }
+    public string? AccentColor { get; private set; }
 
     public event Action? OnModalStateChanged;
 
-    public void ShowModal(MetricDto metric)
+    public void ShowModal(MetricDto metric, string bankCode, string? accentColor = null)
     {
         _selectedMetric = metric;
+        CurrentBankCode = bankCode;
+        AccentColor = accentColor;
         _isVisible = true;
         NotifyStateChanged();
     }
@@ -23,6 +27,8 @@ public class ModalService
     {
         _isVisible = false;
         _selectedMetric = null;
+        CurrentBankCode = null;
+        AccentColor = null;
         NotifyStateChanged();
     }
 

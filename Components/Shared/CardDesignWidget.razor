@@ -1,0 +1,74 @@
+@using BankProfiles.Web.Domain.BankProfiles
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@if (CardDesigns?.Count > 0)
+{
+    <div class="card-designs-widget" @onclick="OnOpenGallery" role="button" tabindex="0"
+         aria-label="View @CardDesigns.Count card designs"
+         @onkeydown="HandleKeyDown">
+        <span class="card-designs-widget-label">Card Designs</span>
+        <div class="card-designs-widget-inner" id="@_containerId">
+            <div class="holo-card-wrapper">
+                <div class="holo-card @GetOrientationClass(CardDesigns[0]) holo-animated">
+                    <img src="@CardDesigns[0].ImageUrl" alt="@(CardDesigns[0].Name ?? "Bank card design")" loading="lazy" />
+                </div>
+            </div>
+        </div>
+        @if (CardDesigns.Count > 1)
+        {
+            <span class="card-designs-count-badge">
+                <i class="fas fa-layer-group" aria-hidden="true"></i>
+                @CardDesigns.Count card designs
+            </span>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public List<CardDesign>? CardDesigns { get; set; }
+
+    [Parameter]
+    public EventCallback OnOpenGallery { get; set; }
+
+    private string _containerId = $"card-widget-{Guid.NewGuid():N}"[..24];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && CardDesigns?.Count > 0)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("cardHolo.initialize", $"#{_containerId}");
+            }
+            catch (JSException)
+            {
+                // JS may not be ready during prerender
+            }
+        }
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key is "Enter" or " ")
+        {
+            OnOpenGallery.InvokeAsync();
+        }
+    }
+
+    private static string GetOrientationClass(CardDesign card)
+        => card.IsVertical ? "holo-card-vertical" : "holo-card-horizontal";
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("cardHolo.destroy", $"#{_containerId}");
+        }
+        catch
+        {
+            // Dispose is best-effort
+        }
+    }
+}

@@ -427,3 +427,116 @@
         font-size: 24px;
     }
 }
+
+/* ===================================
+   METRIC CHARTS IN MODAL
+   =================================== */
+
+.metric-charts-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e5ea;
+}
+
+[data-theme="dark"] .metric-charts-section {
+    border-top-color: #38383a;
+}
+
+/* Pill Toggle */
+.chart-pill-toggle {
+    display: flex;
+    background: #f5f5f7;
+    border-radius: 10px;
+    padding: 3px;
+    margin-bottom: 20px;
+    gap: 2px;
+}
+
+[data-theme="dark"] .chart-pill-toggle {
+    background: #2c2c2e;
+}
+
+.pill-tab {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+}
+
+.pill-tab.active {
+    background: #ffffff;
+    color: var(--text-primary);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .pill-tab.active {
+    background: #48484a;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.pill-tab:hover:not(.active) {
+    color: var(--text-primary);
+}
+
+/* Chart Container */
+.metric-charts-container {
+    min-height: 300px;
+}
+
+.chart-panel {
+    position: relative;
+    min-height: 260px;
+}
+
+/* Loading State */
+.metric-charts-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    margin-top: 24px;
+}
+
+.chart-skeleton {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #f5f5f7 25%, #e5e5ea 50%, #f5f5f7 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+[data-theme="dark"] .chart-skeleton {
+    background: linear-gradient(90deg, #2c2c2e 25%, #3a3a3c 50%, #2c2c2e 75%);
+    background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* Empty State */
+.metric-charts-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 160px;
+    color: var(--text-secondary);
+    font-size: 15px;
+    margin-top: 24px;
+}
+
+.metric-charts-empty svg {
+    opacity: 0.4;
+}

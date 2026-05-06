@@ -1,5 +1,6 @@
 @page "/{CountryCode}/{BankCode}"
 @implements IAsyncDisposable
+@using System.Text.Json
 @using BankProfiles.Web.Application.Features.BankProfiles.Services
 @using BankProfiles.Web.Application.Interfaces.Services.BankProfiles
 @using BankProfiles.Web.Application.Interfaces.Services.Localization
@@ -55,16 +56,12 @@ else
     </div>
 
     @* Scene Scroll Container *@
-    <div class="scene-scroll-container">
+    <div class="scene-scroll-container" style="--bank-accent: @(_bank.Theme?.AccentColor ?? "#007AFF")">
 
         @* ─── Scene 1: Hero ─── *@
         <section class="scene scene-hero" data-scene-title="@_bank.BankName">
             <div class="scene-inner">
                 <header class="bank-header-apple" role="banner">
-                    <div class="bank-status-badge @GetStatusClass()">
-                        <i class="fas @GetStatusIcon()"></i>
-                        @_bank.Status
-                    </div>
                     <h1 class="bank-name-apple">@_bank.BankName</h1>
                     @if (!string.IsNullOrEmpty(_bank.LegalName) && _bank.LegalName != _bank.Name)
                     {
@@ -79,6 +76,12 @@ else
                     }
                 </header>
 
+                @* Card Designs Widget *@
+                @if (_cardDesigns?.Count > 0)
+                {
+                    <CardDesignWidget CardDesigns="_cardDesigns" OnOpenGallery="OpenCardGallery" />
+                }
+
                 @* Overview & Ratings tiles in hero scene *@
                 @if (_groupedMetrics != null && _groupedMetrics.TryGetValue(BankMetricsExtractorService.OverviewRatingsSectionKey, out var overviewMetrics))
                 {
@@ -86,16 +89,38 @@ else
                                  Title="@GetLocalizedSectionTitle(BankMetricsExtractorService.OverviewRatingsSectionKey)"
                                  Metrics="@overviewMetrics"
                                  Icon="@GetSectionIcon(BankMetricsExtractorService.OverviewRatingsSectionKey)"
-                                 ShowProgressBars="true" />
+                                 ShowProgressBars="true"
+                                 BankCode="@BankCode"
+                                 AccentColor="@(_bank.Theme?.AccentColor ?? "#007AFF")" />
                 }
             </div>
+
+            @if (HasNextScene(0))
+            {
+                <button type="button"
+                        class="scene-next-arrow"
+                        aria-label="Scroll to next section"
+                        @onclick="() => ScrollToNextScene(0)">
+                    <span class="scene-next-arrow-icon" aria-hidden="true">
+                        <i class="fas fa-chevron-down"></i>
+                        <i class="fas fa-chevron-down"></i>
+                    </span>
+                </button>
+            }
         </section>
 
         @* ─── Scenes 2-5: Metric Sections ─── *@
         @if (_groupedMetrics != null)
         {
-            @foreach (var group in _groupedMetrics.Where(g => g.Key != BankMetricsExtractorService.OverviewRatingsSectionKey))
+            var metricGroups = _groupedMetrics
+                .Where(g => g.Key != BankMetricsExtractorService.OverviewRatingsSectionKey)
+                .ToList();
+
+            @for (var metricIndex = 0; metricIndex < metricGroups.Count; metricIndex++)
             {
+                var group = metricGroups[metricIndex];
+                var sceneIndex = metricIndex + 1;
+
                 <section class="scene scene-metrics" data-scene-title="@GetLocalizedSectionTitle(group.Key)">
                     <div class="scene-inner">
                         <div class="scene-section-header">
@@ -106,8 +131,23 @@ else
                                      Title=""
                                      Metrics="@group.Value"
                                      Icon=""
-                                     ShowProgressBars="@ShouldShowProgressBars(group.Key)" />
+                                     ShowProgressBars="@ShouldShowProgressBars(group.Key)"
+                                     BankCode="@BankCode"
+                                     AccentColor="@(_bank.Theme?.AccentColor ?? "#007AFF")" />
                     </div>
+
+                    @if (HasNextScene(sceneIndex))
+                    {
+                        <button type="button"
+                                class="scene-next-arrow"
+                                aria-label="Scroll to next section"
+                                @onclick="() => ScrollToNextScene(sceneIndex)">
+                            <span class="scene-next-arrow-icon" aria-hidden="true">
+                                <i class="fas fa-chevron-down"></i>
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </button>
+                    }
                 </section>
             }
         }
@@ -168,6 +208,9 @@ else
                             <i class="fas fa-globe"></i> Visit Website
                         </a>
                     }
+                    <button type="button" class="btn btn-outline-secondary btn-lg" @onclick="ToggleBankJsonPopup">
+                        <i class="fas fa-code me-1"></i> @(_isBankJsonPopupVisible ? "Hide JSON" : "Show JSON")
+                    </button>
                     @if (_viewCount > 0)
                     {
                         <div class="view-count-display">
@@ -180,6 +223,19 @@ else
 
     </div>
 
+    @if (_isBankJsonPopupVisible)
+    {
+        <div class="bank-json-popup-backdrop" @onclick="CloseBankJsonPopup">
+            <div class="bank-json-popup" role="dialog" aria-modal="true" aria-labelledby="bank-json-title" @onclick:stopPropagation="true">
+                <div class="bank-json-popup-header">
+                    <h3 id="bank-json-title" class="bank-json-popup-title">Serialized Bank JSON</h3>
+                    <button type="button" class="btn-close btn-close-white" aria-label="Close" @onclick="CloseBankJsonPopup"></button>
+                </div>
+                <pre class="bank-json-popup-content"><code>@_bankSerializedJson</code></pre>
+            </div>
+        </div>
+    }
+
     @* Metric Detail Modal *@
     <MetricDetailModal />
 
@@ -187,6 +243,11 @@ else
                              OriginCountry="@(_bank.HeadquartersCountry)"
                              DestinationCountries="@_transactionDestinations"
                              OnClose="CloseTransactionRoadmapAsync" />
+
+    @* Card Designs Gallery Modal *@
+    <CardDesignGallery IsVisible="@_isCardGalleryVisible"
+                       CardDesigns="@_cardDesigns"
+                       OnClose="CloseCardGallery" />
 }
 
 <style>
@@ -195,32 +256,6 @@ else
         padding: 40px 20px;
         position: relative;
         z-index: 10;
-    }
-
-    .bank-status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: capitalize;
-        margin-bottom: 16px;
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid #e5e5ea;
-        backdrop-filter: blur(10px);
-    }
-
-    .bank-status-badge.status-active {
-        background: linear-gradient(135deg, #34C759 0%, #30D158 100%);
-        color: white;
-        border: none;
-    }
-
-    .bank-status-badge.status-inactive {
-        background: #E5E5EA;
-        color: var(--text-secondary);
     }
 
     .bank-name-apple {
@@ -269,15 +304,81 @@ else
         color: var(--text-primary);
     }
 
+    .bank-json-popup-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1200;
+        background: rgba(0, 0, 0, 0.68);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .bank-json-popup {
+        width: min(980px, 100%);
+        max-height: min(80vh, 860px);
+        background: rgba(12, 16, 26, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 14px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .bank-json-popup-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .bank-json-popup-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #f8f9fa;
+    }
+
+    .bank-json-popup-content {
+        margin: 0;
+        padding: 16px;
+        overflow: auto;
+        color: #d9f3ff;
+        font-size: 13px;
+        line-height: 1.45;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        white-space: pre;
+        tab-size: 2;
+    }
+
     /* Responsive */
     @@media (max-width: 768px) {
         .bank-name-apple {
             font-size: 36px;
         }
+
+        .bank-json-popup-backdrop {
+            padding: 12px;
+        }
+
+        .bank-json-popup {
+            max-height: 86vh;
+        }
     }
 </style>
 
 @code {
+    private static readonly JsonSerializerOptions BankJsonSerializerOptions = new()
+    {
+        WriteIndented = true
+    };
+
     [Parameter] public string CountryCode { get; set; } = default!;
     [Parameter] public string BankCode { get; set; } = "";
     private BankProfile? _bank;
@@ -289,6 +390,10 @@ else
     private Dictionary<string, List<MetricDto>>? _groupedMetrics;
     private List<string> _transactionDestinations = new();
     private bool _isRoadmapModalVisible;
+    private bool _isBankJsonPopupVisible;
+    private bool _isCardGalleryVisible;
+    private List<CardDesign>? _cardDesigns;
+    private string _bankSerializedJson = string.Empty;
     private int _activeSceneIndex;
     private DotNetObjectReference<BankDetail>? _sceneRef;
     private List<string> _sceneLabels = new();
@@ -308,6 +413,8 @@ else
             _groupedMetrics = MetricsExtractor.ExtractMetrics(_bank);
             BuildTransactionDestinations(_bank);
             BuildSceneLabels();
+            BuildCardDesigns();
+            _bankSerializedJson = JsonSerializer.Serialize(_bank, BankJsonSerializerOptions);
 
             // Set default language based on country if no preference exists
             await SetDefaultLanguageIfNeededAsync();
@@ -398,6 +505,18 @@ else
         }
     }
 
+    private bool HasNextScene(int sceneIndex)
+    {
+        return sceneIndex >= 0 && sceneIndex < _sceneLabels.Count - 1;
+    }
+
+    private Task ScrollToNextScene(int currentSceneIndex)
+    {
+        return HasNextScene(currentSceneIndex)
+            ? ScrollToScene(currentSceneIndex + 1)
+            : Task.CompletedTask;
+    }
+
     private string GetTimeAgo(DateTime date)
     {
         var now = DateTime.UtcNow;
@@ -432,16 +551,6 @@ else
         }
     }
 
-    private string GetStatusClass()
-    {
-        return _bank?.Status.ToLowerInvariant() == "active" ? "status-active" : "status-inactive";
-    }
-
-    private string GetStatusIcon()
-    {
-        return _bank?.Status.ToLowerInvariant() == "active" ? "fa-check-circle" : "fa-circle";
-    }
-
     private string GetSectionIcon(string sectionKey)
     {
         return sectionKey switch
@@ -451,6 +560,7 @@ else
             BankMetricsExtractorService.FeesCommissionsSectionKey => "fas fa-dollar-sign",
             BankMetricsExtractorService.ComplianceRiskSectionKey => "fas fa-shield-alt",
             BankMetricsExtractorService.DigitalSupportSectionKey => "fas fa-mobile-alt",
+            BankMetricsExtractorService.ProductsServicesSectionKey => "fas fa-briefcase",
             _ => "fas fa-info-circle"
         };
     }
@@ -486,6 +596,43 @@ else
     private Task CloseTransactionRoadmapAsync()
     {
         _isRoadmapModalVisible = false;
+        return Task.CompletedTask;
+    }
+
+    private Task ToggleBankJsonPopup()
+    {
+        _isBankJsonPopupVisible = !_isBankJsonPopupVisible;
+        return Task.CompletedTask;
+    }
+
+    private Task CloseBankJsonPopup()
+    {
+        _isBankJsonPopupVisible = false;
+        return Task.CompletedTask;
+    }
+
+    private void BuildCardDesigns()
+    {
+        // Use card designs from bank data, or provide placeholder data
+        _cardDesigns = _bank?.CardDesigns?.Count > 0
+            ? _bank.CardDesigns
+            : new List<CardDesign>
+            {
+                new() { ImageUrl = "images/card-placeholder.png", Name = "Classic Card" },
+                new() { ImageUrl = "images/card-placeholder.png", Name = "Premium Card" },
+                new() { ImageUrl = "images/card-placeholder.png", Name = "Vertical Card", IsVertical = true },
+            };
+    }
+
+    private Task OpenCardGallery()
+    {
+        _isCardGalleryVisible = true;
+        return Task.CompletedTask;
+    }
+
+    private Task CloseCardGallery()
+    {
+        _isCardGalleryVisible = false;
         return Task.CompletedTask;
     }
 

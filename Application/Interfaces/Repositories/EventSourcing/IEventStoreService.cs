@@ -12,4 +12,5 @@ public interface IEventStoreService
    Task<List<string>> GetAllBankCodesAsync();
    Task<long> GetLatestSequenceAsync(string bankCode);
    Task<bool> HasEventsAsync(string bankCode);
+   Task<List<MetricEvent>> GetLatestEventByMetricAcrossBanksAsync(string metricName);
 }

@@ -1,0 +1,200 @@
+@using BankProfiles.Web.Domain.BankProfiles
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@if (IsVisible && CardDesigns?.Count > 0)
+{
+    <div class="card-gallery-backdrop" @onclick="HandleBackdropClick" @onkeydown="HandleKeyDown">
+        <div class="card-gallery-container" @onclick:stopPropagation="true" role="dialog" aria-modal="true" aria-label="Card designs gallery">
+            <button type="button" class="card-gallery-close" aria-label="Close gallery" @onclick="Close">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="card-gallery-stage">
+                <button type="button"
+                        class="card-gallery-nav"
+                        aria-label="Previous card"
+                        disabled="@(_currentIndex <= 0)"
+                        @onclick="Previous">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+
+                <div class="card-gallery-card-area" id="@_containerId">
+                    <div class="holo-card-wrapper">
+                        <div class="holo-card @GetOrientationClass(CurrentCard) holo-animated">
+                            <img src="@CurrentCard.ImageUrl"
+                                 alt="@(CurrentCard.Name ?? "Card design")"
+                                 loading="lazy" />
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button"
+                        class="card-gallery-nav"
+                        aria-label="Next card"
+                        disabled="@(_currentIndex >= CardDesigns.Count - 1)"
+                        @onclick="Next">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <div class="card-gallery-info">
+                @if (!string.IsNullOrEmpty(CurrentCard.Name))
+                {
+                    <p class="card-gallery-name">@CurrentCard.Name</p>
+                }
+                <span class="card-gallery-counter">@(_currentIndex + 1) / @CardDesigns.Count</span>
+            </div>
+
+            @if (CardDesigns.Count > 1)
+            {
+                <div class="card-gallery-dots">
+                    @for (var i = 0; i < CardDesigns.Count; i++)
+                    {
+                        var idx = i;
+                        <button type="button"
+                                class="card-gallery-dot @(i == _currentIndex ? "active" : "")"
+                                aria-label="Go to card @(i + 1)"
+                                @onclick="() => GoTo(idx)"></button>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public List<CardDesign>? CardDesigns { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private int _currentIndex;
+    private string _containerId = $"card-gallery-{Guid.NewGuid():N}"[..28];
+    private bool _holoInitialized;
+
+    private CardDesign CurrentCard => CardDesigns![_currentIndex];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (IsVisible && CardDesigns?.Count > 0)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("cardHolo.initialize", $"#{_containerId}");
+                _holoInitialized = true;
+            }
+            catch (JSException)
+            {
+                // JS may not be ready
+            }
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsVisible)
+        {
+            _currentIndex = 0;
+        }
+        else if (_holoInitialized)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("cardHolo.destroy", $"#{_containerId}");
+                _holoInitialized = false;
+            }
+            catch
+            {
+                // Best-effort cleanup
+            }
+        }
+    }
+
+    private async Task ReinitHolo()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("cardHolo.initialize", $"#{_containerId}");
+        }
+        catch (JSException)
+        {
+            // Ignore
+        }
+    }
+
+    private async Task Previous()
+    {
+        if (_currentIndex > 0)
+        {
+            _currentIndex--;
+            StateHasChanged();
+            await Task.Yield();
+            await ReinitHolo();
+        }
+    }
+
+    private async Task Next()
+    {
+        if (CardDesigns != null && _currentIndex < CardDesigns.Count - 1)
+        {
+            _currentIndex++;
+            StateHasChanged();
+            await Task.Yield();
+            await ReinitHolo();
+        }
+    }
+
+    private async Task GoTo(int index)
+    {
+        if (CardDesigns != null && index >= 0 && index < CardDesigns.Count && index != _currentIndex)
+        {
+            _currentIndex = index;
+            StateHasChanged();
+            await Task.Yield();
+            await ReinitHolo();
+        }
+    }
+
+    private Task Close() => OnClose.InvokeAsync();
+
+    private void HandleBackdropClick() => OnClose.InvokeAsync();
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case "Escape":
+                OnClose.InvokeAsync();
+                break;
+            case "ArrowLeft":
+                Previous();
+                break;
+            case "ArrowRight":
+                Next();
+                break;
+        }
+    }
+
+    private static string GetOrientationClass(CardDesign card)
+        => card.IsVertical ? "holo-card-vertical" : "holo-card-horizontal";
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_holoInitialized)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("cardHolo.destroy", $"#{_containerId}");
+            }
+            catch
+            {
+                // Dispose is best-effort
+            }
+        }
+    }
+}

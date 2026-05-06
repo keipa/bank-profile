@@ -117,7 +117,17 @@ dotnet ef database update
 The database is automatically seeded with:
 - 5 rating criteria (Service, Fees, Convenience, Digital Services, Customer Support)
 
-To add sample bank ratings, run the seed script or add them manually.
+To seed historical ratings/views plus timestamped `MetricEvents` for metric charts:
+
+```bash
+# Seed only when history/event data is missing
+dotnet run --project BankProfiles.Web.csproj -- --seed-historical-data
+
+# Force re-seed (clears existing rating/view history and metric events first)
+dotnet run --project BankProfiles.Web.csproj -- --reseed-historical-data
+```
+
+Note: metric-event reseeding only regenerates banks that have a valid profile JSON in `wwwroot/data/banks`. Banks without a profile file are left unchanged.
 
 ### 5. Run the Application
 

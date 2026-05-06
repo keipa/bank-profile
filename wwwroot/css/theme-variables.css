@@ -42,16 +42,16 @@
   --glass-card-bg-hover: rgba(255, 255, 255, 0.25);
   --shimmer-color: rgba(255, 255, 255, 0.15);
   
-  /* Aurora background colors - Apple-inspired */
+  /* Aurora background colors - derived from bank accent */
   --aurora-opacity: 0.12;
-  --aurora-color-1: #34C759;  /* Apple green */
-  --aurora-color-2: #FF2D55;  /* Apple pink */
-  --aurora-color-3: #007AFF;  /* Apple blue */
+  --aurora-color-1: var(--bank-accent, #007AFF);
+  --aurora-color-2: color-mix(in oklch, var(--bank-accent, #007AFF) 60%, oklch(0.75 0.15 150));
+  --aurora-color-3: color-mix(in oklch, var(--bank-accent, #007AFF) 60%, oklch(0.65 0.12 300));
   
-  /* Conic border accent colors */
-  --accent-1: #34C759;  /* Green */
-  --accent-2: #FF2D55;  /* Pink */
-  --accent-3: #007AFF;  /* Blue */
+  /* Bank accent derived colors */
+  --accent-hover: color-mix(in oklch, var(--bank-accent, #007AFF) 70%, white);
+  --accent-muted: color-mix(in oklch, var(--bank-accent, #007AFF) 30%, transparent);
+  --accent-desaturated: color-mix(in oklch, var(--bank-accent, #007AFF) 45%, oklch(0.75 0 0));
   
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -146,16 +146,16 @@
   --glass-card-bg-hover: rgba(0, 0, 0, 0.4);
   --shimmer-color: rgba(255, 255, 255, 0.05);
   
-  /* Aurora background colors - Neon for dark theme */
+  /* Aurora background colors - derived from bank accent (vivid for dark) */
   --aurora-opacity: 0.2;
-  --aurora-color-1: #b3ffc8;  /* Neon mint */
-  --aurora-color-2: #ff6ef7;  /* Neon magenta */
-  --aurora-color-3: #5eadff;  /* Neon blue */
+  --aurora-color-1: var(--bank-accent, #5eadff);
+  --aurora-color-2: color-mix(in oklch, var(--bank-accent, #5eadff) 55%, oklch(0.8 0.18 150));
+  --aurora-color-3: color-mix(in oklch, var(--bank-accent, #5eadff) 55%, oklch(0.7 0.16 300));
   
-  /* Conic border accent colors */
-  --accent-1: #b3ffc8;  /* Neon mint */
-  --accent-2: #ff6ef7;  /* Neon magenta */
-  --accent-3: #5eadff;  /* Neon blue */
+  /* Bank accent derived colors */
+  --accent-hover: color-mix(in oklch, var(--bank-accent, #5eadff) 75%, black);
+  --accent-muted: color-mix(in oklch, var(--bank-accent, #5eadff) 35%, transparent);
+  --accent-desaturated: var(--bank-accent, #5eadff);
   
   /* Shadows - Deeper for true dark */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
@@ -253,14 +253,14 @@
   
   /* Aurora background colors */
   --aurora-opacity: 0.12;
-  --aurora-color-1: #34C759;
-  --aurora-color-2: #FF2D55;
-  --aurora-color-3: #007AFF;
+  --aurora-color-1: var(--bank-accent, #007AFF);
+  --aurora-color-2: color-mix(in oklch, var(--bank-accent, #007AFF) 60%, oklch(0.75 0.15 150));
+  --aurora-color-3: color-mix(in oklch, var(--bank-accent, #007AFF) 60%, oklch(0.65 0.12 300));
   
-  /* Conic border accent colors */
-  --accent-1: #34C759;
-  --accent-2: #FF2D55;
-  --accent-3: #007AFF;
+  /* Bank accent derived colors */
+  --accent-hover: color-mix(in oklch, var(--bank-accent, #007AFF) 70%, white);
+  --accent-muted: color-mix(in oklch, var(--bank-accent, #007AFF) 30%, transparent);
+  --accent-desaturated: color-mix(in oklch, var(--bank-accent, #007AFF) 45%, oklch(0.75 0 0));
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);

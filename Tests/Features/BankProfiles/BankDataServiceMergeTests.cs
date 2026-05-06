@@ -214,5 +214,7 @@ public class BankDataServiceMergeTests
         {
             return Task.FromResult(_bankCodes.Contains(bankCode));
         }
+
+        public Task<List<MetricEvent>> GetLatestEventByMetricAcrossBanksAsync(string metricName) => throw new NotSupportedException();
     }
 }
