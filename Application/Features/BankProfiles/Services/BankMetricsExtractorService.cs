@@ -13,6 +13,7 @@ public class BankMetricsExtractorService : IBankMetricsExtractorService
     public const string ComplianceRiskSectionKey = "complianceRisk";
     public const string DigitalSupportSectionKey = "digitalSupport";
     public const string ProductsServicesSectionKey = "productsServices";
+    public const string FeatureMatrixSectionKey = "featureMatrix";
 
     private readonly ILocalizationService _localization;
 
@@ -22,6 +23,7 @@ public class BankMetricsExtractorService : IBankMetricsExtractorService
        new()
        {
            [OverviewRatingsSectionKey] = ExtractOverviewMetrics(bank),
+           [FeatureMatrixSectionKey] = ExtractFeatureMatrixMetrics(bank),
            [SystemsCurrenciesSectionKey] = ExtractSystemsMetrics(bank),
            [FeesCommissionsSectionKey] = ExtractFeesMetrics(bank),
            [ComplianceRiskSectionKey] = ExtractComplianceMetrics(bank),
@@ -804,6 +806,204 @@ public class BankMetricsExtractorService : IBankMetricsExtractorService
         if (bank.Products.TradeFinance != null)
         {
             metrics.Add(CreateMetric("productsTradeFinance", bank.Products.TradeFinance.Value, MetricType.Boolean, "fas fa-ship"));
+        }
+
+        return metrics;
+    }
+
+    private List<MetricDto> ExtractFeatureMatrixMetrics(BankProfile bank)
+    {
+        var metrics = new List<MetricDto>();
+
+        // ============================================
+        // Systems Features (BankSystems)
+        // ============================================
+        
+        // SWIFT Available
+        metrics.Add(CreateMetric("swiftAvailable", bank.Systems.SwiftAvailable, MetricType.Boolean, "fas fa-exchange-alt"));
+        
+        // IBAN Supported
+        metrics.Add(CreateMetric("ibanSupported", bank.Systems.IbanSupported, MetricType.Boolean, "fas fa-barcode"));
+        
+        // SEPA Available
+        metrics.Add(CreateMetric("sepaAvailable", bank.Systems.SepaAvailable, MetricType.Boolean, "fas fa-euro-sign"));
+        
+        // Local Clearing
+        if (bank.Systems.LocalClearing != null)
+        {
+            metrics.Add(CreateMetric("localClearing", bank.Systems.LocalClearing.Value, MetricType.Boolean, "fas fa-building"));
+        }
+        
+        // Instant Transfers
+        if (bank.Systems.InstantTransfers != null)
+        {
+            metrics.Add(CreateMetric("instantTransfers", bank.Systems.InstantTransfers.Value, MetricType.Boolean, "fas fa-bolt"));
+        }
+
+        // ============================================
+        // Digital Channels
+        // ============================================
+        
+        // Mobile App
+        if (bank.DigitalChannels.MobileApp != null)
+        {
+            metrics.Add(CreateMetric("mobileApp", bank.DigitalChannels.MobileApp.Value, MetricType.Boolean, "fas fa-mobile-alt"));
+        }
+        
+        // Web Banking
+        if (bank.DigitalChannels.WebBanking != null)
+        {
+            metrics.Add(CreateMetric("webBanking", bank.DigitalChannels.WebBanking.Value, MetricType.Boolean, "fas fa-desktop"));
+        }
+        
+        // iOS
+        if (bank.DigitalChannels.Ios != null)
+        {
+            metrics.Add(CreateMetric("ios", bank.DigitalChannels.Ios.Value, MetricType.Boolean, "fab fa-apple"));
+        }
+        
+        // Android
+        if (bank.DigitalChannels.Android != null)
+        {
+            metrics.Add(CreateMetric("android", bank.DigitalChannels.Android.Value, MetricType.Boolean, "fab fa-android"));
+        }
+        
+        // API Access
+        if (bank.DigitalChannels.ApiAccess != null)
+        {
+            metrics.Add(CreateMetric("apiAccess", bank.DigitalChannels.ApiAccess.Value, MetricType.Boolean, "fas fa-code"));
+        }
+        
+        // Biometric Login
+        if (bank.DigitalChannels.BiometricLogin != null)
+        {
+            metrics.Add(CreateMetric("biometricLogin", bank.DigitalChannels.BiometricLogin.Value, MetricType.Boolean, "fas fa-fingerprint"));
+        }
+        
+        // Device Trust
+        if (bank.DigitalChannels.DeviceTrust != null)
+        {
+            metrics.Add(CreateMetric("deviceTrust", bank.DigitalChannels.DeviceTrust.Value, MetricType.Boolean, "fas fa-shield-virus"));
+        }
+        
+        // Push Notifications
+        if (bank.DigitalChannels.PushNotifications != null)
+        {
+            metrics.Add(CreateMetric("pushNotifications", bank.DigitalChannels.PushNotifications.Value, MetricType.Boolean, "fas fa-bell"));
+        }
+
+        // ============================================
+        // Compliance & Regulatory
+        // ============================================
+        
+        // Government Affiliate
+        if (bank.Compliance.GovernmentAffiliate != null)
+        {
+            metrics.Add(CreateMetric("governmentAffiliate", bank.Compliance.GovernmentAffiliate.Value, MetricType.Boolean, "fas fa-landmark"));
+        }
+        
+        // FATCA
+        if (bank.Compliance.FATCA != null)
+        {
+            metrics.Add(CreateMetric("fatca", bank.Compliance.FATCA.Value, MetricType.Boolean, "fas fa-gavel"));
+        }
+        
+        // CRS
+        if (bank.Compliance.CRS != null)
+        {
+            metrics.Add(CreateMetric("crs", bank.Compliance.CRS.Value, MetricType.Boolean, "fas fa-globe-americas"));
+        }
+        
+        // Audit Published
+        if (bank.Compliance.AuditPublished != null)
+        {
+            metrics.Add(CreateMetric("auditPublished", bank.Compliance.AuditPublished.Value, MetricType.Boolean, "fas fa-file-contract"));
+        }
+        
+        // Deposit Insurance
+        if (bank.Compliance.DepositInsurance != null)
+        {
+            metrics.Add(CreateMetric("depositInsurance", bank.Compliance.DepositInsurance.Value, MetricType.Boolean, "fas fa-shield"));
+        }
+
+        // ============================================
+        // Support
+        // ============================================
+        
+        if (bank.Support != null)
+        {
+            // 24x7 Support
+            if (bank.Support.Available24x7 != null)
+            {
+                metrics.Add(CreateMetric("available24x7", bank.Support.Available24x7.Value, MetricType.Boolean, "fas fa-clock"));
+            }
+        }
+
+        // ============================================
+        // Products & Services
+        // ============================================
+        
+        if (bank.Products != null)
+        {
+            // Accounts
+            if (bank.Products.Accounts != null)
+            {
+                metrics.Add(CreateMetric("productsAccounts", bank.Products.Accounts.Value, MetricType.Boolean, "fas fa-wallet"));
+            }
+            
+            // Cards
+            if (bank.Products.Cards != null)
+            {
+                metrics.Add(CreateMetric("productsCards", bank.Products.Cards.Value, MetricType.Boolean, "fas fa-credit-card"));
+            }
+            
+            // Savings
+            if (bank.Products.Savings != null)
+            {
+                metrics.Add(CreateMetric("productsSavings", bank.Products.Savings.Value, MetricType.Boolean, "fas fa-piggy-bank"));
+            }
+            
+            // Loans
+            if (bank.Products.Loans != null)
+            {
+                metrics.Add(CreateMetric("productsLoans", bank.Products.Loans.Value, MetricType.Boolean, "fas fa-hand-holding-usd"));
+            }
+            
+            // Mortgages
+            if (bank.Products.Mortgages != null)
+            {
+                metrics.Add(CreateMetric("productsMortgages", bank.Products.Mortgages.Value, MetricType.Boolean, "fas fa-home"));
+            }
+            
+            // Investment Tools
+            if (bank.Products.InvestmentTools != null)
+            {
+                metrics.Add(CreateMetric("productsInvestmentTools", bank.Products.InvestmentTools.Value, MetricType.Boolean, "fas fa-chart-line"));
+            }
+            
+            // Merchant Acquiring
+            if (bank.Products.MerchantAcquiring != null)
+            {
+                metrics.Add(CreateMetric("productsMerchantAcquiring", bank.Products.MerchantAcquiring.Value, MetricType.Boolean, "fas fa-store"));
+            }
+            
+            // Payroll
+            if (bank.Products.Payroll != null)
+            {
+                metrics.Add(CreateMetric("productsPayroll", bank.Products.Payroll.Value, MetricType.Boolean, "fas fa-money-check-alt"));
+            }
+            
+            // Escrow
+            if (bank.Products.Escrow != null)
+            {
+                metrics.Add(CreateMetric("productsEscrow", bank.Products.Escrow.Value, MetricType.Boolean, "fas fa-lock"));
+            }
+            
+            // Trade Finance
+            if (bank.Products.TradeFinance != null)
+            {
+                metrics.Add(CreateMetric("productsTradeFinance", bank.Products.TradeFinance.Value, MetricType.Boolean, "fas fa-ship"));
+            }
         }
 
         return metrics;

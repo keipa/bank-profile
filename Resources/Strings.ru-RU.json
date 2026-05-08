@@ -198,6 +198,7 @@
   "page.bankDetail.visitWebsite": "Посетить веб-сайт",
   "page.bankDetail.views": "просмотров",
   "page.bankDetail.contactInfo": "Контактная информация",
+  "page.bankDetail.featureMatrix.sectionTitle": "Матрица функций",
   "page.bankDetail.transactionRoutes.sectionTitle": "Направления переводов",
   "page.bankDetail.transactionRoutes.cardTitle": "Маршруты исходящих переводов",
   "page.bankDetail.transactionRoutes.openHint": "Открыть подробную карту маршрутов",
@@ -279,6 +280,7 @@
   "feedback.rateLimit.exceeded": "Достигнут дневной лимит отправок. Сброс через {0} часов.",
 
   "metric.section.overviewRatings": "Обзор и рейтинги",
+  "metric.section.featureMatrix": "Матрица функций",
   "metric.section.systemsCurrencies": "Системы и валюты",
   "metric.section.feesCommissions": "Комиссии и сборы",
   "metric.section.complianceRisk": "Комплаенс и риски",

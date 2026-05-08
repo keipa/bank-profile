@@ -1,0 +1,87 @@
+@using BankProfiles.Web.Application.Interfaces.Services.Metrics
+@using BankProfiles.Web.Domain.Common.Metrics
+@inject IMetricInteractionService MetricInteraction
+
+<div class="@GetCardCssClass()" @onclick="HandleClick" role="button" tabindex="0" aria-label="@Metric.Label: @GetStatusText()">
+    <div class="feature-card-badge" aria-hidden="true">
+        <i class="@GetBadgeIcon()"></i>
+    </div>
+    
+    <div class="feature-card-content">
+        @if (!string.IsNullOrEmpty(Metric.Icon))
+        {
+            <div class="feature-card-icon" aria-hidden="true">
+                <i class="@Metric.Icon"></i>
+            </div>
+        }
+        
+        <div class="feature-card-label">
+            @Metric.Label
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public required MetricDto Metric { get; set; }
+    
+    [Parameter]
+    public required string BankCode { get; set; }
+    
+    [Parameter]
+    public required string AccentColor { get; set; }
+    
+    private void HandleClick()
+    {
+        MetricInteraction.HandleMetricClick(Metric, BankCode, AccentColor);
+    }
+    
+    private string GetCardCssClass()
+    {
+        var baseClass = "feature-card";
+        
+        if (Metric.Type != MetricType.Boolean)
+        {
+            return $"{baseClass} feature-card-unknown";
+        }
+        
+        if (Metric.Value is bool boolValue)
+        {
+            return boolValue 
+                ? $"{baseClass} feature-card-true" 
+                : $"{baseClass} feature-card-false";
+        }
+        
+        return $"{baseClass} feature-card-unknown";
+    }
+    
+    private string GetBadgeIcon()
+    {
+        if (Metric.Type != MetricType.Boolean)
+        {
+            return "fas fa-question";
+        }
+        
+        if (Metric.Value is bool boolValue)
+        {
+            return boolValue ? "fas fa-check" : "fas fa-times";
+        }
+        
+        return "fas fa-question";
+    }
+    
+    private string GetStatusText()
+    {
+        if (Metric.Type != MetricType.Boolean)
+        {
+            return "Unknown";
+        }
+        
+        if (Metric.Value is bool boolValue)
+        {
+            return boolValue ? "Available" : "Not Available";
+        }
+        
+        return "Unknown";
+    }
+}

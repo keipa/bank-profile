@@ -1,0 +1,25 @@
+@using BankProfiles.Web.Domain.Common.Metrics
+
+<section class="feature-matrix-section" aria-labelledby="feature-matrix-title">
+    <div class="feature-matrix-grid" role="list">
+        @foreach (var metric in Metrics)
+        {
+            <div role="listitem" class="feature-matrix-item">
+                <BooleanFeatureCard Metric="metric" 
+                                   BankCode="@BankCode" 
+                                   AccentColor="@AccentColor" />
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public required List<MetricDto> Metrics { get; set; }
+    
+    [Parameter]
+    public required string BankCode { get; set; }
+    
+    [Parameter]
+    public required string AccentColor { get; set; }
+}

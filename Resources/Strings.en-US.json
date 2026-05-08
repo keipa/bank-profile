@@ -216,6 +216,7 @@
   "page.bankDetail.visitWebsite": "Visit Website",
   "page.bankDetail.views": "views",
   "page.bankDetail.contactInfo": "Contact Information",
+  "page.bankDetail.featureMatrix.sectionTitle": "Feature Matrix",
   "page.bankDetail.transactionRoutes.sectionTitle": "Transaction Destinations",
   "page.bankDetail.transactionRoutes.cardTitle": "Outgoing Transaction Routes",
   "page.bankDetail.transactionRoutes.openHint": "Open detailed roadmap",
@@ -366,6 +367,7 @@
   "feedback.rateLimit.exceeded": "Daily submission limit reached. Resets in {0} hours.",
 
   "metric.section.overviewRatings": "Overview & Ratings",
+  "metric.section.featureMatrix": "Feature Matrix",
   "metric.section.systemsCurrencies": "Systems & Currencies",
   "metric.section.feesCommissions": "Fees & Commissions",
   "metric.section.complianceRisk": "Compliance & Risk",

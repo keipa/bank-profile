@@ -1,7 +1,7 @@
 @using BankProfiles.Web.Application.Features.BankProfiles.Services
+@using BankProfiles.Web.Application.Interfaces.Services.Metrics
 @using BankProfiles.Web.Domain.Common.Metrics
-@using BankProfiles.Web.Presentation.Services.Modal
-@inject ModalService ModalService
+@inject IMetricInteractionService MetricInteraction
 
 <section class="@GetSectionCssClass()" aria-labelledby="section-@SectionId">
     <h2 id="section-@SectionId" class="tile-section-header">
@@ -72,6 +72,6 @@
 
     private void HandleTileClick(MetricDto metric)
     {
-        ModalService.ShowModal(metric, BankCode, AccentColor);
+        MetricInteraction.HandleMetricClick(metric, BankCode, AccentColor);
     }
 }
